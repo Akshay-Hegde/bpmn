@@ -19,6 +19,7 @@ use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
 use KoolKode\Database\DB;
+use KoolKode\Database\ConnectionManager;
 use KoolKode\Database\PDO\Connection;
 use KoolKode\Database\PrefixConnectionDecorator;
 use KoolKode\Event\EventDispatcher;
@@ -89,10 +90,15 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		printf("DB: \"%s\"\n", $dsn);
 		
-		$pdo = new \PDO($dsn, $username, $password);
-		$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+		$manager = new ConnectionManager();
 		
-		$conn = new PrefixConnectionDecorator(new Connection($pdo), 'bpm_');
+		$conn = $manager->createDoctrineConnection([
+			'dsn' => $dsn,
+			'user' => $username,
+			'password' => $password,
+			'charset' => 'utf8'
+		]);
+		$conn = new PrefixConnectionDecorator($conn, 'bpm_');
 		
 		$dir = rtrim(realpath(__DIR__ . '/../Engine'), '/\\');
 		$ddl = str_replace('\\', '/', sprintf('%s/ProcessEngine.%s.sql', $dir, $conn->getDriverName()));

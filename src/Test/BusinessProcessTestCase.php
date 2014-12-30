@@ -91,13 +91,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		printf("DB: \"%s\"\n", $dsn);
 		
 		$manager = new ConnectionManager();
-		
-		$conn = $manager->createDoctrineConnection([
-			'dsn' => $dsn,
-			'user' => $username,
-			'password' => $password,
-			'charset' => 'utf8'
-		]);
+		$conn = $manager->createPDOConnection($dsn, $username, $password);
 		$conn = new PrefixConnectionDecorator($conn, 'bpm_');
 		
 		$dir = rtrim(realpath(__DIR__ . '/../Engine'), '/\\');

@@ -20,6 +20,7 @@ use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
 use KoolKode\Database\DB;
 use KoolKode\Database\ConnectionManager;
+use KoolKode\Database\Migration\MigrationManager;
 use KoolKode\Database\PDO\Connection;
 use KoolKode\Database\PrefixConnectionDecorator;
 use KoolKode\Event\EventDispatcher;
@@ -94,23 +95,11 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		$conn = $manager->createPDOConnection($dsn, $username, $password);
 		$conn = new PrefixConnectionDecorator($conn, 'bpm_');
 		
-		$dir = rtrim(realpath(__DIR__ . '/../Engine'), '/\\');
-		$ddl = str_replace('\\', '/', sprintf('%s/ProcessEngine.%s.sql', $dir, $conn->getDriverName()));
-		$chunks = explode(';', file_get_contents($ddl));
+		// Flush database and setup tables using migrations:
+		$conn->getPlatform()->flushDatabase();
 		
-		printf("DDL: \"%s\"\n\n", $ddl);
-			
-		foreach($chunks as $chunk)
-		{
-			$sql = trim($chunk);
-			
-			if($sql === '')
-			{
-				continue;
-			}
-			
-			$conn->execute($chunk);
-		}
+		$migrator = new MigrationManager();
+		$migrator->migrateDirectoryUp(realpath(__DIR__ . '/../../migration'), $conn);
 		
 		self::$conn = $conn;
 	}

@@ -96,10 +96,9 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		$conn = new PrefixConnectionDecorator($conn, 'bpm_');
 		
 		// Flush database and setup tables using migrations:
-		$conn->getPlatform()->flushDatabase();
-		
-		$migrator = new MigrationManager();
-		$migrator->migrateDirectoryUp(realpath(__DIR__ . '/../../migration'), $conn);
+		$migrator = new MigrationManager($conn);
+		$migrator->flushDatabase();
+		$migrator->migrateDirectoryUp(realpath(__DIR__ . '/../../migration'));
 		
 		self::$conn = $conn;
 	}

@@ -57,7 +57,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		$conn = new ParamEncoderDecorator($conn);
 		$conn->registerParamEncoder(new BinaryDataParamEncoder());
-		$conn->registerParamEncoder(new IdentifierParamEncoder());
 		
 		$this->conn = $conn;
 		$this->handleTransactions = $handleTransactions ? true : false;

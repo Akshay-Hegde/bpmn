@@ -18,11 +18,8 @@ use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
-use KoolKode\Database\DB;
-use KoolKode\Database\ConnectionManager;
 use KoolKode\Database\Migration\MigrationManager;
-use KoolKode\Database\PDO\Connection;
-use KoolKode\Database\PrefixConnectionDecorator;
+use KoolKode\Database\Test\DatabaseTestTrait;
 use KoolKode\Event\EventDispatcher;
 use KoolKode\Expression\ExpressionContextFactory;
 use KoolKode\Meta\Info\ReflectionTypeInfo;
@@ -38,6 +35,8 @@ use Monolog\Processor\PsrLogMessageProcessor;
  */
 abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 {
+	use DatabaseTestTrait;
+	
 	protected static $conn;
 	
 	/**
@@ -85,47 +84,12 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 			return;
 		}
 		
-		$dsn = (string)self::getEnvParam('DB_DSN', 'sqlite::memory:');
-		$username = self::getEnvParam('DB_USERNAME', NULL);
-		$password = self::getEnvParam('DB_PASSWORD', NULL);
-		
-		printf("DB: \"%s\"\n", $dsn);
-		
-		$manager = new ConnectionManager();
-		$conn = $manager->createPDOConnection($dsn, $username, $password);
-		$conn = new PrefixConnectionDecorator($conn, 'bpm_');
+		self::$conn = static::createConnection('bpm_');
 		
 		// Flush database and setup tables using migrations:
-		$migrator = new MigrationManager($conn);
+		$migrator = new MigrationManager(self::$conn);
 		$migrator->flushDatabase();
 		$migrator->migrateDirectoryUp(realpath(__DIR__ . '/../../migration'));
-		
-		self::$conn = $conn;
-	}
-	
-	protected static function getEnvParam($name)
-	{
-		if(array_key_exists($name, $GLOBALS))
-		{
-			return $GLOBALS[$name];
-		}
-		
-		if(array_key_exists($name, $_ENV))
-		{
-			return $_ENV[$name];
-		}
-		
-		if(array_key_exists($name, $_SERVER))
-		{
-			return $_SERVER[$name];
-		}
-		
-		if(func_num_args() > 1)
-		{
-			return func_get_arg(1);
-		}
-		
-		throw new \OutOfBoundsException(sprintf('ENV param not found: "%s"', $name));
 	}
 	
 	protected function setUp()

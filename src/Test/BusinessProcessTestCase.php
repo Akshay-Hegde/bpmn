@@ -88,15 +88,12 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		// Flush database and setup tables using migrations:
 		$migrator = new MigrationManager(self::$conn);
-		$migrator->flushDatabase();
 		$migrator->migrateDirectoryUp(realpath(__DIR__ . '/../../migration'));
 	}
 	
 	protected function setUp()
 	{
 		parent::setUp();
-		
-		$this->clearTables();
 		
 		$logger = NULL;
 		
@@ -191,7 +188,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 	
 	protected function tearDown()
 	{
-		$this->clearTables();
+		self::$conn->getPlatform()->flushData();
 		
 		parent::tearDown();
 	}

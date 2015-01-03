@@ -18,7 +18,6 @@ use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
-use KoolKode\Database\Migration\MigrationManager;
 use KoolKode\Database\Test\DatabaseTestTrait;
 use KoolKode\Event\EventDispatcher;
 use KoolKode\Expression\ExpressionContextFactory;
@@ -37,7 +36,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 {
 	use DatabaseTestTrait;
 	
-	protected static $conn;
+	protected $conn;
 	
 	/**
 	 * @var EventDispatcher
@@ -75,25 +74,13 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 	
 	private $typeInfo;
 	
-	public static function setUpBeforeClass()
-	{
-		parent::setUpBeforeClass();
-		
-		if(self::$conn !== NULL)
-		{
-			return;
-		}
-		
-		self::$conn = static::createConnection('bpm_');
-		
-		// Flush database and setup tables using migrations:
-		$migrator = new MigrationManager(self::$conn);
-		$migrator->migrateDirectoryUp(realpath(__DIR__ . '/../../migration'));
-	}
-	
 	protected function setUp()
 	{
 		parent::setUp();
+		
+		$this->conn = static::createConnection('bpm_');
+		
+		static::migrateDirectoryUp($this->conn, __DIR__ . '/../../migration');
 		
 		$logger = NULL;
 		
@@ -108,8 +95,8 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 			fwrite($stderr, "\n");
 			fwrite($stderr, sprintf("TEST CASE: %s\n", $this->getName()));
 			
-// 			self::$conn->setDebug(true);
-// 			self::$conn->setLogger($logger);
+// 			$this->conn$conn->setDebug(true);
+// 			$this->conn->setLogger($logger);
 		}
 		
 		$this->messageHandlers = [];
@@ -151,7 +138,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		$this->delegateTasks = new DelegateTaskRegistry();
 		
-		$this->processEngine = new ProcessEngine(self::$conn, $this->eventDispatcher, new ExpressionContextFactory());
+		$this->processEngine = new ProcessEngine($this->conn, $this->eventDispatcher, new ExpressionContextFactory());
 		$this->processEngine->setDelegateTaskFactory($this->delegateTasks);
 		$this->processEngine->setLogger($logger);
 		
@@ -183,33 +170,6 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 					$this->serviceTaskHandlers[$anno->processKey][$anno->value] = [$this, $method->getName()];
 				}
 			}
-		}
-	}
-	
-	protected function tearDown()
-	{
-		self::$conn->getPlatform()->flushData();
-		
-		parent::tearDown();
-	}
-	
-	protected function clearTables()
-	{
-		static $tables = [
-			'#__process_subscription',
-			'#__event_subscription',
-			'#__user_task',
-			'#__execution_variables',
-			'#__execution',
-			'#__process_definition',
-			'#__resource',
-			'#__deployment'
-		];
-		
-		// Need to delete from tabls in correct order to prevent errors due to foreign key constraints.
-		foreach($tables as $table)
-		{
-			self::$conn->execute("DELETE FROM `$table`");
 		}
 	}
 	

@@ -78,6 +78,9 @@ class UserTaskBehavior extends AbstractScopeBehavior
 	
 	public function interruptBehavior(VirtualExecution $execution)
 	{
-		$execution->getEngine()->executeCommand(new RemoveUserTaskCommand($execution));
+		$engine = $execution->getEngine();
+		$task = $engine->getTaskService()->createTaskQuery()->executionId($execution->getId())->findOne();
+		
+		$execution->getEngine()->executeCommand(new RemoveUserTaskCommand($task->getId()));
 	}
 }

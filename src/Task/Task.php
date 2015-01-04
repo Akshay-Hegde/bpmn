@@ -27,12 +27,10 @@ class Task implements TaskInterface, \JsonSerializable
 	
 	protected $documentation = '';
 	
-	public function __construct(UUID $id, UUID $executionId, $name, $activityId, \DateTimeImmutable $created, \DateTimeImmutable $claimDate = NULL, $assignee = NULL, $priority = 0, \DateTimeImmutable $dueDate = NULL)
+	public function __construct(UUID $id, $name, \DateTimeImmutable $created, \DateTimeImmutable $claimDate = NULL, $assignee = NULL, $priority = 0, \DateTimeImmutable $dueDate = NULL)
 	{
 		$this->id = $id;
-		$this->executionId = $executionId;
 		$this->name = (string)$name;
-		$this->activityId = (string)$activityId;
 		$this->created = $created;
 		$this->claimDate = $claimDate;
 		$this->assignee = ($assignee === NULL) ? NULL : (string)$assignee;
@@ -71,6 +69,11 @@ class Task implements TaskInterface, \JsonSerializable
 		return $this->executionId;
 	}
 	
+	public function setExecutionId(UUID $executionId = NULL)
+	{
+		$this->executionId = $executionId;
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 */
@@ -98,6 +101,11 @@ class Task implements TaskInterface, \JsonSerializable
 	public function getActivityId()
 	{
 		return $this->activityId;
+	}
+	
+	public function setActivityId($activityId = NULL)
+	{
+		$this->activityId = ($activityId === NULL) ? NULL : (string)$activityId;
 	}
 	
 	/**

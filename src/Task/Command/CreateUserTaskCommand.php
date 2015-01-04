@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Task\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Task\Event\UserTaskCreatedEvent;
 use KoolKode\Util\UUID;
@@ -22,7 +23,7 @@ use KoolKode\Util\UUID;
  * 
  * @author Martin Schröder
  */
-class CreateUserTaskCommand extends AbstractBusinessCommand
+class CreateUserTaskCommand extends AbstractBusinessCommand implements SerializableBusinessCommandInterface
 {
 	protected $name;
 	
@@ -30,15 +31,15 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
 	
 	protected $dueDate;
 	
-	protected $execution;
+	protected $executionId;
 	
 	protected $documentation;
 	
-	public function __construct($name, $priority, VirtualExecution $execution, $documentation = NULL)
+	public function __construct($name, $priority, VirtualExecution $execution = NULL, $documentation = NULL)
 	{
 		$this->name = (string)$name;
 		$this->priority = (int)$priority;
-		$this->execution = $execution;
+		$this->executionId = ($execution === NULL) ? NULL : $execution->getId();
 		$this->documentation = ($documentation === NULL) ? NULL : (string)$documentation;
 	}
 	
@@ -57,6 +58,13 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$id = UUID::createRandom();
+		$activityId = NULL;
+		
+		if($this->executionId !== NULL)
+		{
+			$activityId = $engine->findExecution($this->executionId)->getNode()->getId();
+		}
+		
 		$sql = "	INSERT INTO `#__user_task`
 						(`id`, `execution_id`, `name`, `documentation`, `activity`, `created_at`, `priority`, `due_at`)
 					VALUES
@@ -64,10 +72,10 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
 		";
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('id', $id);
-		$stmt->bindValue('eid', $this->execution->getId());
+		$stmt->bindValue('eid', $this->executionId);
 		$stmt->bindValue('name', $this->name);
 		$stmt->bindValue('doc', $this->documentation);
-		$stmt->bindValue('activity', $this->execution->getNode()->getId());
+		$stmt->bindValue('activity', $activityId);
 		$stmt->bindValue('created', time());
 		$stmt->bindValue('priority', $this->priority);
 		$stmt->bindValue('due', $this->dueDate);

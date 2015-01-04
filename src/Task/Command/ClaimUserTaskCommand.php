@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Task\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
 use KoolKode\BPMN\Task\Event\UserTaskClaimedEvent;
 use KoolKode\Util\UUID;
 
@@ -21,7 +22,7 @@ use KoolKode\Util\UUID;
  * 
  * @author Martin Schröder
  */
-class ClaimUserTaskCommand extends AbstractBusinessCommand
+class ClaimUserTaskCommand extends AbstractBusinessCommand implements SerializableBusinessCommandInterface
 {
 	protected $taskId;
 	

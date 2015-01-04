@@ -14,7 +14,9 @@ namespace KoolKode\BPMN\Task;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Task\Command\ClaimUserTaskCommand;
 use KoolKode\BPMN\Task\Command\CompleteUserTaskCommand;
+use KoolKode\BPMN\Task\Command\CreateUserTaskCommand;
 use KoolKode\BPMN\Task\Command\UnclaimUserTaskCommand;
+use KoolKode\BPMN\Task\Command\RemoveUserTaskCommand;
 use KoolKode\Util\Uuid;
 
 class TaskService
@@ -31,6 +33,11 @@ class TaskService
 		return new TaskQuery($this->engine);
 	}
 	
+	public function createTask($name, $priority = 0, $documentation = NULL)
+	{
+		return $this->engine->executeCommand(new CreateUserTaskCommand($name, $priority, NULL, $documentation));
+	}
+	
 	public function claim(UUID $taskId, $userId)
 	{
 		$this->engine->pushCommand(new ClaimUserTaskCommand($taskId, $userId));
@@ -44,5 +51,10 @@ class TaskService
 	public function complete(UUID $taskId, array $variables = [])
 	{
 		$this->engine->pushCommand(new CompleteUserTaskCommand($taskId, $variables));
+	}
+	
+	public function removeTask(UUID $taskId)
+	{
+		$this->engine->pushCommand(new RemoveUserTaskCommand($taskId));
 	}
 }

@@ -30,7 +30,7 @@ interface TaskInterface
 	/**
 	 * Get the unique identifier of the execution that triggered the task instance.
 	 * 
-	 * @return UUID
+	 * @return UUID or NULL when the task is not related to an execution.
 	 */
 	public function getExecutionId();
 	
@@ -52,7 +52,7 @@ interface TaskInterface
 	 * Get the identifier (as defined by the "id" attribute in a BPMN 2.0 diagram) of the
 	 * activity to be performed.
 	 * 
-	 * @return string
+	 * @return string ID or NULL if the task is not related to an execution.
 	 */
 	public function getActivityId();
 

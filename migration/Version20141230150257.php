@@ -111,10 +111,10 @@ class Version20141230150257 extends AbstractMigration
     	
     	$tasks = $this->table('#__user_task');
     	$tasks->addColumn('id', 'uuid', ['primary_key' => true]);
-    	$tasks->addColumn('execution_id', 'uuid');
+    	$tasks->addColumn('execution_id', 'uuid', ['null' => true]);
     	$tasks->addColumn('name', 'varchar');
     	$tasks->addColumn('documentation', 'text', ['null' => true]);
-    	$tasks->addColumn('activity', 'varchar');
+    	$tasks->addColumn('activity', 'varchar', ['null' => true]);
     	$tasks->addColumn('created_at', 'int', ['unsigned' => true]);
     	$tasks->addColumn('claimed_at', 'int', ['unsigned' => true, 'null' => true]);
     	$tasks->addColumn('claimed_by', 'varchar', ['null' => true]);

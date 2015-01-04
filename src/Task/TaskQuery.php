@@ -34,6 +34,8 @@ class TaskQuery extends AbstractQuery
 	protected $taskUnassigned;
 	protected $taskAssignee;
 	
+	protected $taskWithoutActivity;
+	
 	protected $dueBefore;
 	protected $dueAfter;
 	protected $taskCreatedBefore;
@@ -117,6 +119,13 @@ class TaskQuery extends AbstractQuery
 	public function taskAssignee($assignee)
 	{
 		$this->populateMultiProperty($this->taskAssignee, $assignee);
+		
+		return $this;
+	}
+	
+	public function taskWithoutActivity()
+	{
+		$this->taskWithoutActivity = true;
 		
 		return $this;
 	}
@@ -209,16 +218,21 @@ class TaskQuery extends AbstractQuery
 	{
 		$task = new Task(
 			new UUID($row['id']),
-			new UUID($row['execution_id']),
 			$row['name'],
-			$row['activity'],
 			new \DateTimeImmutable('@' . $row['created_at']),
 			empty($row['claimed_at']) ? NULL : new \DateTimeImmutable('@' . $row['claimed_at']),
 			$row['claimed_by'],
 			$row['priority'],
 			empty($row['due_at']) ? NULL : new \DateTimeImmutable('@' . $row['due_at'])
 		);
+		
+		$task->setActivityId($row['activity']);
 		$task->setDocumentation($row['documentation']);
+		
+		if($row['execution_id'] !== NULL)
+		{
+			$task->setExecutionId(new UUID($row['execution_id']));
+		}
 		
 		return $task;
 	}
@@ -236,8 +250,8 @@ class TaskQuery extends AbstractQuery
 		
 		$sql = "	SELECT $fields
 					FROM `#__user_task` AS t
-					INNER JOIN `#__execution` AS e ON (e.`id` = t.`execution_id`)
-					INNER JOIN `#__process_definition` AS d ON (d.`id` = e.`definition_id`)
+					LEFT JOIN `#__execution` AS e ON (e.`id` = t.`execution_id`)
+					LEFT JOIN `#__process_definition` AS d ON (d.`id` = e.`definition_id`)
 		";
 		
 		$alias = 1;
@@ -259,6 +273,11 @@ class TaskQuery extends AbstractQuery
 		if($this->taskUnassigned)
 		{
 			$where[] = 't.`claimed_by` IS NULL';
+		}
+		
+		if($this->taskWithoutActivity)
+		{
+			$where[] = 't.`activity` IS NULL';
 		}
 		
 		if($this->dueAfter !== NULL || $this->dueBefore !== NULL)

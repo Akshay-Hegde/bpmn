@@ -13,34 +13,35 @@ namespace KoolKode\BPMN\Task\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
+use KoolKode\Util\UUID;
 
 /**
  * Deletes a user task from the task list.
  * 
  * @author Martin Schröder
  */
-class RemoveUserTaskCommand extends AbstractBusinessCommand
+class RemoveUserTaskCommand extends AbstractBusinessCommand implements SerializableBusinessCommandInterface
 {
-	protected $execution;
+	protected $taskId;
 	
-	public function __construct(VirtualExecution $execution)
+	public function __construct(UUID $taskId)
 	{
-		$this->execution = $execution;
+		$this->taskId = $taskId;
 	}
 	
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$task = $engine->getTaskService()
 					   ->createTaskQuery()
-					   ->executionId($this->execution->getId())
+					   ->taskId($this->taskId)
 					   ->findOne();
 		
 		$sql = "	DELETE FROM `#__user_task`
-					WHERE `execution_id` = :eid
+					WHERE `id` = :id
 		";
 		$stmt = $engine->prepareQuery($sql);
-		$stmt->bindValue('eid', $this->execution->getId());
+		$stmt->bindValue('id', $task->getId());
 		$stmt->execute();
 		
 		$engine->debug('Removed user task "{task}" with id {id}', [

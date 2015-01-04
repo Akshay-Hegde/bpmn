@@ -84,7 +84,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		$logger = NULL;
 		
-		if(!empty($_SERVER['KK_LOG']))
+		if(!empty($_SERVER['KK_LOG']) && $this->isDebug())
 		{
 			$stderr = fopen('php://stderr', 'wb');
 			
@@ -171,6 +171,11 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 				}
 			}
 		}
+	}
+	
+	public function isDebug()
+	{
+		return false;
 	}
 	
 	protected function deployFile($file)

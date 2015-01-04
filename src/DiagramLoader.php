@@ -314,8 +314,6 @@ class DiagramLoader
 				throw new \RuntimeException(sprintf('Missing start node of sub process %s', $id));
 			}
 			
-			// TODO: Pass sub process builder into method and set start node automatically!?
-			
 			if($triggeredByEvent)
 			{
 				$sub = $builder->eventSubProcess($id, $parentSubId, $startNodeId, $el->getAttribute('name'));

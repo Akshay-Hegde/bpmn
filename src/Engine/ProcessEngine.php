@@ -359,6 +359,22 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		];
 	}
 	
+	/**
+	 * Sync all loaded executions with the DB.
+	 */
+	public function syncExecutions()
+	{
+		foreach($this->executions as $info)
+		{
+			$this->syncExecution($info->getExecution(), $info, false);
+		}
+	}
+	
+	/**
+	 * Sync the given execution with the DB.
+	 * 
+	 * @param VirtualExecution $execution
+	 */
 	public function syncExecutionState(VirtualExecution $execution)
 	{
 		$id = (string)$execution->getId();

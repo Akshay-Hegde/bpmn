@@ -16,6 +16,11 @@ use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 {
+	public function isDebug()
+	{
+		return true;
+	}
+	
 	public function testProcessWithoutMessage()
 	{
 		$this->deployFile('EventSubProcessNonInterruptingTest.bpmn');

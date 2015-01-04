@@ -16,9 +16,24 @@ use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class TerminateEndEventTest extends BusinessProcessTestCase
 {
+	protected function createProcessArchive()
+	{
+		$filename = tempnam(sys_get_temp_dir(), 'par') . '.zip';
+		$zip = new \PharData($filename);
+		
+		foreach(glob(__DIR__ . '/TerminateEndEventTest/*.*') as $entry)
+		{
+			$zip->addFile($entry, basename($entry));	
+		}
+		
+		$zip = NULL;
+		
+		return $filename;
+	}
+	
 	public function testTerminateBranch()
 	{
-		$this->deployArchive('TerminateEndEventTest.zip');
+		$this->deployArchive($this->createProcessArchive());
 		
 		$process = $this->runtimeService->startProcessInstanceByKey('main');
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
@@ -34,7 +49,7 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 	
 	public function testNonTerminatingBranch()
 	{
-		$this->deployArchive('TerminateEndEventTest.zip');
+		$this->deployArchive($this->createProcessArchive());
 	
 		$process = $this->runtimeService->startProcessInstanceByKey('main');
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());

@@ -19,13 +19,16 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 	protected function createProcessArchive()
 	{
 		$filename = tempnam(sys_get_temp_dir(), 'par') . '.zip';
-		$zip = new \PharData($filename);
+		
+		$zip = new \ZipArchive();
+		$zip->open($filename, \ZipArchive::CREATE);
 		
 		foreach(glob(__DIR__ . '/TerminateEndEventTest/*.*') as $entry)
 		{
-			$zip->addFile($entry, basename($entry));	
+			$zip->addFile($entry, basename($entry));
 		}
 		
+		$zip->close();
 		$zip = NULL;
 		
 		return $filename;

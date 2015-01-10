@@ -216,11 +216,11 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$params = ['p1' => $id];
 		
 		$sql = "	SELECT e.*, d.`definition`
-					FROM `#__execution` AS e
-					INNER JOIN `#__process_definition` AS d ON (d.`id` = e.`definition_id`)
+					FROM `#__bpmn_execution` AS e
+					INNER JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
 					WHERE e.`process_id` IN (
 						SELECT `process_id` 
-						FROM `#__execution`
+						FROM `#__bpmn_execution`
 						WHERE `id` IN ($sub)
 					)
 		";
@@ -289,7 +289,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			}, array_keys($params)));
 			
 			$sql = "	SELECT `execution_id`, `name`, `value_blob`
-						FROM `#__execution_variables`
+						FROM `#__bpmn_execution_variables`
 						WHERE `execution_id` IN ($placeholders)
 			";
 			$stmt = $this->conn->prepare($sql);
@@ -401,7 +401,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 				$this->syncExecution($child, $this->executions[(string)$child->getId()]);
 			}
 				
-			$sql = "	DELETE FROM `#__execution`
+			$sql = "	DELETE FROM `#__bpmn_execution`
 						WHERE `id` = :id
 			";
 			$stmt = $this->conn->prepare($sql);
@@ -419,7 +419,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 				'execution' => (string)$execution
 			]);
 			
-			$sql = "	UPDATE `#__execution`
+			$sql = "	UPDATE `#__bpmn_execution`
 						SET `pid` = :pid,
 							`process_id` = :process,
 							`state` = :state,
@@ -452,7 +452,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 				'execution' => (string)$execution
 			]);
 			
-			$sql = "	INSERT INTO `#__execution` (
+			$sql = "	INSERT INTO `#__bpmn_execution` (
 							`id`, `pid`, `process_id`, `definition_id`, `state`, `active`,
 							`node`, `transition`, `depth`, `business_key`
 						) VALUES (
@@ -494,7 +494,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 					return ':' . $p;
 				}, array_keys($params)));
 				
-				$sql = "	DELETE FROM `#__execution_variables`
+				$sql = "	DELETE FROM `#__bpmn_execution_variables`
 							WHERE `execution_id` = :eid
 							AND `name` IN ($placeholders)
 				";
@@ -506,7 +506,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			
 			if(!empty($delta[ExecutionInfo::STATE_NEW]))
 			{
-				$sql = "	INSERT INTO `#__execution_variables`
+				$sql = "	INSERT INTO `#__bpmn_execution_variables`
 								(`execution_id`, `name`, `value`, `value_blob`)
 							VALUES
 								(:eid, :name, :value, :blob)

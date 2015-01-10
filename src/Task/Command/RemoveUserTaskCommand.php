@@ -37,7 +37,7 @@ class RemoveUserTaskCommand extends AbstractBusinessCommand implements Serializa
 					   ->taskId($this->taskId)
 					   ->findOne();
 		
-		$sql = "	DELETE FROM `#__user_task`
+		$sql = "	DELETE FROM `#__bpmn_user_task`
 					WHERE `id` = :id
 		";
 		$stmt = $engine->prepareQuery($sql);

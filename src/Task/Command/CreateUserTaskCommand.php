@@ -65,7 +65,7 @@ class CreateUserTaskCommand extends AbstractBusinessCommand implements Serializa
 			$activityId = $engine->findExecution($this->executionId)->getNode()->getId();
 		}
 		
-		$sql = "	INSERT INTO `#__user_task`
+		$sql = "	INSERT INTO `#__bpmn_user_task`
 						(`id`, `execution_id`, `name`, `documentation`, `activity`, `created_at`, `priority`, `due_at`)
 					VALUES
 						(:id, :eid, :name, :doc, :activity, :created, :priority, :due)

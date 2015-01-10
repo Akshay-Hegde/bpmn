@@ -39,7 +39,7 @@ class ClearEventSubscriptionsCommand extends AbstractBusinessCommand
 	
 	public function executeCommand(ProcessEngine $engine)
 	{
-		$sql = "	DELETE FROM `#__event_subscription`
+		$sql = "	DELETE FROM `#__bpmn_event_subscription`
 					WHERE `execution_id` = :eid
 					AND `activity_id` = :aid
 		";

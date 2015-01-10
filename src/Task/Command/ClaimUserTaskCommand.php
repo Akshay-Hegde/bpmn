@@ -43,7 +43,7 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand implements Serializab
 			throw new \RuntimeException(sprintf('User task %s is already claimed by %s', $task->getId(), $task->getAssignee()));
 		}
 		
-		$sql = "	UPDATE `#__user_task`
+		$sql = "	UPDATE `#__bpmn_user_task`
 					SET `claimed_at` = :time,
 						`claimed_by` = :assignee
 					WHERE `id` = :id

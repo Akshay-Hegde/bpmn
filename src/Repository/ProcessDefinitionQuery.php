@@ -159,8 +159,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 		}
 	
 		$sql = "	SELECT $fields
-					FROM `#__process_definition` AS p
-					LEFT JOIN `#__deployment` AS d ON (d.`id` = p.`deployment_id`)
+					FROM `#__bpmn_process_definition` AS p
+					LEFT JOIN `#__bpmn_deployment` AS d ON (d.`id` = p.`deployment_id`)
 		";
 	
 		$alias = 1;
@@ -175,7 +175,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		
 		foreach((array)$this->messageEventSubscriptionNames as $name)
 		{
-			$joins[] = "INNER JOIN `#__process_subscription` AS s$alias ON (s$alias.`definition_id` = p.`id`)";
+			$joins[] = "INNER JOIN `#__bpmn_process_subscription` AS s$alias ON (s$alias.`definition_id` = p.`id`)";
 			
 			$p1 = 'p' . count($params);
 			
@@ -189,7 +189,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		
 		foreach((array)$this->signalEventSubscriptionNames as $name)
 		{
-			$joins[] = "INNER JOIN `#__process_subscription` AS s$alias ON (s$alias.`definition_id` = p.`id`)";
+			$joins[] = "INNER JOIN `#__bpmn_process_subscription` AS s$alias ON (s$alias.`definition_id` = p.`id`)";
 				
 			$p1 = 'p' . count($params);
 				
@@ -204,7 +204,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		if($this->latestVersion)
 		{
 			// Using an anti-join to improve query performance (no need for aggregate functions).
-			$joins[] = "	LEFT JOIN `#__process_definition` AS p2 ON (
+			$joins[] = "	LEFT JOIN `#__bpmn_process_definition` AS p2 ON (
 								p2.`process_key` = p.`process_key`
 								AND p2.`revision` > p.`revision`
 							)

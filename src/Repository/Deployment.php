@@ -61,7 +61,7 @@ class Deployment implements \JsonSerializable
 		$resources = [];
 		
 		$sql = "	SELECT `id`, `name`
-					FROM `#__resource`
+					FROM `#__bpmn_resource`
 					WHERE `deployment_id` = :id
 					ORDER BY `name`
 		";

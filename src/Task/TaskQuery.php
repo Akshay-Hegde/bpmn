@@ -249,9 +249,9 @@ class TaskQuery extends AbstractQuery
 		}
 		
 		$sql = "	SELECT $fields
-					FROM `#__user_task` AS t
-					LEFT JOIN `#__execution` AS e ON (e.`id` = t.`execution_id`)
-					LEFT JOIN `#__process_definition` AS d ON (d.`id` = e.`definition_id`)
+					FROM `#__bpmn_user_task` AS t
+					LEFT JOIN `#__bpmn_execution` AS e ON (e.`id` = t.`execution_id`)
+					LEFT JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
 		";
 		
 		$alias = 1;

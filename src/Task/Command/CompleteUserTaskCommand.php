@@ -44,7 +44,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand implements Seriali
 		
 		$engine->notify(new UserTaskCompletedEvent($task, $engine));
 		
-		$sql = "	DELETE FROM `#__user_task`
+		$sql = "	DELETE FROM `#__bpmn_user_task`
 					WHERE `id` = :id
 		";
 		$stmt = $engine->prepareQuery($sql);

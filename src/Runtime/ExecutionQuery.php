@@ -184,8 +184,8 @@ class ExecutionQuery extends AbstractQuery
 		}
 		
 		$sql = "	SELECT $fields
-					FROM `#__execution` AS e
-					INNER JOIN `#__process_definition` AS d ON (d.`id` = e.`definition_id`)
+					FROM `#__bpmn_execution` AS e
+					INNER JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
 		";
 		
 		$alias = 1;
@@ -207,7 +207,7 @@ class ExecutionQuery extends AbstractQuery
 		
 		foreach($this->variableValues as $var)
 		{
-			$joins[] = 'INNER JOIN `#__execution_variables` AS v' . $alias . " ON (v$alias.`execution_id` = e.`id`)";
+			$joins[] = 'INNER JOIN `#__bpmn_execution_variables` AS v' . $alias . " ON (v$alias.`execution_id` = e.`id`)";
 			
 			$p1 = 'p' . count($params);
 			$p2 = 'p' . (count($params) + 1);
@@ -246,7 +246,7 @@ class ExecutionQuery extends AbstractQuery
 		
 		foreach($this->signalEventSubscriptionNames as $name)
 		{
-			$joins[] = 'INNER JOIN `#__event_subscription` AS s' . $alias . " ON (s$alias.`execution_id` = e.`id`)";
+			$joins[] = 'INNER JOIN `#__bpmn_event_subscription` AS s' . $alias . " ON (s$alias.`execution_id` = e.`id`)";
 			
 			$p1 = 'p' . count($params);
 			$p2 = 'p' . (count($params) + 1);
@@ -262,7 +262,7 @@ class ExecutionQuery extends AbstractQuery
 		
 		foreach($this->messageEventSubscriptionNames as $name)
 		{
-			$joins[] = 'INNER JOIN `#__event_subscription` AS s' . $alias . " ON (s$alias.`execution_id` = e.`id`)";
+			$joins[] = 'INNER JOIN `#__bpmn_event_subscription` AS s' . $alias . " ON (s$alias.`execution_id` = e.`id`)";
 			
 			$p1 = 'p' . count($params);
 			$p2 = 'p' . (count($params) + 1);

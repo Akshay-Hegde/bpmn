@@ -50,8 +50,8 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$sql = "	SELECT s.`id`, s.`execution_id`, s.`activity_id`, s.`node`
-					FROM `#__event_subscription` AS s
-					INNER JOIN `#__execution` AS e ON (e.`id` = s.`execution_id`)
+					FROM `#__bpmn_event_subscription` AS s
+					INNER JOIN `#__bpmn_execution` AS e ON (e.`id` = s.`execution_id`)
 					WHERE s.`name` = :signal
 					AND s.`flags` = :flags
 					ORDER BY e.`depth` DESC
@@ -92,7 +92,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		if(!empty($ids))
 		{
-			$sql = "	DELETE FROM `#__event_subscription`
+			$sql = "	DELETE FROM `#__bpmn_event_subscription`
 						WHERE `execution_id` = :eid
 						AND `activity_id` = :aid
 			";
@@ -117,8 +117,8 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		// Include signal start events subscriptions.
 		$sql = "	SELECT s.`name` AS signal_name, d.* 
-					FROM `#__process_subscription` AS s
-					INNER JOIN `#__process_definition` AS d ON (d.`id` = s.`definition_id`)
+					FROM `#__bpmn_process_subscription` AS s
+					INNER JOIN `#__bpmn_process_definition` AS d ON (d.`id` = s.`definition_id`)
 					WHERE s.`flags` = :flags
 					AND s.`name` = :name
 		";

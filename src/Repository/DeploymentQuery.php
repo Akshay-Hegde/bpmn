@@ -126,7 +126,7 @@ class DeploymentQuery extends AbstractQuery
 		}
 		
 		$sql = "	SELECT $fields
-					FROM `#__deployment` AS d
+					FROM `#__bpmn_deployment` AS d
 		";
 		
 		$alias = 1;
@@ -155,7 +155,7 @@ class DeploymentQuery extends AbstractQuery
 		
 		if($this->processDefinitionKey !== NULL && !empty($this->processDefinitionKey))
 		{
-			$joins[] = "INNER JOIN `#__process_definition` AS p$alias ON (p$alias.`deployment_id` = d.`id`)";
+			$joins[] = "INNER JOIN `#__bpmn_process_definition` AS p$alias ON (p$alias.`deployment_id` = d.`id`)";
 			
 			$this->buildPredicate("p$alias.`process_key`", $this->processDefinitionKey, $where, $params);
 			

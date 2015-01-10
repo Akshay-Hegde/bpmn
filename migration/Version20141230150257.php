@@ -23,23 +23,23 @@ class Version20141230150257 extends AbstractMigration
      */
     public function up()
     {
-    	$deployment = $this->table('#__deployment');
+    	$deployment = $this->table('#__bpmn_deployment');
     	$deployment->addColumn('id', 'uuid', ['primary_key' => true]);
     	$deployment->addColumn('name', 'varchar');
     	$deployment->addColumn('deployed_at', 'int', ['unsigned' => true]);
     	$deployment->addIndex(['name', 'deployed_at']);
     	$deployment->save();
     	
-    	$resource = $this->table('#__resource');
+    	$resource = $this->table('#__bpmn_resource');
     	$resource->addColumn('id', 'uuid', ['primary_key' => true]);
     	$resource->addColumn('deployment_id', 'uuid');
     	$resource->addColumn('name', 'varchar');
     	$resource->addColumn('data', 'blob');
     	$resource->addUniqueIndex(['name', 'deployment_id']);
-    	$resource->addForeignKey(['deployment_id'], '#__deployment', ['id']);
+    	$resource->addForeignKey(['deployment_id'], '#__bpmn_deployment', ['id']);
     	$resource->save();
     	
-    	$def = $this->table('#__process_definition');
+    	$def = $this->table('#__bpmn_process_definition');
     	$def->addColumn('id', 'uuid', ['primary_key' => true]);
     	$def->addColumn('deployment_id', 'uuid');
     	$def->addColumn('process_key', 'varchar');
@@ -49,20 +49,20 @@ class Version20141230150257 extends AbstractMigration
     	$def->addColumn('deployed_at', 'int', ['unsigned' => true]);
     	$def->addUniqueIndex(['process_key', 'revision']);
     	$def->addIndex(['deployment_id', 'process_key']);
-    	$def->addForeignKey(['deployment_id'], '#__deployment', ['id']);
+    	$def->addForeignKey(['deployment_id'], '#__bpmn_deployment', ['id']);
     	$def->save();
     	
-    	$psub = $this->table('#__process_subscription');
+    	$psub = $this->table('#__bpmn_process_subscription');
     	$psub->addColumn('id', 'uuid', ['primary_key' => true]);
     	$psub->addColumn('definition_id', 'uuid');
     	$psub->addColumn('flags', 'int', ['unsigned' => true]);
     	$psub->addColumn('name', 'varchar');
     	$psub->addUniqueIndex(['definition_id', 'name']);
     	$psub->addIndex(['name', 'flags']);
-    	$psub->addForeignKey(['definition_id'], '#__process_definition', ['id']);
+    	$psub->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id']);
     	$psub->save();
     	
-    	$exec = $this->table('#__execution');
+    	$exec = $this->table('#__bpmn_execution');
     	$exec->addColumn('id', 'uuid', ['primary_key' => true]);
     	$exec->addColumn('pid', 'uuid', ['null' => true]);
     	$exec->addColumn('process_id', 'uuid');
@@ -79,21 +79,21 @@ class Version20141230150257 extends AbstractMigration
     	$exec->addIndex(['active']);
     	$exec->addIndex(['business_key']);
     	$exec->addIndex(['node']);
-    	$exec->addForeignKey(['definition_id'], '#__process_definition', ['id'], ['delete' => 'RESTRICT']);
-    	$exec->addForeignKey(['pid'], '#__execution', ['id']);
-    	$exec->addForeignKey(['process_id'], '#__execution', ['id']);
+    	$exec->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id'], ['delete' => 'RESTRICT']);
+    	$exec->addForeignKey(['pid'], '#__bpmn_execution', ['id']);
+    	$exec->addForeignKey(['process_id'], '#__bpmn_execution', ['id']);
     	$exec->save();
     	
-    	$vars = $this->table('#__execution_variables');
+    	$vars = $this->table('#__bpmn_execution_variables');
     	$vars->addColumn('execution_id', 'uuid', ['primary_key' => true]);
     	$vars->addColumn('name', 'varchar', ['primary_key' => true]);
     	$vars->addColumn('value', 'varchar', ['null' => true]);
     	$vars->addColumn('value_blob', 'blob');
     	$vars->addIndex(['name', 'value']);
-    	$vars->addForeignKey(['execution_id'], '#__execution', ['id']);
+    	$vars->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
     	$vars->save();
     	
-    	$events = $this->table('#__event_subscription');
+    	$events = $this->table('#__bpmn_event_subscription');
     	$events->addColumn('id', 'uuid', ['primary_key' => true]);
     	$events->addColumn('execution_id', 'uuid');
     	$events->addColumn('activity_id', 'varchar');
@@ -105,11 +105,11 @@ class Version20141230150257 extends AbstractMigration
     	$events->addIndex(['execution_id', 'activity_id']);
     	$events->addIndex(['process_instance_id']);
     	$events->addIndex(['name', 'flags']);
-    	$events->addForeignKey(['execution_id'], '#__execution', ['id']);
-    	$events->addForeignKey(['process_instance_id'], '#__execution', ['id']);
+    	$events->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
+    	$events->addForeignKey(['process_instance_id'], '#__bpmn_execution', ['id']);
     	$events->save();
     	
-    	$tasks = $this->table('#__user_task');
+    	$tasks = $this->table('#__bpmn_user_task');
     	$tasks->addColumn('id', 'uuid', ['primary_key' => true]);
     	$tasks->addColumn('execution_id', 'uuid', ['null' => true]);
     	$tasks->addColumn('name', 'varchar');
@@ -126,7 +126,7 @@ class Version20141230150257 extends AbstractMigration
     	$tasks->addIndex(['claimed_by']);
     	$tasks->addIndex(['priority']);
     	$tasks->addIndex(['due_at']);
-    	$tasks->addForeignKey(['execution_id'], '#__execution', ['id']);
+    	$tasks->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
     	$tasks->save();
     }
     
@@ -135,13 +135,13 @@ class Version20141230150257 extends AbstractMigration
      */
     public function down()
     {
-    	$this->dropTable('#__user_task');
-    	$this->dropTable('#__event_subscription');
-    	$this->dropTable('#__execution_variables');
-    	$this->dropTable('#__execution');
-    	$this->dropTable('#__process_subscription');
-    	$this->dropTable('#__process_definition');
-    	$this->dropTable('#__resource');
-        $this->dropTable('#__deployment');
+    	$this->dropTable('#__bpmn_user_task');
+    	$this->dropTable('#__bpmn_event_subscription');
+    	$this->dropTable('#__bpmn_execution_variables');
+    	$this->dropTable('#__bpmn_execution');
+    	$this->dropTable('#__bpmn_process_subscription');
+    	$this->dropTable('#__bpmn_process_definition');
+    	$this->dropTable('#__bpmn_resource');
+        $this->dropTable('#__bpmn_deployment');
     }
 }

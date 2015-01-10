@@ -38,7 +38,7 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
 		
 		$id = UUID::createRandom();
 		
-		$sql = "	INSERT INTO `#__deployment`
+		$sql = "	INSERT INTO `#__bpmn_deployment`
 						(`id`, `name`, `deployed_at`)
 					VALUES
 						(:id, :name, :time)
@@ -54,7 +54,7 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
 			'id' => (string)$id
 		]);
 		
-		$sql = "	INSERT INTO `#__resource`
+		$sql = "	INSERT INTO `#__bpmn_resource`
 						(`id`, `deployment_id`, `name`, `data`)
 					VALUES
 						(:id, :deployment, :name, :data)

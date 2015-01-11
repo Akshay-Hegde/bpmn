@@ -17,6 +17,7 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Repository\ProcessDefinition;
 use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
 /**
@@ -70,7 +71,8 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		{
 			$stmt->bindValue('eid', $this->executionId);
 		}
-			
+		
+		$stmt->transform('execution_id', new UUIDTransformer());
 		$stmt->execute();
 		
 		$ids = [];
@@ -78,7 +80,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		foreach($stmt->fetchRows() as $row)
 		{
-			$execution = $executions[] = $engine->findExecution(new UUID($row['execution_id']));
+			$execution = $executions[] = $engine->findExecution($row['execution_id']);
 			$ids[(string)$execution->getId()] = [$execution->getId(), $row['activity_id']];
 			
 			if($row['node'] !== NULL)
@@ -125,18 +127,20 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_SIGNAL);
 		$stmt->bindValue('name', $this->signal);
+		$stmt->transform('id', new UUIDTransformer());
+		$stmt->transform('deployment_id', new UUIDTransformer());
 		$stmt->execute();
 		
 		while($row = $stmt->fetchNextRow())
 		{
 			$definition = new ProcessDefinition(
-				new UUID($row['id']),
+				$row['id'],
 				$row['process_key'],
 				$row['revision'],
 				unserialize(BinaryData::decode($row['definition'])),
 				$row['name'],
 				new \DateTimeImmutable('@' . $row['deployed_at']),
-				empty($row['deployment_id']) ? NULL : new UUID($row['deployment_id'])
+				$row['deployment_id']
 			);
 			
 			$uuids[] = $engine->executeCommand(new StartProcessInstanceCommand(

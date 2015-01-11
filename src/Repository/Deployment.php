@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Repository;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
 class Deployment implements \JsonSerializable
@@ -67,11 +68,12 @@ class Deployment implements \JsonSerializable
 		";
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindValue('id', $this->id);
+		$stmt->transform('id', new UUIDTransformer());
 		$stmt->execute();
 		
 		while(false !== ($row = $stmt->fetchNextRow()))
 		{
-			$resources[$row['name']] = new DeployedResource($this, new UUID($row['id']), $row['name']);
+			$resources[$row['name']] = new DeployedResource($this, $row['id'], $row['name']);
 		}
 		
 		return $resources;

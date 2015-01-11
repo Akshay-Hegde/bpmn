@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Task;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
 /**
@@ -217,7 +218,7 @@ class TaskQuery extends AbstractQuery
 	protected function unserializeTask(array $row)
 	{
 		$task = new Task(
-			new UUID($row['id']),
+			$row['id'],
 			$row['name'],
 			new \DateTimeImmutable('@' . $row['created_at']),
 			empty($row['claimed_at']) ? NULL : new \DateTimeImmutable('@' . $row['claimed_at']),
@@ -228,11 +229,7 @@ class TaskQuery extends AbstractQuery
 		
 		$task->setActivityId($row['activity']);
 		$task->setDocumentation($row['documentation']);
-		
-		if($row['execution_id'] !== NULL)
-		{
-			$task->setExecutionId(new UUID($row['execution_id']));
-		}
+		$task->setExecutionId($row['execution_id']);
 		
 		return $task;
 	}
@@ -347,6 +344,8 @@ class TaskQuery extends AbstractQuery
 		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);
+		$stmt->transform('id', new UUIDTransformer());
+		$stmt->transform('execution_id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

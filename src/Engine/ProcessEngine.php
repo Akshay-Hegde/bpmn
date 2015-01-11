@@ -18,6 +18,7 @@ use KoolKode\BPMN\Task\TaskService;
 use KoolKode\Database\ConnectionInterface;
 use KoolKode\Database\ParamEncoderDecorator;
 use KoolKode\Database\StatementInterface;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Event\EventDispatcherInterface;
 use KoolKode\Expression\ExpressionContextFactoryInterface;
 use KoolKode\Process\AbstractEngine;
@@ -226,6 +227,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		";
 		$stmt = $this->conn->prepare($sql);
 		$stmt->bindAll($params);
+		$stmt->transform('id', new UUIDTransformer());
+		$stmt->transform('pid', new UUIDTransformer());
+		$stmt->transform('process_id', new UUIDTransformer());
+		$stmt->transform('definition_id', new UUIDTransformer());
 		$stmt->execute();
 		
 		$variables = [];
@@ -235,10 +240,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		while($row = $stmt->fetchNextRow())
 		{
-			$id = new UUID($row['id']);
-			$pid = ($row['pid'] === NULL) ? NULL : new UUID($row['pid']);
-			$processId = new UUID($row['process_id']);
-			$defId = (string)new UUID($row['definition_id']);
+			$id = $row['id'];
+			$pid = $row['pid'];
+			$processId = $row['process_id'];
+			$defId = (string)$row['definition_id'];
 			
 			if($pid !== NULL)
 			{
@@ -294,11 +299,12 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			";
 			$stmt = $this->conn->prepare($sql);
 			$stmt->bindAll($params);
+			$stmt->transform('execution_id', new UUIDTransformer());
 			$stmt->execute();
 			
 			while(false !== ($row = $stmt->fetchNextRow()))
 			{
-				$variables[(string)new UUID($row['execution_id'])][$row['name']] = unserialize(BinaryData::decode($row['value_blob']));
+				$variables[(string)$row['execution_id']][$row['name']] = unserialize(BinaryData::decode($row['value_blob']));
 			}
 		}
 		

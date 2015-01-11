@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Repository;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
 class DeploymentQuery extends AbstractQuery
@@ -108,7 +109,7 @@ class DeploymentQuery extends AbstractQuery
 	{
 		return new Deployment(
 			$this->engine,
-			new UUID($row['id']),
+			$row['id'],
 			$row['name'],
 			new \DateTimeImmutable('@' . $row['deployed_at'])
 		);
@@ -174,6 +175,7 @@ class DeploymentQuery extends AbstractQuery
 		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);
+		$stmt->transform('id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

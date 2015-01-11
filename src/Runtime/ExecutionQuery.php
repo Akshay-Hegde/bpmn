@@ -15,6 +15,7 @@ use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Repository\ProcessDefinition;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UnicodeString;
 use KoolKode\Util\UUID;
 
@@ -144,20 +145,20 @@ class ExecutionQuery extends AbstractQuery
 	protected function unserializeExecution(array $row)
 	{
 		$def = new ProcessDefinition(
-			new UUID($row['def_id']),
+			$row['def_id'],
 			$row['def_key'],
 			$row['def_rev'],
 			unserialize(BinaryData::decode($row['def_data'])),
 			$row['def_name'],
 			new \DateTimeImmutable('@' . $row['def_deployed']),
-			empty($row['deployment_id']) ? NULL : new UUID($row['deployment_id'])
+			$row['deployment_id']
 		);
 		
 		return new Execution(
 			$def,
-			new UUID($row['id']),
-			new UUID($row['process_id']),
-			empty($row['pid']) ? NULL : new UUID($row['pid']),
+			$row['id'],
+			$row['process_id'],
+			$row['pid'],
 			$row['node'],
 			(int)$row['state'] & \KoolKode\Process\Execution::STATE_TERMINATE,
 			$row['business_key']
@@ -288,6 +289,11 @@ class ExecutionQuery extends AbstractQuery
 		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);
+		$stmt->transform('def_id', new UUIDTransformer());
+		$stmt->transform('deployment_id', new UUIDTransformer());
+		$stmt->transform('id', new UUIDTransformer());
+		$stmt->transform('pid', new UUIDTransformer());
+		$stmt->transform('process_id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

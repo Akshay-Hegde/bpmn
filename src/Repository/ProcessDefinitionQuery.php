@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Repository;
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
 /**
@@ -137,13 +138,13 @@ class ProcessDefinitionQuery extends AbstractQuery
 	protected function unserializeProcessDefinition(array $row)
 	{
 		return new ProcessDefinition(
-			new UUID($row['id']),
+			$row['id'],
 			$row['process_key'],
 			$row['revision'],
 			unserialize(BinaryData::decode($row['definition'])),
 			$row['name'],
 			new \DateTimeImmutable('@' . $row['deployed_at']),
-			empty($row['deployment_id']) ? NULL : new UUID($row['deployment_id'])
+			$row['deployment_id']
 		);
 	}
 	
@@ -224,6 +225,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);
+		$stmt->transform('id', new UUIDTransformer());
+		$stmt->transform('deployment_id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

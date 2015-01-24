@@ -7,9 +7,9 @@ php:
   - hhvm-nightly
 
 env:
-  - 'DB=sqlite DEPS="--prefer-source"'
-  - 'DB=mysql DEPS="--prefer-source"'
-  - 'DB=pgsql DEPS="--prefer-source"'
+  - 'DB=sqlite DEPS=""'
+  - 'DB=mysql DEPS=""'
+  - 'DB=pgsql DEPS=""'
   - 'DB=sqlite DEPS="--prefer-stable --prefer-lowest"'
   - 'DB=mysql DEPS="--prefer-stable --prefer-lowest"'
   - 'DB=pgsql DEPS="--prefer-stable --prefer-lowest"'
@@ -18,7 +18,7 @@ before_install:
   - 'composer selfupdate --no-interaction'
 
 install:
-  - 'composer update --no-interaction --dev $DEPS'
+  - 'composer update --no-interaction --dev --prefer-source $DEPS'
   
 before_script:
   - 'if [[ "$DB" == "sqlite" ]]; then export DB_DSN="sqlite::memory:"; fi'
@@ -37,9 +37,9 @@ matrix:
     - php: hhvm-nightly
   exclude:
     - php: hhvm
-      env: 'DB=pgsql DEPS="--prefer-source"'
+      env: 'DB=pgsql DEPS=""'
     - php: hhvm-nightly
-      env: 'DB=pgsql DEPS="--prefer-source"'
+      env: 'DB=pgsql DEPS=""'
     - php: hhvm
       env: 'DB=pgsql DEPS="--prefer-stable --prefer-lowest"'
     - php: hhvm-nightly

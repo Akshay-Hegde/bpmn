@@ -16,17 +16,17 @@
 	],
 	"require" : {
 		"php" : ">=5.5.0",
-		"koolkode/process" : "dev-master",
-		"koolkode/expression" : "dev-master",
-		"koolkode/util" : "dev-master",
-		"koolkode/xml" : "dev-master",
-		"koolkode/database" : "dev-master",
-		"koolkode/stream" : "dev-master"
+		"koolkode/process" : "~0.1",
+		"koolkode/expression" : "~0.1",
+		"koolkode/util" : "~0.1",
+		"koolkode/xml" : "~0.1",
+		"koolkode/database" : "~0.1",
+		"koolkode/stream" : "~0.1"
 	},
 	"require-dev" : {
 		"phpunit/phpunit" : "4.*",
 		"monolog/monolog" : "~1",
-		"koolkode/meta" : "dev-master"
+		"koolkode/meta" : "~0.1"
 	},
 	"autoload" : {
 		"psr-4" : {
@@ -34,9 +34,14 @@
 		}
 	},
 	"autoload-dev" : {
-        "psr-4" : {
-            "KoolKode\\BPMN\\" : "test/src/"
-        }
-    },
-	"minimum-stability" : "dev"
+		"psr-4" : {
+			"KoolKode\\BPMN\\" : "test/src/"
+		}
+	},
+	"minimum-stability" : "dev",
+	"extra" : {
+		"branch-alias" : {
+			"dev-master" : "0.1.x-dev"
+		}
+	}
 }

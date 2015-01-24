@@ -26,7 +26,7 @@ before_script:
   - 'if [[ "$DB" == "pgsql" ]]; then export DB_DSN="pgsql:host=localhost;dbname=bpmn"; export DB_USERNAME="postgres"; psql -c "CREATE DATABASE bpmn WITH ENCODING = ''UTF8'';" -U postgres; fi'
 
 script:
-  - './vendor/bin/phpunit -c "./test/phpunit.xml" --coverage-text'
+  - './vendor/bin/phpunit -c "./test/phpunit.xml"'
 
 notifications:
   email: false

@@ -24,8 +24,8 @@
 		"koolkode/stream" : "~0.1"
 	},
 	"require-dev" : {
-		"phpunit/phpunit" : "~4.4",
-		"monolog/monolog" : "~1",
+		"phpunit/phpunit" : "~4.4@stable",
+		"monolog/monolog" : "~1.0@stable",
 		"koolkode/meta" : "~0.1"
 	},
 	"autoload" : {

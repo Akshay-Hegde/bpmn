@@ -61,7 +61,6 @@ class CallActivityBehavior extends AbstractScopeBehavior
 	{
 		$context = $execution->getExpressionContext();
 		$definition = $execution->getEngine()->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionKey($this->processDefinitionKey)->findOne();
-		$businessKey = $execution->getBusinessKey();
 		
 		$execution->getEngine()->debug('Starting process {process} from call activity "{task}"', [
 			'process' => $this->processDefinitionKey,

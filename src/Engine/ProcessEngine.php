@@ -242,7 +242,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		{
 			$id = $row['id'];
 			$pid = $row['pid'];
-			$processId = $row['process_id'];
 			$defId = (string)$row['definition_id'];
 			
 			if($pid !== NULL)

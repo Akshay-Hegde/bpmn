@@ -20,7 +20,7 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('MessageBoundaryEventTest.bpmn');
 		
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);

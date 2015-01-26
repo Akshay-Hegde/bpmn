@@ -20,7 +20,7 @@ class SignalBoundaryEventTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('SignalBoundaryEventTest.bpmn');
 		
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
@@ -44,7 +44,7 @@ class SignalBoundaryEventTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('SignalBoundaryEventTest.bpmn');
 	
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);

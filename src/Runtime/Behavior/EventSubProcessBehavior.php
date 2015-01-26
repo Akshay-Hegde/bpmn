@@ -52,7 +52,6 @@ class EventSubProcessBehavior extends AbstractBoundaryEventBehavior
 	protected function delegateSignalBehavior(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		$model = $execution->getProcessModel();
-		$event = $execution->getNode();
 		$activity = $model->findNode($this->attachedTo);
 		
 		$execution->setNode($activity);

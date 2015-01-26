@@ -20,7 +20,7 @@ class EventSubProcessTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('EventSubProcessTest.bpmn');
 		
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
 		
 		$task = $this->taskService->createTaskQuery()->findOne();

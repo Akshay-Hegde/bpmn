@@ -38,7 +38,7 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 	{
 		$this->deployArchive($this->createProcessArchive());
 		
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
@@ -54,7 +54,7 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 	{
 		$this->deployArchive($this->createProcessArchive());
 	
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 	

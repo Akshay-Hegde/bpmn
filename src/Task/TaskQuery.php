@@ -251,7 +251,6 @@ class TaskQuery extends AbstractQuery
 					LEFT JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
 		";
 		
-		$alias = 1;
 		$joins = [];
 		$where = [];
 		$params = [];

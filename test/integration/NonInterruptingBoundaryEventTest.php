@@ -20,7 +20,7 @@ class NonInterruptingBoundaryEventTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('NonInterruptingBoundaryEventTest.bpmn');
 		
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
@@ -44,7 +44,7 @@ class NonInterruptingBoundaryEventTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('NonInterruptingBoundaryEventTest.bpmn');
 	
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);

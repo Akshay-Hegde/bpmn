@@ -22,7 +22,7 @@ class EndEventsTest extends BusinessProcessTestCase
 	{
 		$this->deployDirectory('EndEventsTest');
 		
-		$process = $this->runtimeService->startProcessInstanceByKey('test1');
+		$this->runtimeService->startProcessInstanceByKey('test1');
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);

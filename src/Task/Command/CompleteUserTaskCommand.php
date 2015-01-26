@@ -16,7 +16,7 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
 use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
 use KoolKode\BPMN\Task\Event\UserTaskCompletedEvent;
-use KoolKode\Util\Uuid;
+use KoolKode\Util\UUID;
 
 /**
  * Completes a user task and signals process execution to continue.

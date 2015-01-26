@@ -17,7 +17,7 @@ use KoolKode\BPMN\Task\Command\CompleteUserTaskCommand;
 use KoolKode\BPMN\Task\Command\CreateUserTaskCommand;
 use KoolKode\BPMN\Task\Command\UnclaimUserTaskCommand;
 use KoolKode\BPMN\Task\Command\RemoveUserTaskCommand;
-use KoolKode\Util\Uuid;
+use KoolKode\Util\UUID;
 
 class TaskService
 {

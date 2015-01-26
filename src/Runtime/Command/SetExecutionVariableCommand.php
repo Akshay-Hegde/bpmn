@@ -13,7 +13,7 @@ namespace KoolKode\BPMN\Runtime\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\Util\Uuid;
+use KoolKode\Util\UUID;
 
 /**
  * Populates a local variable in a target execution.

@@ -14,7 +14,7 @@ namespace KoolKode\BPMN\Runtime\Command;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
-use KoolKode\Util\Uuid;
+use KoolKode\Util\UUID;
 
 /**
  * Delivers a message to an execution that has subscribed to the received message.

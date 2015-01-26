@@ -15,7 +15,7 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Process\Node;
-use KoolKode\Util\Uuid;
+use KoolKode\Util\UUID;
 
 /**
  * Creates a signal event subscription.

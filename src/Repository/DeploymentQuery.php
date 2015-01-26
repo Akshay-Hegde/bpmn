@@ -46,7 +46,7 @@ class DeploymentQuery extends AbstractQuery
 	
 	public function deploymentName($name)
 	{
-		$this->populateMultiProperty($this->deploymentName, $id);
+		$this->populateMultiProperty($this->deploymentName, $name);
 	
 		return $this;
 	}

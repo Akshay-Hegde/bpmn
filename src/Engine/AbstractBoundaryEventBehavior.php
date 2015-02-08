@@ -86,7 +86,6 @@ abstract class AbstractBoundaryEventBehavior extends AbstractSignalableBehavior
 			$root = $execution->introduceConcurrentRoot();
 		}
 		
-		$execution->getEngine()->syncExecutionState($root);
 		$fork = $root->createExecution(true);
 		
 		$execution->setNode($activity);

@@ -13,9 +13,8 @@ namespace KoolKode\BPMN\Task\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
-use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
 use KoolKode\BPMN\Task\Event\UserTaskCompletedEvent;
+use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Util\UUID;
 
 /**
@@ -23,7 +22,7 @@ use KoolKode\Util\UUID;
  * 
  * @author Martin Schröder
  */
-class CompleteUserTaskCommand extends AbstractBusinessCommand implements SerializableBusinessCommandInterface
+class CompleteUserTaskCommand extends AbstractBusinessCommand
 {
 	protected $taskId;
 	
@@ -33,6 +32,11 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand implements Seriali
 	{
 		$this->taskId = $taskId;
 		$this->variables = $variables;
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function executeCommand(ProcessEngine $engine)
@@ -60,9 +64,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand implements Seriali
 		
 		if($executionId !== NULL)
 		{
-			$execution = $engine->findExecution($task->getExecutionId());
-			
-			$engine->pushCommand(new SignalExecutionCommand($execution, NULL, $this->variables));
+			$engine->pushCommand(new SignalExecutionCommand($engine->findExecution($executionId), NULL, $this->variables));
 		}
 	}
 }

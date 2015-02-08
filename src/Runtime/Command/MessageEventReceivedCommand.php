@@ -13,7 +13,7 @@ namespace KoolKode\BPMN\Runtime\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
+use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Util\UUID;
 
 /**
@@ -32,6 +32,11 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 		$this->messageName = (string)$messageName;
 		$this->executionId = $executionId;
 		$this->variables = $variables;
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function getPriority()
@@ -69,8 +74,6 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 		{
 			$execution->setNode($execution->getProcessModel()->findNode($row['node']));
 			$execution->setTransition(NULL);
-			
-			$engine->syncExecutionState($execution);
 		}
 		
 		$sql = "	DELETE FROM `#__bpmn_event_subscription`

@@ -16,8 +16,8 @@ use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Repository\ProcessDefinition;
-use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
 use KoolKode\Database\UUIDTransformer;
+use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Util\UUID;
 
 /**
@@ -33,14 +33,19 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 	
 	protected $executionId;
 	
-	protected $sourceExecution;
+	protected $sourceExecutionId;
 	
 	public function __construct($signal, UUID $executionId = NULL, array $variables = [], VirtualExecution $sourceExecution = NULL)
 	{
 		$this->signal = (string)$signal;
 		$this->variables = $variables;
 		$this->executionId = $executionId;
-		$this->sourceExecution = $sourceExecution;
+		$this->sourceExecutionId = ($sourceExecution === NULL) ? NULL : $sourceExecution->getId();
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function getPriority()
@@ -87,8 +92,6 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			{
 				$execution->setNode($execution->getProcessModel()->findNode($row['node']));
 				$execution->setTransition(NULL);
-					
-				$engine->syncExecutionState($execution);
 			}
 		}
 		
@@ -131,6 +134,8 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		$stmt->transform('deployment_id', new UUIDTransformer());
 		$stmt->execute();
 		
+		$source = ($this->sourceExecutionId === NULL) ? NULL : $engine->findExecution($this->sourceExecutionId);
+		
 		while($row = $stmt->fetchNextRow())
 		{
 			$definition = new ProcessDefinition(
@@ -146,14 +151,14 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			$uuids[] = $engine->executeCommand(new StartProcessInstanceCommand(
 				$definition,
 				$definition->findSignalStartEvent($row['signal_name']),
-				($this->sourceExecution === NULL) ? NULL : $this->sourceExecution->getBusinessKey(),
+				($source === NULL) ? NULL : $source->getBusinessKey(),
 				$this->variables
 			));
 		}
 				
-		if($this->sourceExecution !== NULL)
+		if($source !== NULL)
 		{
-			$engine->pushCommand(new SignalExecutionCommand($this->sourceExecution));
+			$engine->pushCommand(new SignalExecutionCommand($source));
 		}
 		
 		return $uuids;

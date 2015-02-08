@@ -16,8 +16,8 @@ use KoolKode\BPMN\Delegate\DelegateTaskInterface;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\AbstractScopeBehavior;
 use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
 use KoolKode\Expression\ExpressionInterface;
+use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Connects a custom class implementing DelegateTaskInterface to a node in a BPMN process.

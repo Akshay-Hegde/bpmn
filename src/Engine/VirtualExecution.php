@@ -11,7 +11,6 @@
 
 namespace KoolKode\BPMN\Engine;
 
-use KoolKode\BPMN\Runtime\Command\SignalExecutionCommand;
 use KoolKode\Process\Execution;
 use KoolKode\Process\ProcessModel;
 use KoolKode\Process\Transition;
@@ -36,6 +35,15 @@ class VirtualExecution extends Execution
 		}
 	}
 	
+	public function collectSyncData()
+	{
+		$data = parent::collectSyncData();
+		
+		$data['businessKey'] = $this->businessKey;
+		
+		return $data;
+	}
+	
 	public function setParentExecution(VirtualExecution $parent = NULL)
 	{
 		if($parent !== NULL)
@@ -44,6 +52,8 @@ class VirtualExecution extends Execution
 			
 			$parent->registerChildExecution($this);
 		}
+		
+		$this->markModified();
 	}
 	
 	/**
@@ -64,16 +74,8 @@ class VirtualExecution extends Execution
 	public function setBusinessKey($businessKey = NULL)
 	{
 		$this->businessKey = ($businessKey === NULL) ? NULL : (string)$businessKey;
-	}
-	
-	public function getExecutionDepth()
-	{
-		if($this->parentExecution === NULL)
-		{
-			return 0;
-		}
 		
-		return $this->parentExecution->getExecutionDepth() + 1;
+		$this->markModified();
 	}
 	
 	public function setExecutionState($state)
@@ -81,34 +83,8 @@ class VirtualExecution extends Execution
 		$this->state = (int)$state;
 	}
 	
-	public function setTimestamp($timestamp)
-	{
-		$this->timestamp = (float)$timestamp;
-	}
-	
 	public function setTransition(Transition $trans = NULL)
 	{
 		$this->transition = $trans;
-	}
-	
-	public function terminate($triggerExecution = true)
-	{
-		parent::terminate($triggerExecution);
-		
-		$this->engine->syncExecutionState($this);
-	}
-	
-	public function setActive($active)
-	{
-		parent::setActive($active);
-		
-		$this->engine->syncExecutionState($this);
-	}
-	
-	public function waitForSignal()
-	{
-		parent::waitForSignal();
-		
-		$this->engine->syncExecutionState($this);
 	}
 }

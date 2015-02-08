@@ -24,6 +24,14 @@ abstract class AbstractBusinessCommand extends AbstractCommand
 	/**
 	 * {@inheritdoc}
 	 */
+	public function isSerializable()
+	{
+		return false;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public final function execute(EngineInterface $engine)
 	{
 		return $this->executeCommand($engine);

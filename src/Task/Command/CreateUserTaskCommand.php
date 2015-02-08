@@ -13,7 +13,6 @@ namespace KoolKode\BPMN\Task\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Task\Event\UserTaskCreatedEvent;
 use KoolKode\Util\UUID;
@@ -23,7 +22,7 @@ use KoolKode\Util\UUID;
  * 
  * @author Martin Schröder
  */
-class CreateUserTaskCommand extends AbstractBusinessCommand implements SerializableBusinessCommandInterface
+class CreateUserTaskCommand extends AbstractBusinessCommand
 {
 	protected $name;
 	
@@ -41,6 +40,11 @@ class CreateUserTaskCommand extends AbstractBusinessCommand implements Serializa
 		$this->priority = (int)$priority;
 		$this->executionId = ($execution === NULL) ? NULL : $execution->getId();
 		$this->documentation = ($documentation === NULL) ? NULL : (string)$documentation;
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function setDueDate(\DateTimeInterface $dueDate = NULL)

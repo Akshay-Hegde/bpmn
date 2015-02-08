@@ -84,7 +84,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		$logger = NULL;
 		
-		if(!empty($_SERVER['KK_LOG']) && $this->isDebug())
+		if($this->isDebug())
 		{
 			$stderr = fopen('php://stderr', 'wb');
 			

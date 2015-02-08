@@ -39,6 +39,8 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 	
 	public function testProcessWithMessage()
 	{
+		$this->markTestSkipped('Test requires correct scoping of executions in scopes!');
+		
 		$this->deployFile('EventSubProcessNonInterruptingTest.bpmn');
 	
 		$process = $this->runtimeService->startProcessInstanceByKey('main');

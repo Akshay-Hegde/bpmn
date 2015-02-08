@@ -36,8 +36,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	const SUB_FLAG_SIGNAL = 1;
 	const SUB_FLAG_MESSAGE = 2;
 	
-	protected $executions = [];
-	
 	protected $interceptors = [];
 	
 	protected $conn;
@@ -74,9 +72,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			'transactional' => $this->handleTransactions,
 			'executionDepth' => $this->executionDepth,
 			'executionCount' => $this->executionCount,
-			'executions' => array_values(array_map(function(ExecutionInfo $info) {
-				return $info->getExecution();
-			}, $this->executions))
+			'executions' => array_values($this->executions)
 		];
 	}
 	
@@ -159,11 +155,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			$trans = true;
 		}
 		
-		foreach($this->executions as $info)
-		{
-			$this->syncExecution($info->getExecution(), $info);
-		}
-		
 		try
 		{
 			$chain = new ExecutionInterceptorChain(function() use($callback) {
@@ -171,11 +162,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			}, $this->executionDepth, $this->interceptors);
 			
 			$result = $chain->performExecution($this->executionDepth);
-			
-			foreach($this->executions as $info)
-			{
-				$this->syncExecution($info->getExecution(), $info);
-			}
 			
 			if($trans)
 			{
@@ -210,23 +196,20 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		if(isset($this->executions[$ref]))
 		{
-			return $this->executions[$ref]->getExecution();
+			return $this->executions[$ref];
 		}
-		
-		$sub = ':p1';
-		$params = ['p1' => $id];
 		
 		$sql = "	SELECT e.*, d.`definition`
 					FROM `#__bpmn_execution` AS e
 					INNER JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
 					WHERE e.`process_id` IN (
-						SELECT `process_id` 
+						SELECT `process_id`
 						FROM `#__bpmn_execution`
-						WHERE `id` IN ($sub)
+						WHERE `id` = :eid
 					)
 		";
 		$stmt = $this->conn->prepare($sql);
-		$stmt->bindAll($params);
+		$stmt->bindAll(['eid' => $id]);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('pid', new UUIDTransformer());
 		$stmt->transform('process_id', new UUIDTransformer());
@@ -314,7 +297,9 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		foreach($executions as $execution)
 		{
-			$this->registerExecution($execution, $this->serializeExecution($execution));
+			$execution->setSyncState(Execution::SYNC_STATE_NO_CHANGE);
+			
+			$this->executions[(string)$execution->getId()] = $execution;
 		}
 		
 		if(empty($this->executions[$ref]))
@@ -322,240 +307,191 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			throw new \OutOfBoundsException(sprintf('Execution not found: "%s"', $ref));
 		}
 		
-		return $this->executions[$ref]->getExecution();
+		return $this->executions[$ref];
 	}
 	
-	public function registerExecution(Execution $execution, array $clean = NULL)
+	protected function syncNewExecution(Execution $execution, array $syncData)
 	{
-		if(!$execution instanceof VirtualExecution)
+		$sql = "	INSERT INTO `#__bpmn_execution` (
+						`id`, `pid`, `process_id`, `definition_id`, `state`, `active`,
+						`node`, `transition`, `depth`, `business_key`
+					) VALUES (
+						:id, :parentId, :processId, :modelId, :state, :timestamp,
+						:node, :transition, :depth, :businessKey
+					)
+		";
+		$stmt = $this->conn->prepare($sql);
+		$stmt->bindValue('id', $syncData['id']);
+		$stmt->bindValue('parentId', $syncData['parentId']);
+		$stmt->bindValue('processId', $syncData['processId']);
+		$stmt->bindValue('modelId', $syncData['modelId']);
+		$stmt->bindValue('state', $syncData['state']);
+		$stmt->bindValue('timestamp', $syncData['timestamp']);
+		$stmt->bindValue('node', $syncData['node']);
+		$stmt->bindValue('transition', $syncData['transition']);
+		$stmt->bindValue('depth', $syncData['depth']);
+		$stmt->bindValue('businessKey', $syncData['businessKey']);
+		
+		$stmt->execute();
+		
+		$this->syncVariables($execution, $syncData);
+		
+		return parent::syncNewExecution($execution, $syncData);
+	}
+	
+	protected function syncModifiedExecution(Execution $execution, array $syncData)
+	{
+		$sql = "	UPDATE `#__bpmn_execution`
+					SET `pid` = :pid,
+						`process_id` = :process,
+						`state` = :state,
+						`active` = :timestamp,
+						`node` = :node,
+						`depth` = :depth,
+						`transition` = :transition,
+						`business_key` = :bkey
+					WHERE `id` = :id
+		";
+		$stmt = $this->conn->prepare($sql);
+		$stmt->bindValue('id', $syncData['id']);
+		$stmt->bindValue('pid', $syncData['parentId']);
+		$stmt->bindValue('process', $syncData['processId']);
+		$stmt->bindValue('state', $syncData['state']);
+		$stmt->bindValue('timestamp', $syncData['timestamp']);
+		$stmt->bindValue('node', $syncData['node']);
+		$stmt->bindValue('transition', $syncData['transition']);
+		$stmt->bindValue('depth', $syncData['depth']);
+		$stmt->bindValue('bkey', $syncData['businessKey']);
+		$stmt->execute();
+		
+		$this->syncVariables($execution, $syncData);
+		
+		return parent::syncModifiedExecution($execution, $syncData);
+	}
+	
+	protected function syncRemovedExecution(Execution $execution)
+	{
+		foreach($execution->findChildExecutions() as $child)
 		{
-			throw new \InvalidArgumentException(sprintf('Execution not supported by BPMN engine: %s', get_class($execution)));
+			$this->syncRemovedExecution($child);
 		}
 		
-		$info = $this->executions[(string)$execution->getId()] = new ExecutionInfo($execution, $clean);
+		$sql = "	DELETE FROM `#__bpmn_execution`
+					WHERE `id` = :id
+		";
+		$stmt = $this->conn->prepare($sql);
+		$stmt->bindValue('id', $execution->getId());
+		$stmt->execute();
 		
-		$data = $this->serializeExecution($execution);
-		
-		if($info->getState($data) == ExecutionInfo::STATE_NEW)
-		{
-			$this->syncExecution($execution, $info);
-		}
+		return parent::syncRemovedExecution($execution);
 	}
 	
-	public function serializeExecution(VirtualExecution $execution)
+	protected function syncVariables(Execution $execution, array $syncData)
 	{
-		$parent = $execution->getParentExecution();
-		$pid = ($parent === NULL) ? NULL : $parent->getId();
-		$nid = ($execution->getNode() === NULL) ? NULL : $execution->getNode()->getId();
-		$tid = ($execution->getTransition() === NULL) ? NULL : $execution->getTransition()->getId();
+		$delta = $this->computeVarDelta($execution, $syncData);
 		
-		return [
-			'id' => $execution->getId(),
-			'pid' => $pid,
-			'process' => $execution->getRootExecution()->getId(),
-			'def' => $execution->getProcessModel()->getId(),
-			'state' => $execution->getState(),
-			'active' => $execution->getTimestamp(),
-			'node' => $nid,
-			'transition' => $tid,
-			'depth' => $execution->getExecutionDepth(),
-			'bkey' => $execution->getBusinessKey(),
-			'vars' => $execution->getVariablesLocal()
-		];
-	}
-	
-	/**
-	 * Sync all loaded executions with the DB.
-	 */
-	public function syncExecutions()
-	{
-		foreach($this->executions as $info)
+		if(!empty($delta[Execution::SYNC_STATE_REMOVED]))
 		{
-			$this->syncExecution($info->getExecution(), $info, false);
-		}
-	}
-	
-	/**
-	 * Sync the given execution with the DB.
-	 * 
-	 * @param VirtualExecution $execution
-	 */
-	public function syncExecutionState(VirtualExecution $execution)
-	{
-		$id = (string)$execution->getId();
+			$params = [];
 		
-		if(isset($this->executions[$id]))
-		{
-			$this->syncExecution($execution, $this->executions[$id], false);
-		}
-	}
-	
-	protected function syncExecution(VirtualExecution $execution, ExecutionInfo $info, $syncChildExecutions = true)
-	{
-		$data = $this->serializeExecution($execution);
-		$state = $info->getState($data);
-	
-		if($state == ExecutionInfo::STATE_REMOVED)
-		{
-			$this->debug('SYNC [delete]: {execution}', [
-				'execution' => (string)$execution
-			]);
-			
-			foreach($execution->findChildExecutions() as $child)
+			foreach($delta[Execution::SYNC_STATE_REMOVED] as $k)
 			{
-				$this->syncExecution($child, $this->executions[(string)$child->getId()]);
+				$params['n' . count($params)] = $k;
 			}
-				
-			$sql = "	DELETE FROM `#__bpmn_execution`
-						WHERE `id` = :id
-			";
-			$stmt = $this->conn->prepare($sql);
-			$stmt->bindValue('id', $data['id']);
-			$stmt->execute();
-				
-			unset($this->executions[(string)$execution->getId()]);
-				
-			return;
-		}
 		
-		if($state == ExecutionInfo::STATE_MODIFIED)
-		{
-			$this->debug('SYNC [update]: {execution}', [
-				'execution' => (string)$execution
-			]);
-			
-			$sql = "	UPDATE `#__bpmn_execution`
-						SET `pid` = :pid,
-							`process_id` = :process,
-							`state` = :state,
-							`active` = :active,
-							`node` = :node,
-							`depth` = :depth,
-							`transition` = :transition,
-							`business_key` = :bkey
-						WHERE `id` = :id
-			";
-			$stmt = $this->conn->prepare($sql);
-			$stmt->bindValue('id', $data['id']);
-			$stmt->bindValue('pid', $data['pid']);
-			$stmt->bindValue('process', $data['process']);
-			$stmt->bindValue('state', $data['state']);
-			$stmt->bindValue('active', $data['active']);
-			$stmt->bindValue('node', $data['node']);
-			$stmt->bindValue('transition', $data['transition']);
-			$stmt->bindValue('depth', $data['depth']);
-			$stmt->bindValue('bkey', $data['bkey']);
-			$stmt->execute();
-			
-			$delta = $info->getVariableDelta($data['vars']);
-			
-			$info->update($data);
-		}
-		elseif($state == ExecutionInfo::STATE_NEW)
-		{
-			$this->debug('SYNC [create]: {execution}', [
-				'execution' => (string)$execution
-			]);
-			
-			$sql = "	INSERT INTO `#__bpmn_execution` (
-							`id`, `pid`, `process_id`, `definition_id`, `state`, `active`,
-							`node`, `transition`, `depth`, `business_key`
-						) VALUES (
-							:id, :pid, :process, :def, :state, :active,
-							:node, :transition, :depth, :bkey
-						)
-			";
-			$stmt = $this->conn->prepare($sql);
-			
-			foreach($data as $k => $v)
-			{
-				if($k == 'vars')
-				{
-					continue;
-				}
-				
-				$stmt->bindValue($k, $v);
-			}
-			
-			$stmt->execute();
-
-			$delta = $info->getVariableDelta($data['vars']);
-			
-			$info->update($data);
-		}
+			$placeholders = implode(', ', array_map(function($p) {
+				return ':' . $p;
+			}, array_keys($params)));
 		
-		if(!empty($delta))
+			$sql = "	DELETE FROM `#__bpmn_execution_variables`
+						WHERE `execution_id` = :eid
+						AND `name` IN ($placeholders)
+			";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->bindValue('eid', $execution->getId());
+			$stmt->bindAll($params);
+			$stmt->execute();
+		}
+			
+		if(!empty($delta[Execution::SYNC_STATE_MODIFIED]))
 		{
-			if(!empty($delta[ExecutionInfo::STATE_REMOVED]))
+			$sql = "	INSERT INTO `#__bpmn_execution_variables`
+							(`execution_id`, `name`, `value`, `value_blob`)
+						VALUES
+							(:eid, :name, :value, :blob)
+			";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->bindValue('eid', $execution->getId());
+		
+			foreach($delta[Execution::SYNC_STATE_MODIFIED] as $k)
 			{
-				$params = [];
-				
-				foreach($delta[ExecutionInfo::STATE_REMOVED] as $k)
+				$value = NULL;
+							
+				if(is_scalar($syncData['variables'][$k]))
 				{
-					$params['n' . count($params)] = $k;
+					$val = $syncData['variables'][$k];
+		
+					if(is_bool($val))
+					{
+						$val = $val ? '1' : '0';
+					}
+		
+					$value = new UnicodeString(trim($val));
+		
+					if($value->length() > 250)
+					{
+						$value = $value->substring(0, 250);
+					}
+		
+					$value = $value->toLowerCase();
 				}
-				
-				$placeholders = implode(', ', array_map(function($p) {
-					return ':' . $p;
-				}, array_keys($params)));
-				
-				$sql = "	DELETE FROM `#__bpmn_execution_variables`
-							WHERE `execution_id` = :eid
-							AND `name` IN ($placeholders)
-				";
-				$stmt = $this->conn->prepare($sql);
-				$stmt->bindValue('eid', $data['id']);
-				$stmt->bindAll($params);
+								
+				$stmt->bindValue('name', $k);
+				$stmt->bindValue('value', $value);
+				$stmt->bindValue('blob', new BinaryData(serialize($syncData['variables'][$k])));
 				$stmt->execute();
 			}
-			
-			if(!empty($delta[ExecutionInfo::STATE_NEW]))
+		}
+	}
+	
+	protected function computeVarDelta(Execution $execution, array $syncData)
+	{
+		$result = [
+			0 => [],
+			1 => []
+		];
+		
+		$data = $execution->getSyncData();
+		
+		$vars = empty($data['variables']) ? [] : $data['variables'];
+		$syncData = empty($syncData['variables']) ? [] : $syncData['variables'];
+		
+		foreach($vars as $k => $v)
+		{
+			if(!array_key_exists($k, $syncData))
 			{
-				$sql = "	INSERT INTO `#__bpmn_execution_variables`
-								(`execution_id`, `name`, `value`, `value_blob`)
-							VALUES
-								(:eid, :name, :value, :blob)
-				";
-				$stmt = $this->conn->prepare($sql);
-				$stmt->bindValue('eid', $data['id']);
-				
-				foreach($delta[ExecutionInfo::STATE_NEW] as $k)
-				{
-					$value = NULL;
-					
-					if(is_scalar($data['vars'][$k]))
-					{
-						$val = $data['vars'][$k];
-						
-						if(is_bool($val))
-						{
-							$val = $val ? '1' : '0';
-						}
-						
-						$value = new UnicodeString(trim($val));
-						
-						if($value->length() > 250)
-						{
-							$value = $value->substring(0, 250);
-						}
-						
-						$value = $value->toLowerCase();
-					}
-					
-					$stmt->bindValue('name', $k);
-					$stmt->bindValue('value', $value);
-					$stmt->bindValue('blob', new BinaryData(serialize($data['vars'][$k])));
-					$stmt->execute();
-				}
+				$result[0][$k] = true;
+				continue;
 			}
+			
+			if($v !== $syncData[$k])
+			{
+				$result[1][$k] = true;
+			}
+			
+			unset($syncData[$k]);
 		}
 		
-		if($syncChildExecutions)
+		foreach($syncData as $k => $v)
 		{
-			foreach($execution->findChildExecutions() as $child)
-			{
-				$this->syncExecution($child, $this->executions[(string)$child->getId()]);
-			}
+			$result[1][$k] = true;
 		}
+		
+		return [
+			Execution::SYNC_STATE_REMOVED => array_unique(array_keys(array_merge($result[0], $result[1]))),
+			Execution::SYNC_STATE_MODIFIED => array_keys($result[1])
+		];
+		
+		return array_map('array_keys', $result);
 	}
 }

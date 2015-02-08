@@ -22,14 +22,19 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  */
 class ClearEventSubscriptionsCommand extends AbstractBusinessCommand
 {
-	protected $execution;
+	protected $executionId;
 	
 	protected $activitId;
 	
 	public function __construct(VirtualExecution $execution, $activityId)
 	{
-		$this->execution = $execution;
+		$this->executionId = $execution->getId();
 		$this->activitId = (string)$activityId;
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function getPriority()
@@ -39,12 +44,14 @@ class ClearEventSubscriptionsCommand extends AbstractBusinessCommand
 	
 	public function executeCommand(ProcessEngine $engine)
 	{
+		$execution = $engine->findExecution($this->executionId);
+		
 		$sql = "	DELETE FROM `#__bpmn_event_subscription`
 					WHERE `execution_id` = :eid
 					AND `activity_id` = :aid
 		";
 		$stmt = $engine->prepareQuery($sql);
-		$stmt->bindValue('eid', $this->execution->getId());
+		$stmt->bindValue('eid', $execution->getId());
 		$stmt->bindValue('aid', $this->activitId);
 		$count = $stmt->execute();
 		
@@ -54,7 +61,7 @@ class ClearEventSubscriptionsCommand extends AbstractBusinessCommand
 			
 			$engine->debug($message, [
 				'count' => $count,
-				'execution' => (string)$this->execution
+				'execution' => (string)$execution
 			]);
 		}
 	}

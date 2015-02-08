@@ -15,6 +15,7 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
+use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Notifies event listeners when a message throw event has been executed.
@@ -23,11 +24,16 @@ use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
  */
 class ThrowMessageCommand extends AbstractBusinessCommand
 {
-	protected $execution;
+	protected $executionId;
 	
 	public function __construct(VirtualExecution $execution)
 	{
-		$this->execution = $execution;
+		$this->executionId = $execution->getId();
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function getPriority()
@@ -37,15 +43,18 @@ class ThrowMessageCommand extends AbstractBusinessCommand
 	
 	public function executeCommand(ProcessEngine $engine)
 	{
+		// Need to sync here to preserve state at current node in execution loaded via query.
+		$engine->syncExecutions();
+		
 		$execution = $engine->getRuntimeService()
 							->createExecutionQuery()
-							->executionId($this->execution->getId())
+							->executionId($this->executionId)
 							->findOne();
 		
-		// Signal execution before event notification, needed to make sure event / message subscriptions
-		// in the throwing process are created in time.
-		$engine->pushCommand(new SignalExecutionCommand($this->execution));
+		// Signal execution to continue creating subscriptions etc...
+		$engine->pushCommand(new SignalExecutionCommand($engine->findExecution($this->executionId)));
 		
+		// Notifications should be domain events that are executed outside a transaction!
 		$engine->notify(new MessageThrownEvent($execution, $engine));
 	}
 }

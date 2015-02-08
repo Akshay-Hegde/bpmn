@@ -15,6 +15,7 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Event\CheckpointReachedEvent;
+use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Notifies event listeners when a checkpoint within a process has been reached.
@@ -25,29 +26,34 @@ class NotifyCheckpointCommand extends AbstractBusinessCommand
 {
 	protected $name;
 	
-	protected $execution;
+	protected $executionId;
 	
 	public function __construct($name, VirtualExecution $execution)
 	{
 		$this->name = (string)$name;
-		$this->execution = $execution;
+		$this->executionId = $execution->getId();
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function executeCommand(ProcessEngine $engine)
 	{
-		$execution = $engine->getRuntimeService()
-							->createExecutionQuery()
-							->executionId($this->execution->getId())
-							->findOne();
+		$engine->syncExecutions();
 		
-		$engine->pushCommand(new SignalExecutionCommand($this->execution));
+		$exec = $engine->getRuntimeService()->createExecutionQuery()->executionId($this->executionId)->findOne();
+		$execution = $engine->findExecution($this->executionId);
+		
+		$engine->pushCommand(new SignalExecutionCommand($execution));
 		
 		$engine->debug('{execution} reached checkpoint "{checkpoint}" ({node})', [
-			'execution' => (string)$this->execution,
+			'execution' => (string)$execution,
 			'checkpoint' => $this->name,
-			'node' => $this->execution->getNode()->getId()
+			'node' => $execution->getNode()->getId()
 		]);
 		
-		$engine->notify(new CheckpointReachedEvent($this->name, $execution, $engine));
+		$engine->notify(new CheckpointReachedEvent($this->name, $exec, $engine));
 	}
 }

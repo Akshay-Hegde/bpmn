@@ -13,7 +13,6 @@ namespace KoolKode\BPMN\Task\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\SerializableBusinessCommandInterface;
 use KoolKode\BPMN\Task\Event\UserTaskUnclaimedEvent;
 use KoolKode\Util\UUID;
 
@@ -22,13 +21,18 @@ use KoolKode\Util\UUID;
  * 
  * @author Martin Schröder
  */
-class UnclaimUserTaskCommand extends AbstractBusinessCommand implements SerializableBusinessCommandInterface
+class UnclaimUserTaskCommand extends AbstractBusinessCommand
 {
 	protected $taskId;
 	
 	public function __construct(UUID $taskId)
 	{
 		$this->taskId = $taskId;
+	}
+	
+	public function isSerializable()
+	{
+		return true;
 	}
 	
 	public function executeCommand(ProcessEngine $engine)

@@ -17,7 +17,7 @@ class ImmediateJobExecutor extends AbstractJobExecutor
 {
 	public function scheduleJob(Job $job)
 	{
-		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job SET `scheduled` = :scheduled WHERE `id` = :id");
+		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `scheduled` = :scheduled WHERE `id` = :id");
 		$stmt->bindValue('scheduled', microtime(true));
 		$stmt->bindValue('id', $job->getId());
 		$stmt->execute();

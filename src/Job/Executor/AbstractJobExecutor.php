@@ -39,7 +39,7 @@ abstract class AbstractJobExecutor implements JobExecutorInterface
 	
 	public function executeJob(UUID $jobId)
 	{
-		$stmt = $this->engine->prepareQuery("SELECT * FROM `#__bpmn_job WHERE `id` = ?");
+		$stmt = $this->engine->prepareQuery("SELECT * FROM `#__bpmn_job` WHERE `id` = ?");
 		$stmt->bindValue('id', $jobId);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('executionId', new UUIDTransformer());

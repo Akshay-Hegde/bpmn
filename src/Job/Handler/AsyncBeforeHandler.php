@@ -22,7 +22,19 @@ use KoolKode\BPMN\Job\Job;
  */
 class AsyncBeforeHandler implements JobHandlerInterface
 {
+	/**
+	 * Name of the job handler.
+	 * 
+	 * @var string
+	 */
 	const HANDLER_TYPE = 'async-before';
+	
+	/**
+	 * ID of the node to be executed.
+	 * 
+	 * @var string
+	 */
+	const PARAM_NODE_ID = 'nodeId';
 	
 	/**
 	 * {@inheritdoc}
@@ -39,7 +51,7 @@ class AsyncBeforeHandler implements JobHandlerInterface
 	{
 		$data = (array)$job->getHandlerData();
 		
-		$node = $execution->getProcessModel()->findNode($data['nodeId']);
+		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
 		
 		$engine->debug('Async continuation started before {node} using {execution}', [
 			'node' => $node->getId(),

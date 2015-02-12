@@ -22,7 +22,26 @@ use KoolKode\BPMN\Job\Job;
  */
 class AsyncAfterHandler implements JobHandlerInterface
 {
+	/**
+	 * Name of the job handler.
+	 * 
+	 * @var string
+	 */
 	const HANDLER_TYPE = 'async-after';
+	
+	/**
+	 * ID of the node to transition out of.
+	 * 
+	 * @var string
+	 */
+	const PARAM_NODE_ID = 'nodeId';
+	
+	/**
+	 * Holds identifiers of all outgoing transitions to be taken, or NULL in order to take all transitions.
+	 * 
+	 * @var array
+	 */
+	const PARAM_TRANSITIONS = 'transitions';
 	
 	/**
 	 * {@inheritdoc}
@@ -39,8 +58,8 @@ class AsyncAfterHandler implements JobHandlerInterface
 	{
 		$data = (array)$job->getHandlerData();
 		
-		$node = $execution->getProcessModel()->findNode($data['nodeId']);
-		$transitions = $data['transitions'];
+		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
+		$transitions = $data[self::PARAM_TRANSITIONS];
 		
 		$engine->debug('Async continuation started after {node} using {execution}', [
 			'node' => $node->getId(),

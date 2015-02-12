@@ -21,9 +21,9 @@ use KoolKode\Process\Command\ExecuteNodeCommand;
  * 
  * @author Martin Schröder
  */
-class AsyncContinuationHandler implements JobHandlerInterface
+class AsyncBeforeHandler implements JobHandlerInterface
 {
-	const HANDLER_TYPE = 'async-continuation';
+	const HANDLER_TYPE = 'async-before';
 	
 	/**
 	 * {@inheritdoc}

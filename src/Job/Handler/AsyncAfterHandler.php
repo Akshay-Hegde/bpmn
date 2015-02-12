@@ -16,13 +16,13 @@ use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Job\Job;
 
 /**
- * Have the engine move an execution into a target node and execute it's behavior.
+ * Have an execution take one or multiple transitions out of a node.
  * 
  * @author Martin Schröder
  */
-class AsyncBeforeHandler implements JobHandlerInterface
+class AsyncAfterHandler implements JobHandlerInterface
 {
-	const HANDLER_TYPE = 'async-before';
+	const HANDLER_TYPE = 'async-after';
 	
 	/**
 	 * {@inheritdoc}
@@ -40,12 +40,13 @@ class AsyncBeforeHandler implements JobHandlerInterface
 		$data = (array)$job->getHandlerData();
 		
 		$node = $execution->getProcessModel()->findNode($data['nodeId']);
+		$transitions = $data['transitions'];
 		
-		$engine->debug('Async continuation started before {node} using {execution}', [
+		$engine->debug('Async continuation started after {node} using {execution}', [
 			'node' => $node->getId(),
 			'execution' => (string)$execution
 		]);
 		
-		$execution->execute($node);
+		$execution->takeAll($transitions);
 	}
 }

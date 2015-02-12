@@ -44,9 +44,8 @@ abstract class AbstractJobExecutor implements JobExecutorInterface
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('executionId', new UUIDTransformer());
 		$stmt->execute();
-		$row = $stmt->fetchNextRow();
 		
-		if($row === false)
+		if(false === ($row = $stmt->fetchNextRow()))
 		{
 			throw new \OutOfBoundsException(sprintf('Job %s not found', $jobId));
 		}

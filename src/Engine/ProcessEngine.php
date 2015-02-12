@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Engine;
 
 use KoolKode\BPMN\Delegate\DelegateTaskFactoryInterface;
+use KoolKode\BPMN\Job\Job;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
@@ -36,11 +37,15 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	const SUB_FLAG_SIGNAL = 1;
 	const SUB_FLAG_MESSAGE = 2;
 	
-	protected $interceptors = [];
-	
 	protected $conn;
 	
 	protected $handleTransactions;
+	
+	protected $interceptors = [];
+	
+	protected $jobs = [];
+	
+	protected $jobExecutor;
 	
 	protected $delegateTaskFactory;
 	
@@ -143,15 +148,27 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $interceptor;
 	}
 	
+	public function scheduleJob(VirtualExecution $execution, $handlerType, $data)
+	{
+		$id = UUID::createRandom();
+		$executionId = $execution->getId();
+		$handlerType = (string)$handlerType;
+		
+		return $this->jobs[] = new Job($id, $executionId, $handlerType, $data);
+	}
+	
 	protected function performExecution(callable $callback)
 	{
 		$trans = false;
 		
-		if($this->executionDepth == 0 && $this->handleTransactions)
+		if($this->executionDepth == 0)
 		{
-			$this->debug('BEGIN transaction');
+			if($this->handleTransactions)
+			{
+				$this->debug('BEGIN transaction');
+				$this->conn->beginTransaction();
+			}
 			
-			$this->conn->beginTransaction();
 			$trans = true;
 		}
 		
@@ -165,8 +182,27 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			
 			if($trans)
 			{
-				$this->debug('COMMIT transaction');
-				$this->conn->commit();
+				$pendingJobs = $this->jobs;
+
+				foreach($pendingJobs as $job)
+				{
+					$this->saveJob($job);
+				}
+				
+				if($this->handleTransactions)
+				{
+					$this->debug('COMMIT transaction');
+					$this->conn->commit();
+				}
+				
+				$this->executions = [];
+				$this->jobs = [];
+				
+				// Schedule jobs after outermost transaction has been completed successfully.
+				foreach($pendingJobs as $job)
+				{
+					$this->jobExecutor->scheduleJob($job);
+				}
 			}
 			
 			return $result;
@@ -175,8 +211,11 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		{
 			if($trans)
 			{
-				$this->debug('ROLL BACK transaction');
-				$this->conn->rollBack();
+				if($this->handleTransactions)
+				{
+					$this->debug('ROLL BACK transaction');
+					$this->conn->rollBack();
+				}
 			}
 			
 			throw $e;
@@ -186,8 +225,24 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			if($trans)
 			{
 				$this->executions = [];
+				$this->jobs = [];
 			}
 		}
+	}
+	
+	protected function saveJob(Job $job)
+	{
+		$stmt = $this->conn->prepare("
+			INSERT INTO `#__bpmn_job`
+				(`id`, `execution_id`, `handler_type`, `handler_data`)
+			VALUES
+				(:id, :eid, :type, :data)
+		");
+		$stmt->bindValue('id', $job->getId());
+		$stmt->bindValue('eid', $job->getExecutionId());
+		$stmt->bindValue('type', $job->getHandlerType());
+		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
+		$stmt->execute();
 	}
 	
 	public function findExecution(UUID $id)

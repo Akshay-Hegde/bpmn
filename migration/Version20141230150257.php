@@ -28,7 +28,7 @@ class Version20141230150257 extends AbstractMigration
     	$deployment->addColumn('name', 'varchar');
     	$deployment->addColumn('deployed_at', 'int', ['unsigned' => true]);
     	$deployment->addIndex(['name', 'deployed_at']);
-    	$deployment->save();
+    	$deployment->create();
     	
     	$resource = $this->table('#__bpmn_resource');
     	$resource->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -37,7 +37,7 @@ class Version20141230150257 extends AbstractMigration
     	$resource->addColumn('data', 'blob');
     	$resource->addUniqueIndex(['name', 'deployment_id']);
     	$resource->addForeignKey(['deployment_id'], '#__bpmn_deployment', ['id']);
-    	$resource->save();
+    	$resource->create();
     	
     	$def = $this->table('#__bpmn_process_definition');
     	$def->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -50,7 +50,7 @@ class Version20141230150257 extends AbstractMigration
     	$def->addUniqueIndex(['process_key', 'revision']);
     	$def->addIndex(['deployment_id', 'process_key']);
     	$def->addForeignKey(['deployment_id'], '#__bpmn_deployment', ['id']);
-    	$def->save();
+    	$def->create();
     	
     	$psub = $this->table('#__bpmn_process_subscription');
     	$psub->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -60,7 +60,7 @@ class Version20141230150257 extends AbstractMigration
     	$psub->addUniqueIndex(['definition_id', 'name']);
     	$psub->addIndex(['name', 'flags']);
     	$psub->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id']);
-    	$psub->save();
+    	$psub->create();
     	
     	$exec = $this->table('#__bpmn_execution');
     	$exec->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -82,7 +82,7 @@ class Version20141230150257 extends AbstractMigration
     	$exec->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id'], ['delete' => 'RESTRICT']);
     	$exec->addForeignKey(['pid'], '#__bpmn_execution', ['id']);
     	$exec->addForeignKey(['process_id'], '#__bpmn_execution', ['id']);
-    	$exec->save();
+    	$exec->create();
     	
     	$vars = $this->table('#__bpmn_execution_variables');
     	$vars->addColumn('execution_id', 'uuid', ['primary_key' => true]);
@@ -91,7 +91,7 @@ class Version20141230150257 extends AbstractMigration
     	$vars->addColumn('value_blob', 'blob');
     	$vars->addIndex(['name', 'value']);
     	$vars->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
-    	$vars->save();
+    	$vars->create();
     	
     	$events = $this->table('#__bpmn_event_subscription');
     	$events->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -107,7 +107,7 @@ class Version20141230150257 extends AbstractMigration
     	$events->addIndex(['name', 'flags']);
     	$events->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
     	$events->addForeignKey(['process_instance_id'], '#__bpmn_execution', ['id']);
-    	$events->save();
+    	$events->create();
     	
     	$tasks = $this->table('#__bpmn_user_task');
     	$tasks->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -127,7 +127,7 @@ class Version20141230150257 extends AbstractMigration
     	$tasks->addIndex(['priority']);
     	$tasks->addIndex(['due_at']);
     	$tasks->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
-    	$tasks->save();
+    	$tasks->create();
     }
     
     /**

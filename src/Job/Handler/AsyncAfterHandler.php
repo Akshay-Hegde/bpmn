@@ -59,13 +59,15 @@ class AsyncAfterHandler implements JobHandlerInterface
 		$data = (array)$job->getHandlerData();
 		
 		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
-		$transitions = $data[self::PARAM_TRANSITIONS];
+		
+		// Move execution into async start node.
+		$execution->setNode($node);
 		
 		$engine->debug('Async continuation started after {node} using {execution}', [
 			'node' => $node->getId(),
 			'execution' => (string)$execution
 		]);
 		
-		$execution->takeAll($transitions);
+		$execution->takeAll($data[self::PARAM_TRANSITIONS]);
 	}
 }

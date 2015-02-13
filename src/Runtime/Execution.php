@@ -30,7 +30,7 @@ class Execution implements ExecutionInterface, \JsonSerializable
 		$this->id = $id;
 		$this->parentId = $parentId;
 		$this->processInstanceId = $processInstanceId;
-		$this->activityId = (string)$activityId;
+		$this->activityId = ($activityId === NULL) ? NULL : (string)$activityId;
 		$this->ended = $ended ? true : false;
 		$this->businessKey = ($businessKey === NULL) ? NULL : (string)$businessKey; 
 	}

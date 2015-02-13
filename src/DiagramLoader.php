@@ -176,6 +176,7 @@ class DiagramLoader
 		{
 			$delegateTask = $builder->delegateTask($id, $el->getAttributeNS(self::NS_IMPL, 'class'), $el->getAttribute('name'));
 			$delegateTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
+			$delegateTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
 				
 			return $delegateTask;
 		}
@@ -184,7 +185,8 @@ class DiagramLoader
 		{
 			$expressionTask = $builder->expressionTask($id, $el->getAttributeNS(self::NS_IMPL, 'expression'), $el->getAttribute('name'));
 			$expressionTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
-				
+			$expressionTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
+			
 			if($el->hasAttributeNS(self::NS_IMPL, 'resultVariable'))
 			{
 				$expressionTask->setResultVariable($el->getAttributeNS(self::NS_IMPL, 'resultVariable'));
@@ -195,6 +197,7 @@ class DiagramLoader
 		
 		$serviceTask = $builder->serviceTask($id, $el->getAttribute('name'));
 		$serviceTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
+		$serviceTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
 		
 		return $serviceTask;
 	}
@@ -223,6 +226,7 @@ class DiagramLoader
 	{
 		$userTask = $builder->userTask($id, $el->getAttribute('name'));
 		$userTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
+		$userTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
 		
 		if($el->hasAttributeNS(self::NS_IMPL, 'assignee') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'assignee')))
 		{

@@ -20,6 +20,10 @@ trait BasicAttributesTrait
 	
 	protected $documentation;
 	
+	protected $asyncBefore = false;
+	
+	protected $asyncAfter = false;
+	
 	public function setName(ExpressionInterface $name = NULL)
 	{
 		$this->name = $name;
@@ -65,5 +69,25 @@ trait BasicAttributesTrait
 		}
 		
 		return new \DateTimeImmutable($value);
+	}
+	
+	public function isAsyncBefore()
+	{
+		return $this->asyncBefore;
+	}
+	
+	public function setAsyncBefore($async)
+	{
+		$this->asyncBefore = $async ? true : false;
+	}
+	
+	public function isAsyncAfter()
+	{
+		return $this->asyncAfter;
+	}
+	
+	public function setAsyncAfter($async)
+	{
+		$this->asyncAfter = $async ? true : false;
 	}
 }

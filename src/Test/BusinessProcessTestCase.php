@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Test;
 use KoolKode\BPMN\Delegate\DelegateTaskRegistry;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Job\Executor\TestJobExecutor;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\RuntimeService;
@@ -47,6 +48,11 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 	 * @var ProcessEngine
 	 */
 	protected $processEngine;
+	
+	/**
+	 * @var TestJobExecutor
+	 */
+	protected $jobExecutor;
 	
 	/**
 	 * @var DelegateTaskRegistry
@@ -141,6 +147,10 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		$this->processEngine = new ProcessEngine($this->conn, $this->eventDispatcher, new ExpressionContextFactory());
 		$this->processEngine->setDelegateTaskFactory($this->delegateTasks);
 		$this->processEngine->setLogger($logger);
+		
+		$this->jobExecutor = new TestJobExecutor($this->processEngine);
+		
+		$this->processEngine->setJobExecutor($this->jobExecutor);
 		
 		$this->repositoryService = $this->processEngine->getRepositoryService();
 		$this->runtimeService = $this->processEngine->getRuntimeService();

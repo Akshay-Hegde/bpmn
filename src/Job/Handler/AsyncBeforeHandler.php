@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Job\Handler;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Job\Job;
+use KoolKode\Process\Command\ExecuteNodeCommand;
 
 /**
  * Have the engine move an execution into a target node and execute it's behavior.
@@ -53,11 +54,17 @@ class AsyncBeforeHandler implements JobHandlerInterface
 		
 		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
 		
+		if($execution->isTerminated())
+		{
+			throw new \RuntimeException(sprintf('%s is terminated', $execution));
+		}
+		
 		$engine->debug('Async continuation started before {node} using {execution}', [
 			'node' => $node->getId(),
 			'execution' => (string)$execution
 		]);
 		
-		$execution->execute($node);
+		// Push execution command instead of calling execute() on the execution to avoid creating another async job.
+		$engine->pushCommand(new ExecuteNodeCommand($execution, $node));
 	}
 }

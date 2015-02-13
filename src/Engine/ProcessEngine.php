@@ -12,6 +12,8 @@
 namespace KoolKode\BPMN\Engine;
 
 use KoolKode\BPMN\Delegate\DelegateTaskFactoryInterface;
+use KoolKode\BPMN\Job\Executor\JobExecutorInterface;
+use KoolKode\BPMN\Job\Handler\AsyncBeforeHandler;
 use KoolKode\BPMN\Job\Job;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
@@ -23,7 +25,9 @@ use KoolKode\Database\UUIDTransformer;
 use KoolKode\Event\EventDispatcherInterface;
 use KoolKode\Expression\ExpressionContextFactoryInterface;
 use KoolKode\Process\AbstractEngine;
+use KoolKode\Process\Command\CallbackCommand;
 use KoolKode\Process\Execution;
+use KoolKode\Process\Node;
 use KoolKode\Util\UnicodeString;
 use KoolKode\Util\UUID;
 
@@ -81,16 +85,25 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		];
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getRepositoryService()
 	{
 		return $this->repositoryService;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getRuntimeService()
 	{
 		return $this->runtimeService;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getTaskService()
 	{
 		return $this->taskService;
@@ -107,17 +120,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $this->conn->prepare($sql);
 	}
 	
-	/**
-	 * get the last ID that has been inserted / next sequence value.
-	 * 
-	 * @param string $seq Name of the sequence to be used.
-	 * @return integer
-	 */
-	public function getLastInsertId($seq = NULL)
-	{
-		return $this->conn->lastInsertId($seq);
-	}
-	
 	public function setDelegateTaskFactory(DelegateTaskFactoryInterface $factory = NULL)
 	{
 		$this->delegateTaskFactory = $factory;
@@ -131,6 +133,11 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		}
 		
 		return $this->delegateTaskFactory->createDelegateTask($typeName);
+	}
+	
+	public function setJobExecutor(JobExecutorInterface $executor)
+	{
+		$this->jobExecutor = $executor;
 	}
 	
 	public function registerExecutionInterceptor(ExecutionInterceptorInterface $interceptor)
@@ -150,13 +157,29 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	
 	public function scheduleJob(VirtualExecution $execution, $handlerType, $data)
 	{
+		if($this->jobExecutor === NULL)
+		{
+			throw new \RuntimeException('Cannot schedule jobs without a job executor');
+		}
+		
 		$id = UUID::createRandom();
 		$executionId = $execution->getId();
 		$handlerType = (string)$handlerType;
 		
-		return $this->jobs[] = new Job($id, $executionId, $handlerType, $data);
+		$job = new Job($id, $executionId, $handlerType, $data);
+		
+		$this->debug('Scheduled job <{job}> of type "{handler}" within {execution}', [
+			'job' => (string)$job->getId(),
+			'handler' => $handlerType,
+			'execution' => (string)$execution
+		]);
+		
+		return $this->jobs[] = $job;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	protected function performExecution(callable $callback)
 	{
 		$trans = false;
@@ -189,19 +212,15 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 					$this->saveJob($job);
 				}
 				
+				foreach($pendingJobs as $job)
+				{
+					$this->jobExecutor->scheduleJob($job);
+				}
+				
 				if($this->handleTransactions)
 				{
 					$this->debug('COMMIT transaction');
 					$this->conn->commit();
-				}
-				
-				$this->executions = [];
-				$this->jobs = [];
-				
-				// Schedule jobs after outermost transaction has been completed successfully.
-				foreach($pendingJobs as $job)
-				{
-					$this->jobExecutor->scheduleJob($job);
 				}
 			}
 			
@@ -243,8 +262,50 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$stmt->bindValue('type', $job->getHandlerType());
 		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
 		$stmt->execute();
+		
+		$this->debug('Persisted job <{job}> in DB', [
+			'job' => (string)$job->getId()
+		]);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createExecuteNodeCommand(Execution $execution, Node $node)
+	{
+		$behavior = $node->getBehavior();
+		
+		if($behavior instanceof AbstractBehavior)
+		{
+			if($behavior->isAsyncBefore())
+			{
+				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncBeforeHandler::HANDLER_TYPE))
+				{
+					$this->scheduleJob($execution, AsyncBeforeHandler::HANDLER_TYPE, [
+						AsyncBeforeHandler::PARAM_NODE_ID => $node->getId()
+					]);
+					
+					// Move execution out of any previous node before proceeding.
+					$execution->setNode(NULL);
+					
+					// return No-op command instead of execute node command.
+					return new CallbackCommand(function() { });
+				}
+				
+				$this->warning('Behavior of {node} should be executed via "{handler}" job within {execution}', [
+					'node' => (string)$node,
+					'handler' => AsyncBeforeHandler::HANDLER_TYPE,
+					'execution' => (string)$execution
+				]);
+			}
+		}
+		
+		return parent::createExecuteNodeCommand($execution, $node);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function findExecution(UUID $id)
 	{
 		$ref = (string)$id;
@@ -365,6 +426,9 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $this->executions[$ref];
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	protected function syncNewExecution(Execution $execution, array $syncData)
 	{
 		$sql = "	INSERT INTO `#__bpmn_execution` (
@@ -394,6 +458,9 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return parent::syncNewExecution($execution, $syncData);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	protected function syncModifiedExecution(Execution $execution, array $syncData)
 	{
 		$sql = "	UPDATE `#__bpmn_execution`
@@ -424,6 +491,9 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return parent::syncModifiedExecution($execution, $syncData);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	protected function syncRemovedExecution(Execution $execution)
 	{
 		foreach($execution->findChildExecutions() as $child)

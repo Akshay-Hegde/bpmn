@@ -32,6 +32,7 @@ class Version20150212110141 extends AbstractMigration
         $job->addColumn('handler_data', 'blob', ['default' => NULL]);
         
         // TODO: This should really be a datetime / timestamp type!
+        $job->addColumn('scheduled_at', 'bigint', ['default' => NULL]);
         $job->addColumn('run_at', 'bigint', ['default' => NULL]);
         
         $job->addIndex(['execution_id']);

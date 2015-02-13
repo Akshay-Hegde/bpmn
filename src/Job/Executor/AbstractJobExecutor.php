@@ -37,12 +37,17 @@ abstract class AbstractJobExecutor implements JobExecutorInterface
 		$this->handlers[$handler->getType()] = $handler;
 	}
 	
+	public function hasJobHandler($type)
+	{
+		return isset($this->handlers[(string)$type]);
+	}
+	
 	public function executeJob(UUID $jobId)
 	{
-		$stmt = $this->engine->prepareQuery("SELECT * FROM `#__bpmn_job` WHERE `id` = ?");
+		$stmt = $this->engine->prepareQuery("SELECT * FROM `#__bpmn_job` WHERE `id` = :id");
 		$stmt->bindValue('id', $jobId);
 		$stmt->transform('id', new UUIDTransformer());
-		$stmt->transform('executionId', new UUIDTransformer());
+		$stmt->transform('execution_id', new UUIDTransformer());
 		$stmt->execute();
 		
 		if(false === ($row = $stmt->fetchNextRow()))
@@ -72,6 +77,6 @@ abstract class AbstractJobExecutor implements JobExecutorInterface
 			}
 		}
 		
-		throw new \OutOfBoundsException(sprintf('Job handler "%s" found for job %s', $job->getHandlerType(), $job->getId()));
+		throw new \OutOfBoundsException(sprintf('Job handler "%s" not found for job %s', $job->getHandlerType(), $job->getId()));
 	}
 }

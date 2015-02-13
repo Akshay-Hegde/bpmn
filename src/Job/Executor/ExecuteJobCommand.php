@@ -41,10 +41,11 @@ class ExecuteJobCommand extends AbstractBusinessCommand
 	{
 		$execution = $engine->findExecution($this->job->getExecutionId());
 		
-		$engine->debug('Executing job <job> using handler {handler} within {execution}', [
+		$engine->debug('Executing job <{job}> using handler "{handler}" ({impl}) within {execution}', [
 			'job' => (string)$this->job->getId(),
-			'handler' => get_class($this->handler),
-			'execution' => (string)$execution->getId()
+			'handler' => $this->handler->getType(),
+			'impl' => get_class($this->handler),
+			'execution' => (string)$execution
 		]);
 		
 		$this->handler->executeJob($this->job, $execution, $engine);

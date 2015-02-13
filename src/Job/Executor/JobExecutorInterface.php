@@ -11,9 +11,14 @@
 
 namespace KoolKode\BPMN\Job\Executor;
 
+use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
 
 interface JobExecutorInterface
 {
+	public function registerJobHandler(JobHandlerInterface $handler);
+
+	public function hasJobHandler($type);
+	
 	public function scheduleJob(Job $job);
 }

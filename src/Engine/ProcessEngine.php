@@ -28,6 +28,7 @@ use KoolKode\Process\AbstractEngine;
 use KoolKode\Process\Command\CallbackCommand;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
+use KoolKode\Process\Transition;
 use KoolKode\Util\UnicodeString;
 use KoolKode\Util\UUID;
 
@@ -301,6 +302,16 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		}
 		
 		return parent::createExecuteNodeCommand($execution, $node);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createTakeTransitionCommand(Execution $execution, Transition $transition = NULL)
+	{
+		// TODO: Implement "async-after" handler right here :)
+		
+		return parent::createTakeTransitionCommand($execution, $transition);
 	}
 	
 	/**

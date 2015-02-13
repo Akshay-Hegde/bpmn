@@ -24,10 +24,26 @@ use KoolKode\Util\UUID;
  */
 class ExecuteJobCommand extends AbstractBusinessCommand
 {
+	/**
+	 * The job to be executed.
+	 * 
+	 * @var Job
+	 */
 	protected $job;
 	
+	/**
+	 * The job handler instance.
+	 * 
+	 * @var JobHandlerInterface
+	 */
 	protected $handler;
-	
+
+	/**
+	 * Create a new job execution command that can be processed by the engine.
+	 * 
+	 * @param Job $job
+	 * @param JobHandlerInterface $handler
+	 */
 	public function __construct(Job $job, JobHandlerInterface $handler)
 	{
 		$this->job = $job;

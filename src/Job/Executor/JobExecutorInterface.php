@@ -15,7 +15,7 @@ use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
 
 /**
- * Contract for the BPMN job scheduler.
+ * Contract for the BPMN job executor.
  * 
  * @author Martin Schröder
  */
@@ -37,18 +37,16 @@ interface JobExecutorInterface
 	public function registerJobHandler(JobHandlerInterface $handler);
 	
 	/**
+	 * Schedule a job for execution.
+	 *
+	 * @param Job $job
+	 */
+	public function scheduleJob(Job $job);
+	
+	/**
 	 * Execute the given job using the process engine.
 	 * 
 	 * @param Job $job
 	 */
 	public function executeJob(Job $job);
-	
-	// TODO: Split the scheduling part into another component.
-	
-	/**
-	 * Schedule a job for execution.
-	 * 
-	 * @param Job $job
-	 */
-	public function scheduleJob(Job $job);
 }

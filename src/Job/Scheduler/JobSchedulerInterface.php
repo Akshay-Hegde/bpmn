@@ -9,22 +9,22 @@
  * file that was distributed with this source code.
  */
 
-namespace KoolKode\BPMN\Job\Executor;
+namespace KoolKode\BPMN\Job\Scheduler;
 
+use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
 
 /**
- * The test job executor will simply mark jobs as scheduled in the DB.
+ * Contract for a BPMN job scheduler.
  * 
  * @author Martin Schröder
  */
-class TestJobExecutor extends AbstractJobExecutor
+interface JobSchedulerInterface
 {
 	/**
-	 * {@inheritdoc}
+	 * Schedule a job for execution.
+	 * 
+	 * @param Job $job
 	 */
-	public function scheduleJob(Job $job)
-	{
-		$this->markJobAsScheduled($job);
-	}
+	public function scheduleJob(Job $job);
 }

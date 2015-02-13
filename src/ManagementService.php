@@ -24,6 +24,11 @@ class ManagementService
 		$this->engine = $engine;
 	}
 	
+	/**
+	 * Create a new job query.
+	 * 
+	 * @return JobQuery
+	 */
 	public function createJobQuery()
 	{
 		return new JobQuery($this->engine);
@@ -31,6 +36,8 @@ class ManagementService
 	
 	public function executeJob(UUID $jobId)
 	{
+		// TODO: Job execution requires locking due to concurrency...
+		
 		$job = $this->createJobQuery()->jobId($jobId)->findOne();
 		
 		$this->engine->executeJob($job);
@@ -38,11 +45,23 @@ class ManagementService
 	
 	public function deleteJob(UUID $jobId)
 	{
-		
+		$stmt = $this->engine->prepareQuery("DELETE FROM `#__bpmn_job` WHERE `id` = :id");
+		$stmt->bindValue('id', $jobId);
+		$stmt->execute();
 	}
 	
 	public function setJobRetries(UUID $jobId, $retries)
 	{
+		$retries = (int)$retries;
 		
+		if($retries < 0)
+		{
+			throw new \InvalidArgumentException(sprintf('Job retry count must not be negative'));
+		}
+		
+		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `retries` = :retries WHERE `id` = :id");
+		$stmt->bindValue('retries', $retries);
+		$stmt->bindValue('id', $jobId);
+		$stmt->execute();
 	}
 }

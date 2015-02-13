@@ -15,6 +15,7 @@ use KoolKode\BPMN\Delegate\DelegateTaskRegistry;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Job\Executor\TestJobExecutor;
+use KoolKode\BPMN\ManagementService;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\RuntimeService;
@@ -74,9 +75,14 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	protected $taskService;
 	
-	protected $messageHandlers;
+	/**
+	 * @var ManagementService
+	 */
+	protected $managementService;
 	
-	protected $serviceTaskHandlers;
+	private $messageHandlers;
+	
+	private $serviceTaskHandlers;
 	
 	private $typeInfo;
 	
@@ -155,6 +161,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		$this->repositoryService = $this->processEngine->getRepositoryService();
 		$this->runtimeService = $this->processEngine->getRuntimeService();
 		$this->taskService = $this->processEngine->getTaskService();
+		$this->managementService = $this->processEngine->getManagementService();
 		
 		if($this->typeInfo === NULL)
 		{

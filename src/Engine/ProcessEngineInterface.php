@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Engine;
 
+use KoolKode\BPMN\ManagementService;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
@@ -36,4 +37,9 @@ interface ProcessEngineInterface
 	 * @return TaskService
 	 */
 	public function getTaskService();
+	
+	/**
+	 * @return ManagementService
+	 */
+	public function getManagementService();
 }

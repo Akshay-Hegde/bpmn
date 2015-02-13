@@ -13,36 +13,18 @@ namespace KoolKode\BPMN\Job\Executor;
 
 use KoolKode\BPMN\Job\Job;
 
+/**
+ * The test job executor will simply mark jobs as scheduled in the DB.
+ * 
+ * @author Martin Schröder
+ */
 class TestJobExecutor extends AbstractJobExecutor
 {
-	protected $jobs = [];
-	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function scheduleJob(Job $job)
 	{
-		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `scheduled_at` = :scheduled WHERE `id` = :id");
-		$stmt->bindValue('scheduled', time());
-		$stmt->bindValue('id', $job->getId());
-		$stmt->execute();
-		
-		$this->jobs[] = $job;
-	}
-	
-	public function getPendingJobs()
-	{
-		return $this->jobs;
-	}
-	
-	public function executeNextJob()
-	{
-		if(empty($this->jobs))
-		{
-			return false;
-		}
-		
-		$job = array_shift($this->jobs);
-		
-		$this->executeJob($job->getId());
-		
-		return true;
+		$this->markJobAsScheduled($job);
 	}
 }

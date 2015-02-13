@@ -11,12 +11,9 @@
 
 namespace KoolKode\BPMN\Job\Executor;
 
-use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
-use KoolKode\Database\UUIDTransformer;
-use KoolKode\Util\UUID;
 
 abstract class AbstractJobExecutor implements JobExecutorInterface
 {
@@ -32,38 +29,24 @@ abstract class AbstractJobExecutor implements JobExecutorInterface
 		$this->engine = $engine;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function registerJobHandler(JobHandlerInterface $handler)
 	{
 		$this->handlers[$handler->getType()] = $handler;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function hasJobHandler($type)
 	{
 		return isset($this->handlers[(string)$type]);
 	}
 	
-	public function executeJob(UUID $jobId)
+	public function executeJob(Job $job)
 	{
-		$stmt = $this->engine->prepareQuery("SELECT * FROM `#__bpmn_job` WHERE `id` = :id");
-		$stmt->bindValue('id', $jobId);
-		$stmt->transform('id', new UUIDTransformer());
-		$stmt->transform('execution_id', new UUIDTransformer());
-		$stmt->execute();
-		
-		if(false === ($row = $stmt->fetchNextRow()))
-		{
-			throw new \OutOfBoundsException(sprintf('Job %s not found', $jobId));
-		}
-		
-		$job = new Job(
-			$row['id'],
-			$row['execution_id'],
-			$row['handler_type'],
-			unserialize(BinaryData::decode($row['handler_data'])),
-			$row['retries'],
-			$row['lock_owner']
-		);
-		
 		$this->engine->executeCommand(new ExecuteJobCommand($job, $this->findJobHandler($job)));
 	}
 	
@@ -78,5 +61,13 @@ abstract class AbstractJobExecutor implements JobExecutorInterface
 		}
 		
 		throw new \OutOfBoundsException(sprintf('Job handler "%s" not found for job %s', $job->getHandlerType(), $job->getId()));
+	}
+	
+	protected function markJobAsScheduled(Job $job)
+	{
+		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `scheduled_at` = :scheduled WHERE `id` = :id");
+		$stmt->bindValue('scheduled', time());
+		$stmt->bindValue('id', $job->getId());
+		$stmt->execute();
 	}
 }

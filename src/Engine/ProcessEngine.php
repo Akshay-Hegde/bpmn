@@ -16,6 +16,7 @@ use KoolKode\BPMN\Job\Executor\JobExecutorInterface;
 use KoolKode\BPMN\Job\Handler\AsyncAfterHandler;
 use KoolKode\BPMN\Job\Handler\AsyncBeforeHandler;
 use KoolKode\BPMN\Job\Job;
+use KoolKode\BPMN\ManagementService;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
@@ -61,6 +62,8 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	
 	protected $taskService;
 	
+	protected $managementService;
+	
 	public function __construct(ConnectionInterface $conn, EventDispatcherInterface $dispatcher, ExpressionContextFactoryInterface $factory, $handleTransactions = true)
 	{
 		parent::__construct($dispatcher, $factory);
@@ -74,6 +77,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$this->repositoryService = new RepositoryService($this);
 		$this->runtimeService = new RuntimeService($this);
 		$this->taskService = new TaskService($this);
+		$this->managementService = new ManagementService($this);
 	}
 	
 	public function __debugInfo()
@@ -109,6 +113,14 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	public function getTaskService()
 	{
 		return $this->taskService;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getManagementService()
+	{
+		return $this->managementService;
 	}
 	
 	/**
@@ -214,19 +226,12 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 					$this->saveJob($job);
 				}
 				
-				foreach($pendingJobs as $job)
-				{
-					$this->jobExecutor->scheduleJob($job);
-				}
-				
 				if($this->handleTransactions)
 				{
 					$this->debug('COMMIT transaction');
 					$this->conn->commit();
 				}
 			}
-			
-			return $result;
 		}
 		catch(\Exception $e)
 		{
@@ -249,6 +254,27 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 				$this->jobs = [];
 			}
 		}
+		
+		// Schedule jobs after commit to DB, ensures consistent state in DB and failed scheduling attempts can be repeated.
+		if($trans)
+		{
+			foreach($pendingJobs as $job)
+			{
+				$this->jobExecutor->scheduleJob($job);
+			}
+		}
+		
+		return $result;
+	}
+	
+	public function executeJob(Job $job)
+	{
+		if($this->jobExecutor === NULL)
+		{
+			throw new \RuntimeException(sprintf('Cannot execute job %s without a job executor', $job->getId()));
+		}
+		
+		$this->jobExecutor->executeJob($job);
 	}
 	
 	protected function saveJob(Job $job)

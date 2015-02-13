@@ -18,7 +18,7 @@ use KoolKode\BPMN\Job\Job;
 use KoolKode\Util\UUID;
 
 /**
- * Execute a job within an engine execution cycle
+ * Execute a job within an engine execution cycle.
  * 
  * @author Martin Schröder
  */

@@ -12,7 +12,6 @@
 namespace KoolKode\BPMN;
 
 use KoolKode\BPMN\Job\Handler\AsyncBeforeHandler;
-use KoolKode\BPMN\Job\JobQuery;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class AsyncBeforeTest extends BusinessProcessTestCase
@@ -43,7 +42,7 @@ class AsyncBeforeTest extends BusinessProcessTestCase
 		{
 			$this->assertNull($process->getActivityId());
 			
-			$query = new JobQuery($this->processEngine);
+			$query = $this->managementService->createJobQuery();
 			$query->executionId($process->getId());
 			$query->processInstanceId($process->getId());
 			$query->processDefinitionKey('process1');
@@ -56,7 +55,7 @@ class AsyncBeforeTest extends BusinessProcessTestCase
 			$this->assertFalse($job->isLocked());
 			$this->assertNull($job->getLockOwner());
 			
-			$this->jobExecutor->executeJob($job->getId());
+			$this->managementService->executeJob($job->getId());
 		}
 		
 		$task = $this->taskService->createTaskQuery()->executionId($process->getId())->findOne();

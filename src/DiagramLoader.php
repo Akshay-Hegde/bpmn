@@ -176,7 +176,8 @@ class DiagramLoader
 		{
 			$delegateTask = $builder->delegateTask($id, $el->getAttributeNS(self::NS_IMPL, 'class'), $el->getAttribute('name'));
 			$delegateTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
-			$delegateTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
+			$delegateTask->setAsyncBefore($this->getAsyncBefore($el));
+			$delegateTask->setAsyncAfter($this->getAsyncAfter($el));
 				
 			return $delegateTask;
 		}
@@ -185,7 +186,8 @@ class DiagramLoader
 		{
 			$expressionTask = $builder->expressionTask($id, $el->getAttributeNS(self::NS_IMPL, 'expression'), $el->getAttribute('name'));
 			$expressionTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
-			$expressionTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
+			$expressionTask->setAsyncBefore($this->getAsyncBefore($el));
+			$expressionTask->setAsyncAfter($this->getAsyncAfter($el));
 			
 			if($el->hasAttributeNS(self::NS_IMPL, 'resultVariable'))
 			{
@@ -197,7 +199,8 @@ class DiagramLoader
 		
 		$serviceTask = $builder->serviceTask($id, $el->getAttribute('name'));
 		$serviceTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
-		$serviceTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
+		$serviceTask->setAsyncBefore($this->getAsyncBefore($el));
+		$serviceTask->setAsyncAfter($this->getAsyncAfter($el));
 		
 		return $serviceTask;
 	}
@@ -213,6 +216,8 @@ class DiagramLoader
 		
 		$scriptTask = $builder->scriptTask($id, $el->getAttribute('scriptFormat'), $script, $el->getAttribute('name'));
 		$scriptTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
+		$scriptTask->setAsyncBefore($this->getAsyncBefore($el));
+		$scriptTask->setAsyncAfter($this->getAsyncAfter($el));
 		
 		if($el->hasAttributeNS(self::NS_IMPL, 'resultVariable'))
 		{
@@ -226,7 +231,8 @@ class DiagramLoader
 	{
 		$userTask = $builder->userTask($id, $el->getAttribute('name'));
 		$userTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
-		$userTask->setAsyncBefore(strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true');
+		$userTask->setAsyncBefore($this->getAsyncBefore($el));
+		$userTask->setAsyncAfter($this->getAsyncAfter($el));
 		
 		if($el->hasAttributeNS(self::NS_IMPL, 'assignee') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'assignee')))
 		{
@@ -250,6 +256,8 @@ class DiagramLoader
 	{
 		$manualTask = $builder->manualTask($id, $el->getAttribute('name'));
 		$manualTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
+		$manualTask->setAsyncBefore($this->getAsyncBefore($el));
+		$manualTask->setAsyncAfter($this->getAsyncAfter($el));
 	
 		return $manualTask;
 	}
@@ -263,6 +271,8 @@ class DiagramLoader
 	{
 		$call = $builder->callActivity($id, $el->getAttribute('calledElement'), $el->getAttribute('name'));
 		$call->setDocumentation($builder->stringExp($this->getDocumentation($el)));
+		$call->setAsyncBefore($this->getAsyncBefore($el));
+		$call->setAsyncAfter($this->getAsyncAfter($el));
 		
 		foreach($this->xpath->query('m:extensionElements/i:in[@source]', $el) as $in)
 		{
@@ -497,6 +507,21 @@ class DiagramLoader
 		}
 		
 		return empty($docs) ? NULL : implode(' ', $docs);
+	}
+	
+	protected function getAsyncBefore(\DOMElement $el)
+	{
+		if(strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncBefore')) == 'true')
+		{
+			return true;
+		}
+		
+		return strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true';
+	}
+	
+	protected function getAsyncAfter(\DOMElement $el)
+	{
+		return strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncAfter')) == 'true';
 	}
 	
 	protected function createXPath(\DOMNode $xml)

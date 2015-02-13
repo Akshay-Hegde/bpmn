@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Job\Handler;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Job\Job;
+use KoolKode\Process\Command\TakeTransitionCommand;
 
 /**
  * Have an execution take one or multiple transitions out of a node.
@@ -37,11 +38,11 @@ class AsyncAfterHandler implements JobHandlerInterface
 	const PARAM_NODE_ID = 'nodeId';
 	
 	/**
-	 * Holds identifiers of all outgoing transitions to be taken, or NULL in order to take all transitions.
+	 * Identifier of the transition to be taken or NULL when taking the only outgoing transition.
 	 * 
-	 * @var array
+	 * @var string
 	 */
-	const PARAM_TRANSITIONS = 'transitions';
+	const PARAM_TRANSITION = 'transition';
 	
 	/**
 	 * {@inheritdoc}
@@ -59,6 +60,12 @@ class AsyncAfterHandler implements JobHandlerInterface
 		$data = (array)$job->getHandlerData();
 		
 		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
+		$trans = $data[self::PARAM_TRANSITION];
+		
+		if($trans !== NULL)
+		{
+			$trans = $execution->getProcessModel()->findTransition($trans);
+		}
 		
 		// Move execution into async start node.
 		$execution->setNode($node);
@@ -68,6 +75,7 @@ class AsyncAfterHandler implements JobHandlerInterface
 			'execution' => (string)$execution
 		]);
 		
-		$execution->takeAll($data[self::PARAM_TRANSITIONS]);
+		// Push transition command to avoid re-entering async-after via process engine.
+		$engine->pushCommand(new TakeTransitionCommand($execution, $trans));
 	}
 }

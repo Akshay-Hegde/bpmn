@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Engine;
 
 use KoolKode\BPMN\Delegate\DelegateTaskFactoryInterface;
 use KoolKode\BPMN\Job\Executor\JobExecutorInterface;
+use KoolKode\BPMN\Job\Handler\AsyncAfterHandler;
 use KoolKode\BPMN\Job\Handler\AsyncBeforeHandler;
 use KoolKode\BPMN\Job\Job;
 use KoolKode\BPMN\Repository\RepositoryService;
@@ -276,29 +277,26 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	{
 		$behavior = $node->getBehavior();
 		
-		if($behavior instanceof AbstractBehavior)
+		if($behavior instanceof AbstractBehavior && $behavior->isAsyncBefore())
 		{
-			if($behavior->isAsyncBefore())
+			if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncBeforeHandler::HANDLER_TYPE))
 			{
-				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncBeforeHandler::HANDLER_TYPE))
-				{
-					$this->scheduleJob($execution, AsyncBeforeHandler::HANDLER_TYPE, [
-						AsyncBeforeHandler::PARAM_NODE_ID => $node->getId()
-					]);
-					
-					// Move execution out of any previous node before proceeding.
-					$execution->setNode(NULL);
-					
-					// return No-op command instead of execute node command.
-					return new CallbackCommand(function() { });
-				}
-				
-				$this->warning('Behavior of {node} should be executed via "{handler}" job within {execution}', [
-					'node' => (string)$node,
-					'handler' => AsyncBeforeHandler::HANDLER_TYPE,
-					'execution' => (string)$execution
+				$this->scheduleJob($execution, AsyncBeforeHandler::HANDLER_TYPE, [
+					AsyncBeforeHandler::PARAM_NODE_ID => $node->getId()
 				]);
+				
+				// Move execution out of any previous node before proceeding.
+				$execution->setNode(NULL);
+				
+				// return No-op command instead of execute node command.
+				return new CallbackCommand(function() { });
 			}
+			
+			$this->warning('Behavior of {node} should be executed via "{handler}" job within {execution}', [
+				'node' => (string)$node,
+				'handler' => AsyncBeforeHandler::HANDLER_TYPE,
+				'execution' => (string)$execution
+			]);
 		}
 		
 		return parent::createExecuteNodeCommand($execution, $node);
@@ -309,7 +307,35 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	 */
 	public function createTakeTransitionCommand(Execution $execution, Transition $transition = NULL)
 	{
-		// TODO: Implement "async-after" handler right here :)
+		$node = $execution->getNode();
+		
+		if($node !== NULL)
+		{
+			$behavior = $node->getBehavior();
+			
+			if($behavior instanceof AbstractBehavior && $behavior->isAsyncAfter())
+			{
+				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncAfterHandler::HANDLER_TYPE))
+				{
+					$this->scheduleJob($execution, AsyncAfterHandler::HANDLER_TYPE, [
+						AsyncAfterHandler::PARAM_NODE_ID => $node->getId(),
+						AsyncAfterHandler::PARAM_TRANSITION => ($transition === NULL) ? NULL : (string)$transition->getId()
+					]);
+						
+					// Move execution out of any previous node before proceeding.
+					$execution->setNode(NULL);
+						
+					// return No-op command instead of execute node command.
+					return new CallbackCommand(function() { });
+				}
+		
+				$this->warning('Behavior of {node} should be executed via "{handler}" job within {execution}', [
+					'node' => (string)$node,
+					'handler' => AsyncAfterHandler::HANDLER_TYPE,
+					'execution' => (string)$execution
+				]);
+			}
+		}
 		
 		return parent::createTakeTransitionCommand($execution, $transition);
 	}

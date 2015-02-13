@@ -57,6 +57,11 @@ class AsyncAfterHandler implements JobHandlerInterface
 	 */
 	public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine)
 	{
+		if($execution->isTerminated())
+		{
+			throw new \RuntimeException(sprintf('%s is terminated', $execution));
+		}
+		
 		$data = (array)$job->getHandlerData();
 		
 		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);

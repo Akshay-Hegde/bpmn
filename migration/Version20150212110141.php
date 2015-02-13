@@ -36,6 +36,8 @@ class Version20150212110141 extends AbstractMigration
         $job->addColumn('run_at', 'bigint', ['default' => NULL]);
         
         $job->addIndex(['execution_id']);
+        $job->addIndex(['lock_owner']);
+        $job->addIndex(['handler_type']);
         $job->addIndex(['run_at']);
         $job->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
         $job->create();

@@ -50,14 +50,14 @@ class AsyncBeforeHandler implements JobHandlerInterface
 	 */
 	public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine)
 	{
-		$data = (array)$job->getHandlerData();
-		
-		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
-		
 		if($execution->isTerminated())
 		{
 			throw new \RuntimeException(sprintf('%s is terminated', $execution));
 		}
+		
+		$data = (array)$job->getHandlerData();
+		
+		$node = $execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]);
 		
 		$engine->debug('Async continuation started before {node} using {execution}', [
 			'node' => $node->getId(),

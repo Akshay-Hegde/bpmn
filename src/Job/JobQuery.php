@@ -24,6 +24,11 @@ class JobQuery extends AbstractQuery
 	protected $processDefinitionKey;
 	protected $processBusinessKey;
 	
+	protected $jobId;
+	protected $jobRetries;
+	protected $jobLockOwner;
+	protected $jobHandlerType;
+	
 	protected $engine;
 	
 	public function __construct(ProcessEngine $engine)
@@ -61,6 +66,36 @@ class JobQuery extends AbstractQuery
 		$this->populateMultiProperty($this->processBusinessKey, $key, function($value) {
 			return new UUID($value);
 		});
+	
+		return $this;
+	}
+	
+	public function jobId($id)
+	{
+		$this->populateMultiProperty($this->jobId, $id, function($value) {
+			return new UUID($value);
+		});
+	
+		return $this;
+	}
+	
+	public function jobRetries($retries)
+	{
+		$this->populateMultiProperty($this->jobRetries, $retries);
+	
+		return $this;
+	}
+	
+	public function jobLockOwner($owner)
+	{
+		$this->populateMultiProperty($this->jobLockOwner, $owner);
+	
+		return $this;
+	}
+	
+	public function jobHandlerType($handlerType)
+	{
+		$this->populateMultiProperty($this->jobHandlerType, $handlerType);
 	
 		return $this;
 	}
@@ -136,6 +171,11 @@ class JobQuery extends AbstractQuery
 		$this->buildPredicate("e.`process_id`", $this->processInstanceId, $where, $params);
 		$this->buildPredicate("e.`business_key`", $this->processBusinessKey, $where, $params);
 		$this->buildPredicate("d.`process_key`", $this->processDefinitionKey, $where, $params);
+		
+		$this->buildPredicate("j.`id`", $this->jobId, $where, $params);
+		$this->buildPredicate("j.`retries`", $this->jobRetries, $where, $params);
+		$this->buildPredicate("j.`lock_owner`", $this->jobLockOwner, $where, $params);
+		$this->buildPredicate("j.`handler_type`", $this->jobHandlerType, $where, $params);
 		
 		if(!empty($where))
 		{

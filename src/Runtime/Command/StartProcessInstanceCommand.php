@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Command;
 
+use KoolKode\BPMN\Engine\AbstractBehavior;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
@@ -20,31 +21,51 @@ use KoolKode\Process\Node;
 use KoolKode\Util\UUID;
 
 /**
- * Starts a new process instance with deferred node execution.
+ * Have the engine start a new process instance at the given start node.
  * 
  * @author Martin Schröder
  */
 class StartProcessInstanceCommand extends AbstractBusinessCommand
 {
-	protected $definition;
+	protected $definitionId;
 	
-	protected $startNode;
+	protected $startNodeId;
 	
 	protected $businessKey;
 	
 	protected $variables;
 	
+	/**
+	 * Have the engine start a new process instance.
+	 * 
+	 * @param ProcessDefinition $definition
+	 * @param Node $startNode
+	 * @param string $businessKey
+	 * @param array $variables
+	 */
 	public function __construct(ProcessDefinition $definition, Node $startNode, $businessKey = NULL, array $variables = [])
 	{
-		$this->definition = $definition;
-		$this->startNode = $startNode->getId();
+		$this->definitionId = $definition->getId();
+		$this->startNodeId = $startNode->getId();
 		$this->businessKey = ($businessKey === NULL) ? NULL : (string)$businessKey;
 		$this->variables = $variables;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isSerializable()
+	{
+		return true;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
-		$definition = $this->definition->getModel();
+		$def = $engine->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionId($this->definitionId)->findOne();
+		$definition = $def->getModel();
 
 		$process = new VirtualExecution(UUID::createRandom(), $engine, $definition);
 		$process->setBusinessKey($this->businessKey);
@@ -56,7 +77,19 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 		
 		$engine->registerExecution($process);
 		
-		$engine->pushDeferredCommand(new ExecuteNodeCommand($process, $definition->findNode($this->startNode)));
+		// FIXME: Refactor deferred commands eliminating them from the engine...
+		
+		$startNode = $definition->findNode($this->startNodeId);
+		$behavior = $startNode->getBehavior();
+		
+		if($behavior instanceof AbstractBehavior && $behavior->isAsyncBefore())
+		{
+			$process->execute($startNode);
+		}
+		else
+		{
+			$engine->pushDeferredCommand(new ExecuteNodeCommand($process, $startNode));
+		}
 		
 		return $process->getId();
 	}

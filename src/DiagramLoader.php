@@ -129,13 +129,29 @@ class DiagramLoader
 			case 'boundaryEvent':
 				return $this->parseBoundaryEvent($id, $el, $builder);
 			case 'startEvent':
-				return $this->parseStartEvent($id, $el, $builder);
+				$event = $this->parseStartEvent($id, $el, $builder);
+				$event->setAsyncBefore($this->getAsyncBefore($el));
+				$event->setAsyncAfter($this->getAsyncAfter($el));
+				
+				return $event;
 			case 'endEvent':
-				return $this->parseEndEvent($id, $el, $builder);
+				$event = $this->parseEndEvent($id, $el, $builder);
+				$event->setAsyncBefore($this->getAsyncBefore($el));
+				$event->setAsyncAfter($this->getAsyncAfter($el));
+				
+				return $event;
 			case 'intermediateCatchEvent':
-				return $this->parseIntermediateCatchEvent($id, $el, $builder);
+				$event = $this->parseIntermediateCatchEvent($id, $el, $builder);
+				$event->setAsyncBefore($this->getAsyncBefore($el));
+				$event->setAsyncAfter($this->getAsyncAfter($el));
+				
+				return $event;
 			case 'intermediateThrowEvent':
-				return $this->parseIntermediateThrowEvent($id, $el, $builder);
+				$event = $this->parseIntermediateThrowEvent($id, $el, $builder);
+				$event->setAsyncBefore($this->getAsyncBefore($el));
+				$event->setAsyncAfter($this->getAsyncAfter($el));
+				
+				return $event;
 			case 'exclusiveGateway':
 				return $this->parseExclusiveGateway($id, $el, $builder);
 			case 'inclusiveGateway':

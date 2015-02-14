@@ -7,5 +7,7 @@ requires a relational database that is supported by KoolKode Database in order t
 and other runtime data. Like [Activiti](http://activiti.org/) it makes good use of the command pattern during execution
 of a process instance.
 
-The engine is currently missing support for timer events and async executions due to PHP's lack of a native
-background job execution feature.
+The engine is currently missing support for timer events due to PHP's lack of a native
+background job scheduling feature. Async continuations before and after activities are supported but
+require a job scheduler (cron, message queue, etc.) that can execute PHP jobs. The engine will fall
+back to synchronous continuations by default if the job executor is not configured for background tasks.

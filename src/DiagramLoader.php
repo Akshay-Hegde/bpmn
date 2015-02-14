@@ -347,6 +347,9 @@ class DiagramLoader
 				$sub = $builder->subProcess($id, $startNodeId, $el->getAttribute('name'));
 			}
 			
+			$sub->setAsyncBefore($this->getAsyncBefore($el));
+			$sub->setAsyncAfter($this->getAsyncAfter($el));
+			
 			return $sub;
 		}
 		finally
@@ -475,6 +478,8 @@ class DiagramLoader
 	{
 		$gateway = $builder->exclusiveGateway($id, $el->getAttribute('name'));
 		$gateway->setDefaultFlow($el->getAttribute('default'));
+		$gateway->setAsyncBefore($this->getAsyncBefore($el));
+		$gateway->setAsyncAfter($this->getAsyncAfter($el));
 		
 		return $gateway;
 	}
@@ -483,18 +488,27 @@ class DiagramLoader
 	{		
 		$gateway = $builder->inclusiveGateway($id, $el->getAttribute('name'));
 		$gateway->setDefaultFlow($el->getAttribute('default'));
+		$gateway->setAsyncBefore($this->getAsyncBefore($el));
+		$gateway->setAsyncAfter($this->getAsyncAfter($el));
 		
 		return $gateway;
 	}
 	
 	protected function parseParallelGateway($id, \DOMElement $el, BusinessProcessBuilder $builder)
 	{
-		return $builder->parallelGateway($id, $el->getAttribute('name'));
+		$gateway = $builder->parallelGateway($id, $el->getAttribute('name'));
+		$gateway->setAsyncBefore($this->getAsyncBefore($el));
+		$gateway->setAsyncAfter($this->getAsyncAfter($el));
+		
+		return $gateway;
 	}
 	
 	protected function parseEventBasedGateway($id, \DOMElement $el, BusinessProcessBuilder $builder)
 	{
-		return $builder->eventBasedGateway($id, $el->getAttribute('name'));
+		$gateway = $builder->eventBasedGateway($id, $el->getAttribute('name'));
+		$gateway->setAsyncBefore($this->getAsyncBefore($el));
+		
+		return $gateway;
 	}
 	
 	protected function getDocumentation(\DOMElement $el)

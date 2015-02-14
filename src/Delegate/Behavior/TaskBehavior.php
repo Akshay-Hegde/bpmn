@@ -15,7 +15,6 @@ use KoolKode\BPMN\Delegate\DelegateExecution;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\AbstractScopeBehavior;
 use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Generic task behavior that triggers an event and proceeds with the process.
@@ -36,8 +35,8 @@ class TaskBehavior extends AbstractScopeBehavior
 		]);
 		
 		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
-		$engine->pushCommand(new SignalExecutionCommand($execution));
 		
 		$execution->waitForSignal();
+		$execution->signal();
 	}
 }

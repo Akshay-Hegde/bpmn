@@ -13,7 +13,6 @@ namespace KoolKode\BPMN\Runtime\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Util\UUID;
 
 /**
@@ -85,6 +84,6 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 		$stmt->bindValue('aid', $row['activity_id']);
 		$stmt->execute();
 		
-		$engine->pushCommand(new SignalExecutionCommand($execution, $this->messageName, $this->variables));
+		$execution->signal($this->messageName, $this->variables);
 	}
 }

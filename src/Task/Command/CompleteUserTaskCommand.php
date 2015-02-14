@@ -14,7 +14,6 @@ namespace KoolKode\BPMN\Task\Command;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Task\Event\UserTaskCompletedEvent;
-use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Util\UUID;
 
 /**
@@ -64,7 +63,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
 		
 		if($executionId !== NULL)
 		{
-			$engine->pushCommand(new SignalExecutionCommand($engine->findExecution($executionId), NULL, $this->variables));
+			$engine->findExecution($executionId)->signal(NULL, $this->variables);
 		}
 	}
 }

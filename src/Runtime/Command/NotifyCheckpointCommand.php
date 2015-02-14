@@ -15,7 +15,6 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Event\CheckpointReachedEvent;
-use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Notifies event listeners when a checkpoint within a process has been reached.
@@ -46,8 +45,6 @@ class NotifyCheckpointCommand extends AbstractBusinessCommand
 		$exec = $engine->getRuntimeService()->createExecutionQuery()->executionId($this->executionId)->findOne();
 		$execution = $engine->findExecution($this->executionId);
 		
-		$engine->pushCommand(new SignalExecutionCommand($execution));
-		
 		$engine->debug('{execution} reached checkpoint "{checkpoint}" ({node})', [
 			'execution' => (string)$execution,
 			'checkpoint' => $this->name,
@@ -55,5 +52,7 @@ class NotifyCheckpointCommand extends AbstractBusinessCommand
 		]);
 		
 		$engine->notify(new CheckpointReachedEvent($this->name, $exec, $engine));
+		
+		$execution->signal();
 	}
 }

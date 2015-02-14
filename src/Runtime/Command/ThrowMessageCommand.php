@@ -15,7 +15,6 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
-use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Notifies event listeners when a message throw event has been executed.
@@ -52,7 +51,7 @@ class ThrowMessageCommand extends AbstractBusinessCommand
 							->findOne();
 		
 		// Signal execution to continue creating subscriptions etc...
-		$engine->pushCommand(new SignalExecutionCommand($engine->findExecution($this->executionId)));
+		$engine->findExecution($this->executionId)->signal();
 		
 		// Notifications should be domain events that are executed outside a transaction!
 		$engine->notify(new MessageThrownEvent($execution, $engine));

@@ -17,7 +17,6 @@ use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\AbstractScopeBehavior;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Expression\ExpressionInterface;
-use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Connects a custom class implementing DelegateTaskInterface to a node in a BPMN process.
@@ -56,8 +55,8 @@ class DelegateTaskBehavior extends AbstractScopeBehavior
 		$task->execute(new DelegateExecution($execution));
 		
 		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
-		$engine->pushCommand(new SignalExecutionCommand($execution));
 		
 		$execution->waitForSignal();
+		$execution->signal();
 	}
 }

@@ -15,7 +15,6 @@ use KoolKode\BPMN\Delegate\DelegateExecution;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\AbstractScopeBehavior;
 use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\Process\Command\SignalExecutionCommand;
 
 /**
  * Executes a PHP script defined in a task within a BPMN process.
@@ -66,8 +65,8 @@ class ScriptTaskBehavior extends AbstractScopeBehavior
 		}
 		
 		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
-		$engine->pushCommand(new SignalExecutionCommand($execution));
 		
 		$execution->waitForSignal();
+		$execution->signal();
 	}
 }

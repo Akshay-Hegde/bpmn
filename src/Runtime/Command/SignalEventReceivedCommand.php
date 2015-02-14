@@ -17,7 +17,6 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Repository\ProcessDefinition;
 use KoolKode\Database\UUIDTransformer;
-use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Util\UUID;
 
 /**
@@ -117,7 +116,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		{
 			$uuids[] = $execution->getId();
 			
-			$engine->pushCommand(new SignalExecutionCommand($execution, $this->signal, $this->variables));
+			$execution->signal($this->signal, $this->variables);
 		}
 		
 		// Include signal start events subscriptions.
@@ -158,7 +157,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 				
 		if($source !== NULL)
 		{
-			$engine->pushCommand(new SignalExecutionCommand($source));
+			$source->signal();
 		}
 		
 		return $uuids;

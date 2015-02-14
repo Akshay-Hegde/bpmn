@@ -76,6 +76,12 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 		
 		$engine->registerExecution($process);
 		
+		$engine->debug('Started {process} using process definition "{key}" ({id})', [
+			'process' => (string)$process,
+			'key' => $def->getKey(),
+			'id' => (string)$def->getId()
+		]);
+		
 		$process->execute($definition->findNode($this->startNodeId));
 			
 		return $process->getId();

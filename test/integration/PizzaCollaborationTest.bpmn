@@ -61,7 +61,7 @@
     <bpmn2:sequenceFlow id="SequenceFlow_14" name="" sourceRef="payForPizza" targetRef="EndEvent_2"/>
   </bpmn2:process>
   <bpmn2:process id="PizzaServiceDeliversPizza" name="Pizza-Service" isExecutable="true">
-    <bpmn2:startEvent id="pizzaOrderReceived" name="Order&#xD;&#xA;received">
+    <bpmn2:startEvent id="pizzaOrderReceived" camunda:async="true" name="Order&#xD;&#xA;received">
       <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
       <bpmn2:messageEventDefinition id="MessageEventDefinition_2" messageRef="Message_1"/>
     </bpmn2:startEvent>

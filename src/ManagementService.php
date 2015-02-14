@@ -38,9 +38,12 @@ class ManagementService
 	{
 		// TODO: Job execution requires locking due to concurrency...
 		
-		$job = $this->createJobQuery()->jobId($jobId)->findOne();
+		$jobs = $this->createJobQuery()->jobId($jobId)->findAll();
 		
-		$this->engine->executeJob($job);
+		if(!empty($jobs))
+		{
+			$this->engine->executeJob($jobs[0]);
+		}
 	}
 	
 	public function deleteJob(UUID $jobId)

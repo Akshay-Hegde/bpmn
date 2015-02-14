@@ -11,28 +11,30 @@
 
 namespace KoolKode\BPMN;
 
-use KoolKode\BPMN\Job\Handler\AsyncBeforeHandler;
+use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
-class AsyncBeforeTest extends BusinessProcessTestCase
+class AsyncContinuationTest extends BusinessProcessTestCase
 {
 	public function provideAsyncHandler()
 	{
-		yield [false];
-		yield [true];
+		yield ['AsyncBeforeTest.bpmn', false];
+		yield ['AsyncBeforeTest.bpmn', true];
+		yield ['AsyncAfterTest.bpmn', false];
+		yield ['AsyncAfterTest.bpmn', true];
 	}
 	
 	/**
 	 * @dataProvider provideAsyncHandler
 	 */
-	public function testAsyncBeforeTask($async)
+	public function testAsyncBeforeTask($file, $async)
 	{
 		if($async)
 		{
-			$this->jobExecutor->registerJobHandler(new AsyncBeforeHandler());
+			$this->jobExecutor->registerJobHandler(new AsyncCommandHandler());
 		}
 		
-		$this->deployFile('AsyncBeforeTest.bpmn');
+		$this->deployFile($file);
 		
 		$this->runtimeService->startProcessInstanceByKey('process1');
 		
@@ -50,7 +52,7 @@ class AsyncBeforeTest extends BusinessProcessTestCase
 			$this->assertEquals(1, $query->count());
 			
 			$job = $query->findOne();
-			$this->assertEquals(AsyncBeforeHandler::HANDLER_TYPE, $job->getHandlerType());
+			$this->assertEquals(AsyncCommandHandler::HANDLER_TYPE, $job->getHandlerType());
 			$this->assertEquals(0, $job->getRetries());
 			$this->assertFalse($job->isLocked());
 			$this->assertNull($job->getLockOwner());

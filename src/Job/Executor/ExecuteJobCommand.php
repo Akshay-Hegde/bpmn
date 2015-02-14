@@ -64,6 +64,13 @@ class ExecuteJobCommand extends AbstractBusinessCommand
 			'execution' => (string)$execution
 		]);
 		
+		// TODO: Handle failed jobs (exceptions?) here...
+		
 		$this->handler->executeJob($this->job, $execution, $engine);
+		
+		// Delete job when it has been completed successfully.
+		$stmt = $engine->prepareQuery("DELETE FROM `#__bpmn_job` WHERE `id` = :id");
+		$stmt->bindValue('id', $this->job->getId());
+		$stmt->execute();
 	}
 }

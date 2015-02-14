@@ -28,7 +28,7 @@
       <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
     </bpmn2:eventBasedGateway>
     <bpmn2:sequenceFlow id="SequenceFlow_4" name="" sourceRef="sendPizzaOrder" targetRef="EventBasedGateway_1"/>
-    <bpmn2:intermediateCatchEvent id="pizzaReceived" name="Pizza received">
+    <bpmn2:intermediateCatchEvent id="pizzaReceived" camunda:asyncAfter="true" name="Pizza received">
       <bpmn2:incoming>SequenceFlow_5</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
       <bpmn2:messageEventDefinition id="MessageEventDefinition_4" messageRef="Message_2"/>
@@ -59,6 +59,13 @@
     </bpmn2:intermediateThrowEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_3" name="" sourceRef="pizzaReceived" targetRef="payForPizza"/>
     <bpmn2:sequenceFlow id="SequenceFlow_14" name="" sourceRef="payForPizza" targetRef="EndEvent_2"/>
+    <bpmn2:textAnnotation id="TextAnnotation_1">
+      <bpmn2:text>async after</bpmn2:text>
+    </bpmn2:textAnnotation>
+    <bpmn2:textAnnotation id="TextAnnotation_2">
+      <bpmn2:text>async before</bpmn2:text>
+    </bpmn2:textAnnotation>
+    <bpmn2:association id="Association_3" sourceRef="TextAnnotation_1" targetRef="pizzaReceived"/>
   </bpmn2:process>
   <bpmn2:process id="PizzaServiceDeliversPizza" name="Pizza-Service" isExecutable="true">
     <bpmn2:startEvent id="pizzaOrderReceived" camunda:async="true" name="Order&#xD;&#xA;received">
@@ -96,6 +103,7 @@
     </bpmn2:endEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_17" name="" sourceRef="fileReportTask" targetRef="EndEvent_3"/>
     <bpmn2:sequenceFlow id="SequenceFlow_18" name="" sourceRef="deliverPizza" targetRef="receivePaymentForPizza"/>
+    <bpmn2:association id="Association_2" sourceRef="pizzaOrderReceived" targetRef="TextAnnotation_2"/>
   </bpmn2:process>
   <bpmn2:message id="Message_1" name="pizzaOrderReceived"/>
   <bpmn2:message id="Message_2" name="pizzaReceived"/>
@@ -326,6 +334,20 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds height="6.0" width="6.0" x="639.0" y="307.0"/>
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_TextAnnotation_2" bpmnElement="TextAnnotation_1">
+        <dc:Bounds height="33.0" width="108.0" x="396.0" y="263.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_TextAnnotation_3" bpmnElement="TextAnnotation_2">
+        <dc:Bounds height="35.0" width="111.0" x="132.0" y="324.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_Association_2" bpmnElement="Association_2" sourceElement="_BPMNShape_StartEvent_4" targetElement="_BPMNShape_TextAnnotation_3">
+        <di:waypoint xsi:type="dc:Point" x="120.0" y="399.0"/>
+        <di:waypoint xsi:type="dc:Point" x="167.0" y="358.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Association_3" bpmnElement="Association_3" sourceElement="_BPMNShape_TextAnnotation_2" targetElement="_BPMNShape_IntermediateCatchEvent_3">
+        <di:waypoint xsi:type="dc:Point" x="464.0" y="263.0"/>
+        <di:waypoint xsi:type="dc:Point" x="506.0" y="214.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

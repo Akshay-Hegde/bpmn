@@ -16,7 +16,6 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Repository\ProcessDefinition;
-use KoolKode\Process\Command\ExecuteNodeCommand;
 use KoolKode\Process\Node;
 use KoolKode\Util\UUID;
 
@@ -77,20 +76,8 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 		
 		$engine->registerExecution($process);
 		
-		// FIXME: Refactor deferred commands eliminating them from the engine...
-		
-		$startNode = $definition->findNode($this->startNodeId);
-		$behavior = $startNode->getBehavior();
-		
-		if($behavior instanceof AbstractBehavior && $behavior->isAsyncBefore())
-		{
-			$process->execute($startNode);
-		}
-		else
-		{
-			$engine->pushDeferredCommand(new ExecuteNodeCommand($process, $startNode));
-		}
-		
+		$process->execute($definition->findNode($this->startNodeId));
+			
 		return $process->getId();
 	}
 }

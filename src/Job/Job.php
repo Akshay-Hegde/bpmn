@@ -27,6 +27,8 @@ class Job implements JobInterface
 	
 	protected $lockOwner;
 	
+	protected $runAt;
+	
 	public function __construct(UUID $id, UUID $executionId, $handlerType, $handlerData, $retries = 0, $lockOwner = NULL)
 	{
 		$this->id = $id;
@@ -76,5 +78,22 @@ class Job implements JobInterface
 	public function getLockOwner()
 	{
 		return $this->lockOwner;
+	}
+	
+	public function getRunAt()
+	{
+		return $this->runAt;
+	}
+	
+	public function setRunAt(\DateTimeInterface $runAt = NULL)
+	{
+		if($runAt === NULL)
+		{
+			$this->runAt = NULL;
+		}
+		else
+		{
+			$this->runAt = new \DateTimeImmutable('@' . $runAt->getTimestamp());
+		}
 	}
 }

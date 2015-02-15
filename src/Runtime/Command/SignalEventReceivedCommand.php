@@ -96,6 +96,25 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		if(!empty($ids))
 		{
+			// Delete timer jobs:
+			$stmt = $engine->prepareQuery("
+			DELETE FROM `#__bpmn_job`
+			WHERE `id` IN (
+				SELECT `job_id`
+				FROM `#__bpmn_event_subscription`
+				WHERE `execution_id` = :eid
+				AND `activity_id` = :aid
+				AND `flags` = :flags
+			)");
+			$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
+			
+			foreach($ids as $tmp)
+			{
+				$stmt->bindValue('eid', $tmp[0]);
+				$stmt->bindValue('aid', $tmp[1]);
+				$stmt->execute();
+			}
+			
 			$sql = "	DELETE FROM `#__bpmn_event_subscription`
 						WHERE `execution_id` = :eid
 						AND `activity_id` = :aid

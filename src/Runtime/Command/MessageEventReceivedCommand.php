@@ -75,6 +75,22 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 			$execution->setTransition(NULL);
 		}
 		
+		// Delete timer jobs:
+		$stmt = $engine->prepareQuery("
+			DELETE FROM `#__bpmn_job`
+			WHERE `id` IN (
+				SELECT `job_id`
+				FROM `#__bpmn_event_subscription`
+				WHERE `execution_id` = :eid
+				AND `activity_id` = :aid
+				AND `flags` = :flags
+			)
+		");
+		$stmt->bindValue('eid', $execution->getId());
+		$stmt->bindValue('aid', $row['activity_id']);
+		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
+		$stmt->execute();
+		
 		$sql = "	DELETE FROM `#__bpmn_event_subscription`
 					WHERE `execution_id` = :eid
 					AND `activity_id` = :aid

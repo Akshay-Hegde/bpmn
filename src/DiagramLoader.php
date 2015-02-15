@@ -437,6 +437,16 @@ class DiagramLoader
 			return $builder->intermediateSignalCatchEvent($id, $signal, $el->getAttribute('name'));
 		}
 		
+		foreach($this->xpath->query('m:timerEventDefinition', $el) as $timerElement)
+		{
+			foreach($this->xpath->query('m:timeDuration', $timerElement) as $durationElement)
+			{
+				$duration = trim($durationElement->textContent);
+				
+				return $builder->intermediateTimerDurationEvent($id, $duration, $el->getAttribute('name'));
+			}
+		}
+		
 		return $builder->intermediateNoneEvent($id, $el->getAttribute('name'));
 	}
 	

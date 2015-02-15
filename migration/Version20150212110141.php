@@ -41,6 +41,11 @@ class Version20150212110141 extends AbstractMigration
         $job->addIndex(['run_at']);
         $job->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
         $job->create();
+        
+        $subscription = $this->table('#__bpmn_event_subscription');
+        $subscription->addColumn('job_id', 'uuid', ['default' => NULL]);
+//         $subscription->addForeignKey(['job_id'], '#__bpmn_job', ['id']);
+        $subscription->update();
     }
     
     /**
@@ -48,6 +53,12 @@ class Version20150212110141 extends AbstractMigration
      */
     public function down()
     {
+//     	$this->dropForeignKey('#__bpmn_event_subscription', ['job_id'], '#__bpmn_job', ['id']);
+    	
+    	$subscription = $this->table('#__bpmn_event_subscription');
+    	$subscription->removeColumn('job_id');
+    	$subscription->update();
+    	
     	$this->dropTable('#__bpmn_job');
     }
 }

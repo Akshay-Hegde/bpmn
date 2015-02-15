@@ -41,7 +41,10 @@ use KoolKode\Util\UUID;
 class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 {
 	const SUB_FLAG_SIGNAL = 1;
+	
 	const SUB_FLAG_MESSAGE = 2;
+	
+	const SUB_FLAG_TIMER = 3;
 	
 	protected $conn;
 	
@@ -168,7 +171,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $interceptor;
 	}
 	
-	public function scheduleJob(VirtualExecution $execution, $handlerType, $data)
+	public function scheduleJob(VirtualExecution $execution, $handlerType, $data, \DateTimeInterface $runAt = NULL)
 	{
 		if($this->jobExecutor === NULL)
 		{
@@ -180,6 +183,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$handlerType = (string)$handlerType;
 		
 		$job = new Job($id, $executionId, $handlerType, $data);
+		$job->setRunAt($runAt);
 		
 		$this->debug('Scheduled job <{job}> of type "{handler}" within {execution}', [
 			'job' => (string)$job->getId(),
@@ -278,16 +282,24 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	
 	protected function saveJob(Job $job)
 	{
+		$time = $job->getRunAt();
+		
+		if($time !== NULL)
+		{
+			$time = $time->getTimestamp();
+		}
+		
 		$stmt = $this->conn->prepare("
 			INSERT INTO `#__bpmn_job`
-				(`id`, `execution_id`, `handler_type`, `handler_data`)
+				(`id`, `execution_id`, `handler_type`, `handler_data`, `run_at`)
 			VALUES
-				(:id, :eid, :type, :data)
+				(:id, :eid, :type, :data, :time)
 		");
 		$stmt->bindValue('id', $job->getId());
 		$stmt->bindValue('eid', $job->getExecutionId());
 		$stmt->bindValue('type', $job->getHandlerType());
 		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
+		$stmt->bindValue('time', $time);
 		$stmt->execute();
 		
 		$this->debug('Persisted job <{job}> in DB', [

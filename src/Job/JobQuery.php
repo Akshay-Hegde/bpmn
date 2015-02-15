@@ -29,6 +29,9 @@ class JobQuery extends AbstractQuery
 	protected $jobLockOwner;
 	protected $jobHandlerType;
 	
+	protected $isScheduled;
+	protected $isTimer;
+	
 	protected $engine;
 	
 	public function __construct(ProcessEngine $engine)
@@ -97,6 +100,20 @@ class JobQuery extends AbstractQuery
 	{
 		$this->populateMultiProperty($this->jobHandlerType, $handlerType);
 	
+		return $this;
+	}
+	
+	public function scheduled($scheduled = true)
+	{
+		$this->isScheduled = $scheduled ? true : false;
+		
+		return $this;
+	}
+	
+	public function timer($timer = true)
+	{
+		$this->isTimer = $timer ? true : false;
+		
 		return $this;
 	}
 	
@@ -176,6 +193,24 @@ class JobQuery extends AbstractQuery
 		$this->buildPredicate("j.`retries`", $this->jobRetries, $where, $params);
 		$this->buildPredicate("j.`lock_owner`", $this->jobLockOwner, $where, $params);
 		$this->buildPredicate("j.`handler_type`", $this->jobHandlerType, $where, $params);
+		
+		if($this->isScheduled === true)
+		{
+			$where[] = 'j.`scheduled_at` IS NOT NULL';
+		}
+		elseif($this->isScheduled === false)
+		{
+			$where[] = 'j.`scheduled_at` IS NULL';
+		}
+		
+		if($this->isTimer === true)
+		{
+			$where[] = 'j.`run_at` IS NOT NULL';
+		}
+		elseif($this->isTimer === false)
+		{
+			$where[] = 'j.`run_at` IS NULL';
+		}
 		
 		if(!empty($where))
 		{

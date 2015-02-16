@@ -96,7 +96,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		if(!empty($ids))
 		{
-			$sql = "SELECT `job_id` FROM `#__bpmn_job` WHERE `flags` = :flags AND (";
+			$sql = "SELECT `job_id` FROM `#__bpmn_event_subscription` WHERE `flags` = :flags AND (";
 			$where = [];
 			$params = [
 				'flags' => ProcessEngine::SUB_FLAG_TIMER
@@ -117,7 +117,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			
 			$management = $engine->getManagementService();
 			
-			foreach($stmt->fetchRows() as $jobId)
+			foreach($stmt->fetchColumns('job_id') as $jobId)
 			{
 				$management->removeJob($jobId);
 			}

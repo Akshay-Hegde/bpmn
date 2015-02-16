@@ -28,13 +28,16 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 {
 	protected $executionId;
 	
+	protected $time;
+	
 	protected $activityId;
 	
 	protected $nodeId;
 	
-	public function __construct(VirtualExecution $execution, $activityId, Node $node = NULL)
+	public function __construct(VirtualExecution $execution, \DateTimeInterface $time, $activityId, Node $node = NULL)
 	{
 		$this->executionId = $execution->getId();
+		$this->time = new \DateTimeImmutable('@' . $time->getTimestamp(), new \DateTimeZone('UTC'));
 		$this->activityId = (string)$activityId;
 		$this->nodeId = ($node === NULL) ? NULL : (string)$node->getId();
 	}
@@ -50,12 +53,10 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 		$execution = $engine->findExecution($this->executionId);
 		$nodeId = ($this->nodeId === NULL) ? NULL : $execution->getProcessModel()->findNode($this->nodeId)->getId();
 		
-		$time = new \DateTime();
-		
 		$job = $engine->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
 			AsyncCommandHandler::PARAM_COMMAND => new SignalExecutionCommand($execution),
 			AsyncCommandHandler::PARAM_NODE_ID => $nodeId
-		], $time);
+		], $this->time);
 		
 		$sql = "
 			INSERT INTO `#__bpmn_event_subscription`

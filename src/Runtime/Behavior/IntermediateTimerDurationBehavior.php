@@ -39,8 +39,13 @@ class IntermediateTimerDurationBehavior extends AbstractSignalableBehavior imple
 	
 	public function createEventSubscription(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
+		$interval = new \DateInterval($this->duration);
+		$now = new \DateTimeImmutable();
+		$time = $now->add($interval);
+		
 		$execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand(
 			$execution,
+			$time,
 			$activityId,
 			($node === NULL) ? $execution->getNode() : $node
 		));

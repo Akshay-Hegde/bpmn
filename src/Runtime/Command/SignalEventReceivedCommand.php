@@ -96,37 +96,44 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		if(!empty($ids))
 		{
-			// Delete timer jobs:
-			$stmt = $engine->prepareQuery("
-			DELETE FROM `#__bpmn_job`
-			WHERE `id` IN (
-				SELECT `job_id`
-				FROM `#__bpmn_event_subscription`
-				WHERE `execution_id` = :eid
-				AND `activity_id` = :aid
-				AND `flags` = :flags
-			)");
-			$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
+			$sql = "SELECT `job_id` FROM `#__bpmn_job` WHERE `flags` = :flags AND (";
+			$where = [];
+			$params = [
+				'flags' => ProcessEngine::SUB_FLAG_TIMER
+			];
 			
-			foreach($ids as $tmp)
+			foreach(array_values($ids) as $i => $tmp)
 			{
-				$stmt->bindValue('eid', $tmp[0]);
-				$stmt->bindValue('aid', $tmp[1]);
-				$stmt->execute();
+				$where[] = sprintf("(`execution_id` = :e%u AND `activity_id` = :a%u)", $i, $i);
+				
+				$params['e' . $i] = $tmp[0];
+				$params['a' . $i] = $tmp[1];
 			}
 			
-			$sql = "	DELETE FROM `#__bpmn_event_subscription`
-						WHERE `execution_id` = :eid
-						AND `activity_id` = :aid
-			";
-			$stmt = $engine->prepareQuery($sql);
+			$stmt = $engine->prepareQuery($sql . implode(' OR ', $where) . ')');
+			$stmt->bindAll($params);
+			$stmt->transform('job_id', new UUIDTransformer());
+			$stmt->execute();
 			
-			foreach($ids as $tmp)
+			$management = $engine->getManagementService();
+			
+			foreach($stmt->fetchRows() as $jobId)
 			{
-				$stmt->bindValue('eid', $tmp[0]);
-				$stmt->bindValue('aid', $tmp[1]);
-				$stmt->execute();
+				$management->removeJob($jobId);
 			}
+			
+			unset($params['flags']);
+			
+			$stmt = $engine->prepareQuery("DELETE FROM `#__bpmn_event_subscription` WHERE " . implode(' OR ', $where));
+			$stmt->bindAll($params);
+			$count = $stmt->execute();
+			
+			$message = sprintf('Cleared {count} event subscription%s related to signal <{signal}>', ($count == 1) ? '' : 's');
+			
+			$engine->debug($message, [
+				'count' => $count,
+				'signal' => ($this->signal === NULL) ? 'NULL' : $this->signal
+			]);
 		}
 		
 		$uuids = [];

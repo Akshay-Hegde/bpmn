@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Job\Executor;
 
 use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
+use KoolKode\Util\UUID;
 
 /**
  * Contract for the BPMN job executor.
@@ -21,6 +22,11 @@ use KoolKode\BPMN\Job\Job;
  */
 interface JobExecutorInterface
 {
+	/**
+	 * Schedule and remove jobs according to current state.
+	 */
+	public function syncScheduledJobs();
+	
 	/**
 	 * Check if a job handler of the given type is registered.
 	 * 
@@ -49,4 +55,11 @@ interface JobExecutorInterface
 	 * @param Job $job
 	 */
 	public function executeJob(Job $job);
+	
+	/**
+	 * Remove a job by ID.
+	 * 
+	 * @param UUID $jobId
+	 */
+	public function removeJob(UUID $jobId);
 }

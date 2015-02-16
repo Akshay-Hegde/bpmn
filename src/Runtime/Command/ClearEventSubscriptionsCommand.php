@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Runtime\Command;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\Database\UUIDTransformer;
 
 /**
  * Clears all event subscriptions related to an execution.
@@ -48,19 +49,24 @@ class ClearEventSubscriptionsCommand extends AbstractBusinessCommand
 		
 		// Delete timer jobs:
 		$stmt = $engine->prepareQuery("
-			DELETE FROM `#__bpmn_job`
-			WHERE `id` IN (
-				SELECT `job_id`
-				FROM `#__bpmn_event_subscription`
-				WHERE `execution_id` = :eid
-				AND `activity_id` = :aid
-				AND `flags` = :flags
-			)
+			SELECT `job_id`
+			FROM `#__bpmn_event_subscription`
+			WHERE `execution_id` = :eid
+			AND `activity_id` = :aid
+			AND `flags` = :flags
 		");
 		$stmt->bindValue('eid', $execution->getId());
 		$stmt->bindValue('aid', $this->activitId);
 		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
-		$count = $stmt->execute();
+		$stmt->transform('job_id', new UUIDTransformer());
+		$stmt->execute();
+		
+		$management = $engine->getManagementService();
+		
+		foreach($stmt->fetchColumns('job_id') as $jobId)
+		{
+			$management->removeJob($jobId);
+		}
 		
 		$sql = "	DELETE FROM `#__bpmn_event_subscription`
 					WHERE `execution_id` = :eid
@@ -73,10 +79,11 @@ class ClearEventSubscriptionsCommand extends AbstractBusinessCommand
 		
 		if($count > 0)
 		{
-			$message = sprintf('Cleared {count} event subscription%s related to {execution}', ($count == 1) ? '' : 's');
+			$message = sprintf('Cleared {count} event subscription%s related to activity <{activity}> within {execution}', ($count == 1) ? '' : 's');
 			
 			$engine->debug($message, [
 				'count' => $count,
+				'activity' => $this->activitId,
 				'execution' => (string)$execution
 			]);
 		}

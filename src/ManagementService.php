@@ -38,19 +38,31 @@ class ManagementService
 	{
 		// TODO: Job execution requires locking due to concurrency...
 		
+		$executor = $this->engine->getJobExecutor();
+		
+		if($executor === NULL)
+		{
+			throw new \RuntimeException('Cannot remove job without a job executor');
+		}
+		
 		$jobs = $this->createJobQuery()->jobId($jobId)->findAll();
 		
 		if(!empty($jobs))
 		{
-			$this->engine->executeJob($jobs[0]);
+			$executor->executeJob($jobs[0]);
 		}
 	}
 	
-	public function deleteJob(UUID $jobId)
+	public function removeJob(UUID $jobId)
 	{
-		$stmt = $this->engine->prepareQuery("DELETE FROM `#__bpmn_job` WHERE `id` = :id");
-		$stmt->bindValue('id', $jobId);
-		$stmt->execute();
+		$executor = $this->engine->getJobExecutor();
+		
+		if($executor === NULL)
+		{
+			throw new \RuntimeException('Cannot remove job without a job executor');
+		}
+		
+		$executor->removeJob($jobId);
 	}
 	
 	public function setJobRetries(UUID $jobId, $retries)

@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Job\Scheduler;
 
 use KoolKode\BPMN\Job\Job;
+use KoolKode\Util\UUID;
 
 /**
  * The test job scheduler will simply mark jobs as scheduled in the DB.
@@ -26,5 +27,13 @@ class TestJobScheduler extends AbstractJobScheduler
 	public function scheduleJob(Job $job)
 	{
 		$this->markJobAsScheduled($job);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function removeJob(UUID $jobId)
+	{
+		// Nothing to do here...
 	}
 }

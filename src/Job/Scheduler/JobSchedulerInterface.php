@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Job\Scheduler;
 
 use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
+use KoolKode\Util\UUID;
 
 /**
  * Contract for a BPMN job scheduler.
@@ -27,4 +28,11 @@ interface JobSchedulerInterface
 	 * @param Job $job
 	 */
 	public function scheduleJob(Job $job);
+	
+	/**
+	 * Remove a job from the schedule.
+	 * 
+	 * @param UUID $jobId
+	 */
+	public function removeJob(UUID $jobId);
 }

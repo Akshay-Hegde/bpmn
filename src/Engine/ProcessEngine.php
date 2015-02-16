@@ -52,8 +52,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	
 	protected $interceptors = [];
 	
-	protected $jobs = [];
-	
 	protected $jobExecutor;
 	
 	protected $delegateTaskFactory;
@@ -151,6 +149,14 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $this->delegateTaskFactory->createDelegateTask($typeName);
 	}
 	
+	/**
+	 * @return JobExecutorInterface
+	 */
+	public function getJobExecutor()
+	{
+		return $this->jobExecutor;
+	}
+	
 	public function setJobExecutor(JobExecutorInterface $executor)
 	{
 		$this->jobExecutor = $executor;
@@ -185,13 +191,35 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$job = new Job($id, $executionId, $handlerType, $data);
 		$job->setRunAt($runAt);
 		
+		$time = $job->getRunAt();
+		
+		if($time !== NULL)
+		{
+			$time = $time->getTimestamp();
+		}
+		
+		$stmt = $this->conn->prepare("
+			INSERT INTO `#__bpmn_job`
+				(`id`, `execution_id`, `handler_type`, `handler_data`, `run_at`)
+			VALUES
+				(:id, :eid, :type, :data, :time)
+		");
+		$stmt->bindValue('id', $job->getId());
+		$stmt->bindValue('eid', $job->getExecutionId());
+		$stmt->bindValue('type', $job->getHandlerType());
+		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
+		$stmt->bindValue('time', $time);
+		$stmt->execute();
+
+		$this->jobExecutor->scheduleJob($job);
+		
 		$this->debug('Scheduled job <{job}> of type "{handler}" within {execution}', [
 			'job' => (string)$job->getId(),
 			'handler' => $handlerType,
 			'execution' => (string)$execution
 		]);
 		
-		return $this->jobs[] = $job;
+		return $job;
 	}
 	
 	/**
@@ -222,13 +250,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			
 			if($trans)
 			{
-				$pendingJobs = $this->jobs;
-
-				foreach($pendingJobs as $job)
-				{
-					$this->saveJob($job);
-				}
-				
 				if($this->handleTransactions)
 				{
 					$this->debug('COMMIT transaction');
@@ -261,50 +282,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		// Schedule jobs after commit to DB, ensures consistent state in DB and failed scheduling attempts can be repeated.
 		if($trans)
 		{
-			foreach($pendingJobs as $job)
-			{
-				$this->jobExecutor->scheduleJob($job);
-			}
+			$this->jobExecutor->syncScheduledJobs();
 		}
 		
 		return $result;
-	}
-	
-	public function executeJob(Job $job)
-	{
-		if($this->jobExecutor === NULL)
-		{
-			throw new \RuntimeException(sprintf('Cannot execute job %s without a job executor', $job->getId()));
-		}
-		
-		$this->jobExecutor->executeJob($job);
-	}
-	
-	protected function saveJob(Job $job)
-	{
-		$time = $job->getRunAt();
-		
-		if($time !== NULL)
-		{
-			$time = $time->getTimestamp();
-		}
-		
-		$stmt = $this->conn->prepare("
-			INSERT INTO `#__bpmn_job`
-				(`id`, `execution_id`, `handler_type`, `handler_data`, `run_at`)
-			VALUES
-				(:id, :eid, :type, :data, :time)
-		");
-		$stmt->bindValue('id', $job->getId());
-		$stmt->bindValue('eid', $job->getExecutionId());
-		$stmt->bindValue('type', $job->getHandlerType());
-		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
-		$stmt->bindValue('time', $time);
-		$stmt->execute();
-		
-		$this->debug('Persisted job <{job}> in DB', [
-			'job' => (string)$job->getId()
-		]);
 	}
 	
 	/**

@@ -15,6 +15,7 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
 use KoolKode\BPMN\Job\Scheduler\JobSchedulerInterface;
+use KoolKode\Util\UUID;
 
 /**
  * Default implementation of a job executor that leverages a command and a job scheduler.
@@ -40,6 +41,10 @@ class JobExecutor implements JobExecutorInterface
 	 */
 	protected $handlers = [];
 	
+	protected $scheduledJobs = [];
+	
+	protected $removedJobs = [];
+	
 	/**
 	 * Create a new job executor backed by the engine and the given job scheduler.
 	 * 
@@ -50,6 +55,22 @@ class JobExecutor implements JobExecutorInterface
 	{
 		$this->engine = $engine;
 		$this->scheduler = $scheduler;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function syncScheduledJobs()
+	{
+		while(!empty($this->removedJobs))
+		{
+			$this->scheduler->removeJob(array_shift($this->removedJobs));
+		}
+		
+		while(!empty($this->scheduledJobs))
+		{
+			$this->scheduler->scheduleJob(array_shift($this->scheduledJobs));
+		}
 	}
 	
 	/**
@@ -73,7 +94,7 @@ class JobExecutor implements JobExecutorInterface
 	 */
 	public function scheduleJob(Job $job)
 	{
-		$this->scheduler->scheduleJob($job);
+		$this->scheduledJobs[] = $job;
 	}
 	
 	/**
@@ -82,6 +103,22 @@ class JobExecutor implements JobExecutorInterface
 	public function executeJob(Job $job)
 	{
 		$this->engine->executeCommand(new ExecuteJobCommand($job, $this->findJobHandler($job)));
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function removeJob(UUID $jobId)
+	{
+		$stmt = $this->engine->prepareQuery("DELETE FROM `#__bpmn_job` WHERE `id` = :id");
+		$stmt->bindValue('id', $jobId);
+		$stmt->execute();
+		
+		$this->engine->debug('Removed job <{job}>', [
+			'job' => (string)$jobId
+		]);
+		
+		$this->removedJobs[] = $jobId;
 	}
 	
 	/**

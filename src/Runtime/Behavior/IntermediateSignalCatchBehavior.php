@@ -48,7 +48,7 @@ class IntermediateSignalCatchBehavior extends AbstractActivity implements Interm
 			$execution->setVariable($k, $v);
 		}
 		
-		$execution->takeAll();
+		$this->leave($execution);
 	}
 	
 	/**

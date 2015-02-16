@@ -39,14 +39,6 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	}
 	
 	/**
-	 * {@inheritdoc}
-	 */
-	public function clearEventSubscriptions(VirtualExecution $execution, $activityId)
-	{
-		parent::clearEventSubscriptions($execution, $activityId);
-	}
-	
-	/**
 	 * Create a new execution concurrent to the given execution and have it take the given transitions.
 	 * 
 	 * If the given execution is concurrent this method will create a new child execution from the parent execution.

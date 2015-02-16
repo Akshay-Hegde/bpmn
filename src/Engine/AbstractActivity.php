@@ -129,6 +129,6 @@ abstract class AbstractActivity implements ActivityInterface
 	{
 		$this->clearEventSubscriptions($execution, $execution->getNode()->getId());
 		
-		$execution->takeAll();
+		$execution->takeAll($transitions);
 	}
 }

@@ -13,7 +13,7 @@ namespace KoolKode\BPMN\Delegate\Behavior;
 
 use KoolKode\BPMN\Delegate\DelegateExecution;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
-use KoolKode\BPMN\Engine\AbstractScopeBehavior;
+use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
@@ -21,12 +21,13 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  * 
  * @author Martin Schröder
  */
-class TaskBehavior extends AbstractScopeBehavior
+class TaskBehavior extends AbstractScopeActivity
 {
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function enter(VirtualExecution $execution)
 	{
-		$this->createScopedEventSubscriptions($execution);
-		
 		$engine = $execution->getEngine();
 		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
 		
@@ -36,7 +37,6 @@ class TaskBehavior extends AbstractScopeBehavior
 		
 		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
 		
-		$execution->waitForSignal();
-		$execution->signal();
+		$this->leave($execution);
 	}
 }

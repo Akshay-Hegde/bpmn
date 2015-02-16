@@ -47,7 +47,7 @@ class IntermediateTimerDurationBehavior extends AbstractActivity implements Inte
 			$execution->setVariable($k, $v);
 		}
 	
-		$execution->takeAll();
+		$this->leave($execution);
 	}
 	
 	/**

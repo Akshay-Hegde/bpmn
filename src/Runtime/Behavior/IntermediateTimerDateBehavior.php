@@ -47,7 +47,7 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
 			$execution->setVariable($k, $v);
 		}
 	
-		$execution->takeAll();
+		$this->leave($execution);
 	}
 	
 	/**

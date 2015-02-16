@@ -13,7 +13,7 @@ namespace KoolKode\BPMN\Delegate\Behavior;
 
 use KoolKode\BPMN\Delegate\DelegateExecution;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
-use KoolKode\BPMN\Engine\AbstractScopeBehavior;
+use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Expression\ExpressionInterface;
 
@@ -22,7 +22,7 @@ use KoolKode\Expression\ExpressionInterface;
  * 
  * @author Martin Schröder
  */
-class ExpressionTaskBehavior extends AbstractScopeBehavior
+class ExpressionTaskBehavior extends AbstractScopeActivity
 {
 	protected $expression;
 	
@@ -38,10 +38,11 @@ class ExpressionTaskBehavior extends AbstractScopeBehavior
 		$this->resultVariable = ($var === NULL) ? NULL : (string)$var;
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function enter(VirtualExecution $execution)
 	{
-		$this->createScopedEventSubscriptions($execution);
-		
 		$engine = $execution->getEngine();
 		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
 		
@@ -58,7 +59,6 @@ class ExpressionTaskBehavior extends AbstractScopeBehavior
 		
 		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
 		
-		$execution->waitForSignal();
-		$execution->signal();
+		$this->leave($execution);
 	}
 }

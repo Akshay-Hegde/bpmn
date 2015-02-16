@@ -48,7 +48,7 @@ class IntermediateMessageCatchBehavior extends AbstractActivity implements Inter
 			$execution->setVariable($k, $v);
 		}
 		
-		$execution->takeAll();
+		$this->leave($execution);
 	}
 	
 	/**

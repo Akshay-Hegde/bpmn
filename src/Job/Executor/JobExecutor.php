@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Job\Executor;
 
+use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
@@ -92,9 +93,41 @@ class JobExecutor implements JobExecutorInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function scheduleJob(Job $job)
+	public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = NULL)
 	{
-		$this->scheduledJobs[] = $job;
+		$id = UUID::createRandom();
+		$handlerType = (string)$handlerType;
+		
+		$job = new Job($id, $executionId, $handlerType, $data);
+		$job->setRunAt($runAt);
+		
+		$time = $job->getRunAt();
+		
+		if($time !== NULL)
+		{
+			$time = $time->getTimestamp();
+		}
+		
+		$stmt = $this->engine->prepareQuery("
+			INSERT INTO `#__bpmn_job`
+				(`id`, `execution_id`, `handler_type`, `handler_data`, `run_at`)
+			VALUES
+				(:id, :eid, :type, :data, :time)
+		");
+		$stmt->bindValue('id', $job->getId());
+		$stmt->bindValue('eid', $job->getExecutionId());
+		$stmt->bindValue('type', $job->getHandlerType());
+		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
+		$stmt->bindValue('time', $time);
+		$stmt->execute();
+		
+		$this->engine->info('Scheduled job <{job}> of type "{handler}" relate to execution <{execution}>', [
+			'job' => (string)$job->getId(),
+			'handler' => $handlerType,
+			'execution' => (string)$executionId
+		]);
+		
+		return $this->scheduledJobs[] = $job;
 	}
 	
 	/**
@@ -114,7 +147,7 @@ class JobExecutor implements JobExecutorInterface
 		$stmt->bindValue('id', $jobId);
 		$stmt->execute();
 		
-		$this->engine->debug('Removed job <{job}>', [
+		$this->engine->info('Removed job <{job}>', [
 			'job' => (string)$jobId
 		]);
 		

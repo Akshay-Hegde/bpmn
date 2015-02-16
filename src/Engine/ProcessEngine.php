@@ -177,6 +177,17 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $interceptor;
 	}
 	
+	/**
+	 * Schedule a job for execution.
+	 * 
+	 * @param VirtualExecution $execution Target execution being used by the job.
+	 * @param string $handlerType The name of the job handler.
+	 * @param mixed $data Arbitrary data to be passed to the job handler.
+	 * @param \DateTimeInterface $runAt Scheduled execution time, a value of NULL schedules the job for immediate execution.
+	 * @return Job The persisted job instance.
+	 * 
+	 * @throws \RuntimeException When no job executor has been configured.
+	 */
 	public function scheduleJob(VirtualExecution $execution, $handlerType, $data, \DateTimeInterface $runAt = NULL)
 	{
 		if($this->jobExecutor === NULL)
@@ -184,42 +195,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			throw new \RuntimeException('Cannot schedule jobs without a job executor');
 		}
 		
-		$id = UUID::createRandom();
-		$executionId = $execution->getId();
-		$handlerType = (string)$handlerType;
-		
-		$job = new Job($id, $executionId, $handlerType, $data);
-		$job->setRunAt($runAt);
-		
-		$time = $job->getRunAt();
-		
-		if($time !== NULL)
-		{
-			$time = $time->getTimestamp();
-		}
-		
-		$stmt = $this->conn->prepare("
-			INSERT INTO `#__bpmn_job`
-				(`id`, `execution_id`, `handler_type`, `handler_data`, `run_at`)
-			VALUES
-				(:id, :eid, :type, :data, :time)
-		");
-		$stmt->bindValue('id', $job->getId());
-		$stmt->bindValue('eid', $job->getExecutionId());
-		$stmt->bindValue('type', $job->getHandlerType());
-		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
-		$stmt->bindValue('time', $time);
-		$stmt->execute();
-
-		$this->jobExecutor->scheduleJob($job);
-		
-		$this->debug('Scheduled job <{job}> of type "{handler}" within {execution}', [
-			'job' => (string)$job->getId(),
-			'handler' => $handlerType,
-			'execution' => (string)$execution
-		]);
-		
-		return $job;
+		return $this->jobExecutor->scheduleJob($execution->getId(), $handlerType, $data, $runAt);
 	}
 	
 	/**

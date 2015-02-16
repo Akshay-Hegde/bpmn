@@ -173,12 +173,12 @@ class JobQuery extends AbstractQuery
 		
 		if($row['scheduled_at'] !== NULL)
 		{
-			$job->setScheduledAt(new \DateTimeImmutable('@' . $row['scheduled_at']));
+			$job->setScheduledAt(new \DateTimeImmutable('@' . $row['scheduled_at'], new \DateTimeZone('UTC')));
 		}
 		
 		if($row['run_at'] !== NULL)
 		{
-			$job->setRunAt(new \DateTimeImmutable('@' . $row['run_at']));
+			$job->setRunAt(new \DateTimeImmutable('@' . $row['run_at'], new \DateTimeZone('UTC')));
 		}
 		
 		return $job;

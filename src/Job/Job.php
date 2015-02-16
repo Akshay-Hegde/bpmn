@@ -125,7 +125,7 @@ class Job implements JobInterface
 		}
 		else
 		{
-			$this->scheduledAt = new \DateTimeImmutable('@' . $scheduledAt->getTimestamp());
+			$this->scheduledAt = new \DateTimeImmutable('@' . $scheduledAt->getTimestamp(), new \DateTimeZone('UTC'));
 		}
 	}
 	
@@ -145,7 +145,7 @@ class Job implements JobInterface
 		}
 		else
 		{
-			$this->runAt = new \DateTimeImmutable('@' . $runAt->getTimestamp());
+			$this->runAt = new \DateTimeImmutable('@' . $runAt->getTimestamp(), new \DateTimeZone('UTC'));
 		}
 	}
 }

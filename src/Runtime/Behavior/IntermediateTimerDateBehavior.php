@@ -18,17 +18,15 @@ use KoolKode\Expression\ExpressionInterface;
 use KoolKode\Process\Node;
 
 /**
- * 
- * 
  * @author Martin Schröder
  */
-class IntermediateTimerDurationBehavior extends AbstractSignalableBehavior implements IntermediateCatchEventInterface
+class IntermediateTimerDateBehavior extends AbstractSignalableBehavior implements IntermediateCatchEventInterface
 {
-protected $duration;
+	protected $date;
 	
-	public function setDuration(ExpressionInterface $duration)
+	public function setDate(ExpressionInterface $date)
 	{
-		$this->duration = $duration;
+		$this->date = $date;
 	}
 	
 	public function executeBehavior(VirtualExecution $execution)
@@ -40,19 +38,16 @@ protected $duration;
 	
 	public function createEventSubscription(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
-		$interval = $this->getValue($this->duration, $execution->getExpressionContext());
+		$date = $this->getDateValue($this->date, $execution->getExpressionContext());
 		
-		if(!$interval instanceof \DateInterval)
+		if(!$date instanceof \DateTimeInterface)
 		{
-			$interval = new \DateInterval((string)$interval);
+			throw new \RuntimeException(sprintf('Expecting DateTimeInterface, given %s', is_object($date) ? get_class($date) : gettype($date)));
 		}
-		
-		$now = new \DateTimeImmutable();
-		$time = $now->add($interval);
 		
 		$execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand(
 			$execution,
-			$time,
+			$date,
 			$activityId,
 			($node === NULL) ? $execution->getNode() : $node
 		));

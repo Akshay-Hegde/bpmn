@@ -439,6 +439,13 @@ class DiagramLoader
 		
 		foreach($this->xpath->query('m:timerEventDefinition', $el) as $timerElement)
 		{
+			foreach($this->xpath->query('m:timeDate', $timerElement) as $dateElement)
+			{
+				$date = trim($dateElement->textContent);
+			
+				return $builder->intermediateTimerDateEvent($id, $date, $el->getAttribute('name'));
+			}
+			
 			foreach($this->xpath->query('m:timeDuration', $timerElement) as $durationElement)
 			{
 				$duration = trim($durationElement->textContent);

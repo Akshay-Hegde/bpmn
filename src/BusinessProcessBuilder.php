@@ -26,6 +26,7 @@ use KoolKode\BPMN\Runtime\Behavior\IntermediateMessageThrowBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateNoneEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateSignalCatchBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateSignalThrowBehavior;
+use KoolKode\BPMN\Runtime\Behavior\IntermediateTimerDateBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateTimerDurationBehavior;
 use KoolKode\BPMN\Runtime\Behavior\MessageBoundaryEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\MessageStartEventBehavior;
@@ -340,9 +341,21 @@ class BusinessProcessBuilder
 		return $behavior;
 	}
 	
+	public function intermediateTimerDateEvent($id, $date, $name = NULL)
+	{
+		$behavior = new IntermediateTimerDateBehavior();
+		$behavior->setDate($this->stringExp($date));
+		$behavior->setName($this->stringExp($name));
+	
+		$this->builder->node($id)->behavior($behavior);
+	
+		return $behavior;
+	}
+	
 	public function intermediateTimerDurationEvent($id, $duration, $name = NULL)
 	{
-		$behavior = new IntermediateTimerDurationBehavior($duration);
+		$behavior = new IntermediateTimerDurationBehavior();
+		$behavior->setDuration($this->stringExp($duration));
 		$behavior->setName($this->stringExp($name));
 	
 		$this->builder->node($id)->behavior($behavior);

@@ -12,7 +12,7 @@
 namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractBoundaryEventBehavior;
-use KoolKode\BPMN\Engine\EventSubscriptionBehaviorInterface;
+use KoolKode\BPMN\Engine\ActivityInterface;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Process\Node;
 
@@ -32,17 +32,17 @@ class EventSubProcessBehavior extends AbstractBoundaryEventBehavior
 		$this->startNodeId = (string)$startNodeId;
 	}
 	
-	public function createEventSubscription(VirtualExecution $execution, $activityId, Node $node)
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node)
 	{
 		$startNode = $execution->getProcessModel()->findNode($this->startNodeId);
 		$behavior = $startNode->getBehavior();
 		
-		if(!$behavior instanceof EventSubscriptionBehaviorInterface)
+		if(!$behavior instanceof ActivityInterface)
 		{
 			throw new \InvalidArgumentException(sprintf('Start node %s cannot subscribe to event', $startNode->getId()));
 		}
 		
-		$behavior->createEventSubscription($execution, $activityId, $node);
+		$behavior->createEventSubscriptions($execution, $activityId, $node);
 	}
 	
 	// FIXME: Variable scopes of executions are not correct, need to fix this using correct execution hiererchy.

@@ -68,7 +68,7 @@ abstract class AbstractScopeBehavior extends AbstractSignalableBehavior
 			
 			if($behavior instanceof AbstractBoundaryEventBehavior)
 			{
-				$behavior->createEventSubscription($execution, $activityId, $event);
+				$behavior->createEventSubscriptions($execution, $activityId, $event);
 			}
 		}
 	}

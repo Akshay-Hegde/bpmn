@@ -11,11 +11,11 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 
 /**
  * Basic end event without special actions.
  * 
  * @author Martin Schröder
  */
-class NoneEndEventBehavior extends AbstractBehavior { }
+class NoneEndEventBehavior extends AbstractActivity { }

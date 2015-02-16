@@ -11,14 +11,14 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\Process\Behavior\BehaviorInterface;
+use KoolKode\BPMN\Engine\ActivityInterface;
 
 /**
  * Contract for all start event behaviors.
  * 
  * @author Martin Schröder
  */
-interface StartEventBehaviorInterface extends BehaviorInterface
+interface StartEventBehaviorInterface extends ActivityInterface
 {
 	/**
 	 * Check if this start event is used to start a sub process.

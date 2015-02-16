@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
@@ -19,9 +19,12 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  * 
  * @author Martin Schröder
  */
-class TerminateEndEventBehavior extends AbstractBehavior
+class TerminateEndEventBehavior extends AbstractActivity
 {
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function enter(VirtualExecution $execution)
 	{
 		$execution->getEngine()->debug('Reached terminate end event "{name}"', [
 			'name' => $this->getStringValue($this->name, $execution->getExpressionContext())

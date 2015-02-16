@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractSignalableBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
@@ -19,9 +19,12 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  * 
  * @author Martin Schröder
  */
-class EventBasedGatewayBehavior extends AbstractSignalableBehavior
+class EventBasedGatewayBehavior extends AbstractActivity
 {
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function enter(VirtualExecution $execution)
 	{
 		$model = $execution->getProcessModel();
 		$gateway = $execution->getNode();
@@ -46,14 +49,9 @@ class EventBasedGatewayBehavior extends AbstractSignalableBehavior
 				));
 			}
 			
-			$behavior->createEventSubscription($execution, $execution->getNode()->getId(), $eventNode);
+			$behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $eventNode);
 		}
 		
 		$execution->waitForSignal();
-	}
-	
-	public function signalBehavior(VirtualExecution $execution, $signal, array $variables = [])
-	{
-		throw new \BadMethodCallException(sprintf('Event based gateway must not be signaled directly'));
 	}
 }

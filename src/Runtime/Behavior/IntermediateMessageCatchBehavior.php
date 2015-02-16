@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractSignalableBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\CreateMessageSubscriptionCommand;
 use KoolKode\Process\Node;
@@ -21,7 +21,7 @@ use KoolKode\Process\Node;
  * 
  * @author Martin Schröder
  */
-class IntermediateMessageCatchBehavior extends AbstractSignalableBehavior implements IntermediateCatchEventInterface
+class IntermediateMessageCatchBehavior extends AbstractActivity implements IntermediateCatchEventInterface
 {
 	protected $message;
 	
@@ -30,14 +30,31 @@ class IntermediateMessageCatchBehavior extends AbstractSignalableBehavior implem
 		$this->message = (string)$message;
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function enter(VirtualExecution $execution)
 	{
-		$this->createEventSubscription($execution, $execution->getNode()->getId());
-		
 		$execution->waitForSignal();
 	}
 	
-	public function createEventSubscription(VirtualExecution $execution, $activityId, Node $node = NULL)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+		
+		$execution->takeAll();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateMessageSubscriptionCommand(
 			$this->message,

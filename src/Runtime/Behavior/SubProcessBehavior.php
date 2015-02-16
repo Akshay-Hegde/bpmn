@@ -105,7 +105,7 @@ class SubProcessBehavior extends AbstractScopeBehavior
 				
 			if($behavior instanceof EventSubProcessBehavior)
 			{
-				$behavior->createEventSubscription($execution, $execution->getNode()->getId(), $event);
+				$behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $event);
 			}
 		}
 	}

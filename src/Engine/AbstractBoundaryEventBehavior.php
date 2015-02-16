@@ -52,7 +52,7 @@ abstract class AbstractBoundaryEventBehavior extends AbstractSignalableBehavior
 	 * @param string $activityId
 	 * @param Node $node Start node that will be used after an event is triggered.
 	 */
-	public abstract function createEventSubscription(VirtualExecution $execution, $activityId, Node $node);
+	public abstract function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node);
 	
 	public final function executeBehavior(VirtualExecution $execution)
 	{

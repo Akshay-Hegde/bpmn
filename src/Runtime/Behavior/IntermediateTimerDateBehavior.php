@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractSignalableBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\CreateTimerSubscriptionCommand;
 use KoolKode\Expression\ExpressionInterface;
@@ -20,7 +20,7 @@ use KoolKode\Process\Node;
 /**
  * @author Martin Schröder
  */
-class IntermediateTimerDateBehavior extends AbstractSignalableBehavior implements IntermediateCatchEventInterface
+class IntermediateTimerDateBehavior extends AbstractActivity implements IntermediateCatchEventInterface
 {
 	protected $date;
 	
@@ -29,14 +29,31 @@ class IntermediateTimerDateBehavior extends AbstractSignalableBehavior implement
 		$this->date = $date;
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function enter(VirtualExecution $execution)
 	{
-		$this->createEventSubscription($execution, $execution->getNode()->getId());
-		
 		$execution->waitForSignal();
 	}
 	
-	public function createEventSubscription(VirtualExecution $execution, $activityId, Node $node = NULL)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+	
+		$execution->takeAll();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$date = $this->getDateValue($this->date, $execution->getExpressionContext());
 		

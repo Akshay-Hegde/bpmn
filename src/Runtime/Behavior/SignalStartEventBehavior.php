@@ -11,8 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractBehavior;
-use KoolKode\BPMN\Engine\EventSubscriptionBehaviorInterface;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\CreateSignalSubscriptionCommand;
 use KoolKode\Process\Node;
@@ -22,7 +21,7 @@ use KoolKode\Process\Node;
  * 
  * @author Martin Schröder
  */
-class SignalStartEventBehavior extends AbstractBehavior implements StartEventBehaviorInterface, EventSubscriptionBehaviorInterface
+class SignalStartEventBehavior extends AbstractActivity implements StartEventBehaviorInterface
 {
 	protected $signalName;
 	
@@ -56,7 +55,10 @@ class SignalStartEventBehavior extends AbstractBehavior implements StartEventBeh
 		$this->interrupting = $interrupting ? true : false;
 	}
 	
-	public function createEventSubscription(VirtualExecution $execution, $activityId, Node $node = NULL)
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateSignalSubscriptionCommand(
 			$this->signalName,

@@ -11,11 +11,11 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\EventSubscriptionBehaviorInterface;
+use KoolKode\BPMN\Engine\ActivityInterface;
 
 /**
  * Contract for BPMN intermediate catch events that can be used with an event based gateway.
  * 
  * @author Martin Schröder
  */
-interface IntermediateCatchEventInterface extends EventSubscriptionBehaviorInterface { }
+interface IntermediateCatchEventInterface extends ActivityInterface { }

@@ -258,7 +258,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		// Schedule jobs after commit to DB, ensures consistent state in DB and failed scheduling attempts can be repeated.
 		if($trans)
 		{
-			$this->jobExecutor->syncScheduledJobs();
+			if($this->jobExecutor !== NULL)
+			{
+				$this->jobExecutor->syncScheduledJobs();
+			}
 		}
 		
 		return $result;

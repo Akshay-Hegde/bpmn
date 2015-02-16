@@ -43,4 +43,18 @@ abstract class AbstractJobScheduler implements JobSchedulerInterface
 		$stmt->bindValue('id', $job->getId());
 		$stmt->execute();
 	}
+	
+	/**
+	 * Associate a job with an external job ID (for example a tracker ID from a message queue).
+	 * 
+	 * @param Job $job
+	 * @param string $externalId
+	 */
+	protected function saveExternalJobId(Job $job, $externalId)
+	{
+		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `external_id` = :external WHERE `id` = :id");
+		$stmt->bindValue('external', (string)$externalId);
+		$stmt->bindValue('id', $job->getId());
+		$stmt->execute();
+	}
 }

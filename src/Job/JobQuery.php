@@ -20,6 +20,7 @@ use KoolKode\Util\UUID;
 class JobQuery extends AbstractQuery
 {
 	protected $executionId;
+	protected $externalId;
 	protected $processInstanceId;
 	protected $processDefinitionKey;
 	protected $processBusinessKey;
@@ -44,6 +45,13 @@ class JobQuery extends AbstractQuery
 		$this->populateMultiProperty($this->executionId, $id, function($value) {
 			return new UUID($value);
 		});
+	
+		return $this;
+	}
+	
+	public function externalId($id)
+	{
+		$this->populateMultiProperty($this->externalId, $id);
 	
 		return $this;
 	}
@@ -161,6 +169,18 @@ class JobQuery extends AbstractQuery
 			$row['lock_owner']
 		);
 		
+		$job->setExternalId($row['external_id']);
+		
+		if($row['scheduled_at'] !== NULL)
+		{
+			$job->setScheduledAt(new \DateTimeImmutable('@' . $row['scheduled_at']));
+		}
+		
+		if($row['run_at'] !== NULL)
+		{
+			$job->setRunAt(new \DateTimeImmutable('@' . $row['run_at']));
+		}
+		
 		return $job;
 	}
 	
@@ -185,6 +205,7 @@ class JobQuery extends AbstractQuery
 		$params = [];
 		
 		$this->buildPredicate("e.`id`", $this->executionId, $where, $params);
+		$this->buildPredicate("e.`external_id`", $this->externalId, $where, $params);
 		$this->buildPredicate("e.`process_id`", $this->processInstanceId, $where, $params);
 		$this->buildPredicate("e.`business_key`", $this->processBusinessKey, $where, $params);
 		$this->buildPredicate("d.`process_key`", $this->processDefinitionKey, $where, $params);

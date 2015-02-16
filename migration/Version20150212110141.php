@@ -25,6 +25,7 @@ class Version20150212110141 extends AbstractMigration
     {
         $job = $this->table('#__bpmn_job');
         $job->addColumn('id', 'uuid', ['primary_key' => true]);
+        $job->addColumn('external_id', 'varchar', ['default' => NULL]);
         $job->addColumn('lock_owner', 'varchar', ['default' => NULL]);
         $job->addColumn('execution_id', 'uuid');
         $job->addColumn('retries', 'int', ['unsigned' => true, 'default' => 0]);

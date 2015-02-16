@@ -25,6 +25,13 @@ interface JobInterface
 	 */
 	public function getExecutionId();
 	
+	/**
+	 * Get external ID, that is an ID used by a system like a queue to trace messages.
+	 * 
+	 * @return string Or NULL when no such ID exists.
+	 */
+	public function getExternalId();
+	
 	public function getHandlerType();
 	
 	public function getRetries();
@@ -32,4 +39,8 @@ interface JobInterface
 	public function isLocked();
 	
 	public function getLockOwner();
+	
+	public function getScheduledAt();
+	
+	public function getRunAt();
 }

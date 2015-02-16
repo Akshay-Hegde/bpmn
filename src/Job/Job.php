@@ -19,6 +19,8 @@ class Job implements JobInterface
 	
 	protected $executionId;
 	
+	protected $externalId;
+	
 	protected $handlerType;
 	
 	protected $handlerData;
@@ -26,6 +28,8 @@ class Job implements JobInterface
 	protected $retries;
 	
 	protected $lockOwner;
+	
+	protected $scheduledAt;
 	
 	protected $runAt;
 	
@@ -40,7 +44,7 @@ class Job implements JobInterface
 	}
 	
 	/**
-	 * @return UUID
+	 * {@inheritdoc}
 	 */
 	public function getId()
 	{
@@ -48,13 +52,29 @@ class Job implements JobInterface
 	}
 	
 	/**
-	 * @return UUID
+	 * {@inheritdoc}
 	 */
 	public function getExecutionId()
 	{
 		return $this->executionId;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getExternalId()
+	{
+		return $this->externalId;
+	}
+	
+	public function setExternalId($id = NULL)
+	{
+		$this->externalId = ($id === NULL) ? NULL : (string)$id;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getHandlerType()
 	{
 		return $this->handlerType;
@@ -65,21 +85,53 @@ class Job implements JobInterface
 		return $this->handlerData;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getRetries()
 	{
 		return $this->retries;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function isLocked()
 	{
 		return $this->lockOwner !== NULL;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getLockOwner()
 	{
 		return $this->lockOwner;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getScheduledAt()
+	{
+		return $this->scheduledAt;
+	}
+	
+	public function setScheduledAt(\DateTimeInterface $scheduledAt = NULL)
+	{
+		if($scheduledAt === NULL)
+		{
+			$this->scheduledAt = NULL;
+		}
+		else
+		{
+			$this->scheduledAt = new \DateTimeImmutable('@' . $scheduledAt->getTimestamp());
+		}
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getRunAt()
 	{
 		return $this->runAt;

@@ -29,8 +29,10 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 	
 	protected $script;
 	
-	public function __construct($language, $script)
+	public function __construct($activityId, $language, $script)
 	{
+		parent::__construct($activityId);
+		
 		$this->language = strtolower($language);
 		$this->script = (string)$script;
 				
@@ -48,7 +50,7 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$engine = $execution->getEngine();
 		$name = $this->getStringValue($this->name, $execution->getExpressionContext());

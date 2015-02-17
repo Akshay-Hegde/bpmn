@@ -27,17 +27,17 @@ abstract class AbstractActivity implements ActivityInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public final function execute(Execution $execution)
+	public function execute(Execution $execution)
 	{
 		$this->createEventSubscriptions($execution, $execution->getNode()->getId());
 		
-		$this->enter($execution);
+		$this->enter($this->processExecution($execution));
 	}
 	
 	/**
 	 * {@inheritdoc}
 	 */
-	public final function signal(Execution $execution, $signal, array $variables = [])
+	public function signal(Execution $execution, $signal, array $variables = [])
 	{
 		$this->processSignal($execution, $signal, $variables);
 	}
@@ -104,7 +104,7 @@ abstract class AbstractActivity implements ActivityInterface
 	 * @param string $signal
 	 * @param array $variables
 	 */
-	protected function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
 	{
 		throw new \RuntimeException(sprintf('Signal <%s> is not supported by activity %s', ($signal === NULL) ? 'NULL' : $signal, get_class($this)));
 	}
@@ -114,7 +114,7 @@ abstract class AbstractActivity implements ActivityInterface
 	 * 
 	 * @param VirtualExecution $execution
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$this->leave($execution);
 	}
@@ -125,10 +125,15 @@ abstract class AbstractActivity implements ActivityInterface
 	 * @param VirtualExecution $execution
 	 * @param array $transitions
 	 */
-	protected function leave(VirtualExecution $execution, array $transitions = NULL)
+	public function leave(VirtualExecution $execution, array $transitions = NULL)
 	{
 		$this->clearEventSubscriptions($execution, $execution->getNode()->getId());
 		
 		$execution->takeAll($transitions);
+	}
+	
+	protected function processExecution(VirtualExecution $execution)
+	{
+		return $execution;
 	}
 }

@@ -45,7 +45,7 @@ class EventBaseGatewayTest extends BusinessProcessTestCase
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('C')->count());
 		
 		$this->runtimeService->signalEventReceived($signal);
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('A')->count());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('B')->count());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('C')->count());

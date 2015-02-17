@@ -11,7 +11,6 @@
 
 namespace KoolKode\BPMN\Runtime\Command;
 
-use KoolKode\BPMN\Engine\AbstractBehavior;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;

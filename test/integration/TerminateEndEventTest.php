@@ -39,7 +39,7 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 		$this->deployArchive($this->createProcessArchive());
 		
 		$this->runtimeService->startProcessInstanceByKey('main');
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(7, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('taskA')->findOne();
@@ -55,7 +55,7 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 		$this->deployArchive($this->createProcessArchive());
 	
 		$this->runtimeService->startProcessInstanceByKey('main');
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(7, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 	
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('taskB')->findOne();
@@ -63,7 +63,7 @@ class TerminateEndEventTest extends BusinessProcessTestCase
 		$this->assertEquals('Task B', $task->getName());
 	
 		$this->taskService->complete($task->getId());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(4, $this->runtimeService->createExecutionQuery()->count());
 		
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('taskA')->findOne();
 		$this->assertTrue($task instanceof TaskInterface);

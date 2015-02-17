@@ -58,6 +58,19 @@ class SignalStartEventBehavior extends AbstractActivity implements StartEventBeh
 	/**
 	 * {@inheritdoc}
 	 */
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+	
+		$this->leave($execution);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateSignalSubscriptionCommand(

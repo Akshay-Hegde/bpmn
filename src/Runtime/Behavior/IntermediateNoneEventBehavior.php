@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractSignalableBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\NotifyCheckpointCommand;
 
@@ -20,15 +20,31 @@ use KoolKode\BPMN\Runtime\Command\NotifyCheckpointCommand;
  * 
  * @author Martin Schröder
  */
-class IntermediateNoneEventBehavior extends AbstractSignalableBehavior
+class IntermediateNoneEventBehavior extends AbstractActivity
 {
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	public function enter(VirtualExecution $execution)
 	{
 		$execution->getEngine()->pushCommand(new NotifyCheckpointCommand(
 			$this->getStringValue($this->name, $execution->getExpressionContext()),	
 			$execution
 		));
 		
-		return parent::executeBehavior($execution);
+		$execution->waitForSignal();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+	
+		return $this->leave($execution);
 	}
 }

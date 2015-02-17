@@ -11,19 +11,20 @@
 
 namespace KoolKode\BPMN\Task\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractScopeBehavior;
+use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Task\Command\ClaimUserTaskCommand;
 use KoolKode\BPMN\Task\Command\CreateUserTaskCommand;
 use KoolKode\BPMN\Task\Command\RemoveUserTaskCommand;
 use KoolKode\Expression\ExpressionInterface;
+use KoolKode\Database\UUIDTransformer;
 
 /**
  * Creates user tasks and waits for their completion.
  * 
  * @author Martin Schröder
  */
-class UserTaskBehavior extends AbstractScopeBehavior
+class UserTaskBehavior extends AbstractScopeActivity
 {
 	protected $assignee;
 	
@@ -46,10 +47,8 @@ class UserTaskBehavior extends AbstractScopeBehavior
 		$this->dueDate = $dueDate;
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
-		$this->createScopedEventSubscriptions($execution);
-		
 		$context = $execution->getExpressionContext();
 		$command = new CreateUserTaskCommand(
 			$this->getStringValue($this->name, $context),
@@ -76,11 +75,45 @@ class UserTaskBehavior extends AbstractScopeBehavior
 		$execution->waitForSignal();
 	}
 	
-	public function interruptBehavior(VirtualExecution $execution)
+	public function processSignal(VirtualExecution $execution, $signal = NULL , array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+		
+		$this->leave($execution);
+	}
+	
+	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		$engine = $execution->getEngine();
-		$task = $engine->getTaskService()->createTaskQuery()->executionId($execution->getId())->findOne();
+		$root = $this->findScopeExecution($execution);
 		
-		$execution->getEngine()->executeCommand(new RemoveUserTaskCommand($task->getId()));
+		$params = [
+			'e1' => $root->getId()
+		];
+		
+		$i = 1;
+		foreach($root->findChildExecutions() as $child)
+		{
+			$params['e' . ++$i] = $child->getId();
+		}
+		
+		$placeholders = implode(', ', array_map(function($p) {
+			return ':' . $p;
+		}, array_keys($params)));
+		
+		$stmt = $engine->prepareQuery("SELECT `id` FROM `#__bpmn_user_task` WHERE `execution_id` IN ($placeholders)");
+		$stmt->bindAll($params);
+		$stmt->transform('id', new UUIDTransformer());
+		$stmt->execute();
+		
+		foreach($stmt->fetchColumns('id') as $taskId)
+		{
+			$engine->executeCommand(new RemoveUserTaskCommand($taskId));
+		}
+		
+		$this->leave($execution, $transitions);
 	}
 }

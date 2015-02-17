@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractBoundaryEventBehavior;
+use KoolKode\BPMN\Engine\AbstractBoundaryActivity;
 use KoolKode\BPMN\Engine\ActivityInterface;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Process\Node;
@@ -21,18 +21,18 @@ use KoolKode\Process\Node;
  * 
  * @author Martin Schröder
  */
-class EventSubProcessBehavior extends AbstractBoundaryEventBehavior
+class EventSubProcessBehavior extends AbstractBoundaryActivity
 {
 	protected $startNodeId;
 	
-	public function __construct($attachedTo, $startNodeId)
+	public function __construct($activityId, $attachedTo, $startNodeId)
 	{
-		parent::__construct($attachedTo);
+		parent::__construct($activityId, $attachedTo);
 		
 		$this->startNodeId = (string)$startNodeId;
 	}
 	
-	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node)
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$startNode = $execution->getProcessModel()->findNode($this->startNodeId);
 		$behavior = $startNode->getBehavior();
@@ -42,36 +42,37 @@ class EventSubProcessBehavior extends AbstractBoundaryEventBehavior
 			throw new \InvalidArgumentException(sprintf('Start node %s cannot subscribe to event', $startNode->getId()));
 		}
 		
-		$behavior->createEventSubscriptions($execution, $activityId, $node);
+		$behavior->createEventSubscriptions($execution, $activityId, $execution->getProcessModel()->findNode($this->activityId));
 	}
 	
-	// FIXME: Variable scopes of executions are not correct, need to fix this using correct execution hiererchy.
-	// As of now boundary events are always executed outside of the scope, executing them inside the scope
-	// needs special handling in signalBehavior() of AbstractBoundaryEventBehavior.
-	
-	protected function delegateSignalBehavior(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
 	{
-		$model = $execution->getProcessModel();
-		$activity = $model->findNode($this->attachedTo);
+		$startNode = $execution->getProcessModel()->findNode($this->startNodeId);
 		
-		$execution->setNode($activity);
-		$execution->setTransition(NULL);
-		$execution->waitForSignal();
+		$root = $this->findScopeExecution($execution);
+		$scope = $this->findScopeActivity($execution);
 		
-		if($this->interrupting)
+		if(!$this->isInterrupting())
 		{
-			$sub = $execution->createNestedExecution($model);
-		}
-		else
-		{
-			$sub = $execution;
+			return $scope->leaveConcurrent($root, $startNode);
 		}
 		
-		foreach($variables as $k => $v)
+		// Kill all remaining concurrent executions within the scope activity:
+		foreach($root->findChildExecutions() as $child)
 		{
-			$sub->setVariable($k, $v);
+			$child->terminate(false);
 		}
 		
-		return $sub->execute($model->findNode($this->startNodeId));
+		$scope->clearEventSubscriptions($root, $scope->getActivityId());
+
+		$root->setNode($this->findScopeNode($root));
+		$root->setActive(false);
+		$root->waitForSignal();
+		
+		$sub = $root->createExecution(true);
+		$sub->setNode($startNode);
+		$sub->waitForSignal();
+		
+		$sub->signal($signal, $variables);
 	}
 }

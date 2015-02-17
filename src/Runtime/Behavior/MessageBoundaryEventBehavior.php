@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractBoundaryEventBehavior;
+use KoolKode\BPMN\Engine\AbstractBoundaryActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\CreateMessageSubscriptionCommand;
 use KoolKode\Process\Node;
@@ -21,18 +21,34 @@ use KoolKode\Process\Node;
  * 
  * @author Martin Schröder
  */
-class MessageBoundaryEventBehavior extends AbstractBoundaryEventBehavior
+class MessageBoundaryEventBehavior extends AbstractBoundaryActivity
 {
 	protected $message;
 	
-	public function __construct($attachedTo, $message)
+	public function __construct($activityId, $attachedTo, $message)
 	{
-		parent::__construct($attachedTo);
+		parent::__construct($activityId, $attachedTo);
 		
 		$this->message = (string)$message;
 	}
 	
-	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node)
+	/**
+	 * {@inheritdoc}
+	 */
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+		
+		parent::processSignal($execution, $signal, $variables);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateMessageSubscriptionCommand(
 			$this->message,

@@ -35,7 +35,7 @@ class FourEyesRevisitedTest extends BusinessProcessTestCase
 		$this->deployFile('FourEyesRevisitedTest.bpmn');
 		
 		$process = $this->runtimeService->startProcessInstanceByKey('main');
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 		
 		$id = $process->getId();
 		$lastNode = NULL;
@@ -56,7 +56,7 @@ class FourEyesRevisitedTest extends BusinessProcessTestCase
 		
 		if($a1)
 		{
-			$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
+			$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 		
 			$task = $this->taskService->createTaskQuery()->findOne();
 			$this->assertTrue($task instanceof TaskInterface);

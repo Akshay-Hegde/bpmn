@@ -24,7 +24,7 @@ class EventBasedGatewayBehavior extends AbstractActivity
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$model = $execution->getProcessModel();
 		$gateway = $execution->getNode();

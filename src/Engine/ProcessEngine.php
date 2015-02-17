@@ -275,7 +275,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$command = parent::createExecuteNodeCommand($execution, $node);
 		$behavior = $node->getBehavior();
 		
-		if(($behavior instanceof AbstractActivity || $behavior instanceof AbstractBehavior) && $behavior->isAsyncBefore())
+		if($behavior instanceof AbstractActivity && $behavior->isAsyncBefore())
 		{
 			if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
 			{
@@ -313,7 +313,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		{
 			$behavior = $node->getBehavior();
 			
-			if(($behavior instanceof AbstractActivity || $behavior instanceof AbstractBehavior) && $behavior->isAsyncAfter())
+			if($behavior instanceof AbstractActivity && $behavior->isAsyncAfter())
 			{
 				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
 				{

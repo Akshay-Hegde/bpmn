@@ -32,7 +32,7 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$execution->waitForSignal();
 	}
@@ -40,7 +40,7 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
 	{
 		foreach($variables as $k => $v)
 		{

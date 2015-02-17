@@ -33,7 +33,7 @@ class IntermediateSignalCatchBehavior extends AbstractActivity implements Interm
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$execution->waitForSignal();
 	}
@@ -41,7 +41,7 @@ class IntermediateSignalCatchBehavior extends AbstractActivity implements Interm
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
 	{
 		foreach($variables as $k => $v)
 		{

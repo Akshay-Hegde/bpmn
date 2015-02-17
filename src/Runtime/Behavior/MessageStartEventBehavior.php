@@ -55,6 +55,19 @@ class MessageStartEventBehavior extends AbstractActivity implements StartEventBe
 		$this->interrupting = $interrupting ? true : false;
 	}
 	
+/**
+	 * {@inheritdoc}
+	 */
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+		
+		$this->leave($execution);
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 */

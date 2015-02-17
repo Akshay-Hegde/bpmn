@@ -28,8 +28,10 @@ class ExpressionTaskBehavior extends AbstractScopeActivity
 	
 	protected $resultVariable;
 	
-	public function __construct(ExpressionInterface $expression)
+	public function __construct($activityId, ExpressionInterface $expression)
 	{
+		parent::__construct($activityId);
+		
 		$this->expression = $expression;
 	}
 	
@@ -41,7 +43,7 @@ class ExpressionTaskBehavior extends AbstractScopeActivity
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$engine = $execution->getEngine();
 		$name = $this->getStringValue($this->name, $execution->getExpressionContext());

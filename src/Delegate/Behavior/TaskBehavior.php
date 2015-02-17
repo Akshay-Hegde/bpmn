@@ -22,11 +22,11 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  * @author Martin Schröder
  */
 class TaskBehavior extends AbstractScopeActivity
-{
+{	
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$engine = $execution->getEngine();
 		$name = $this->getStringValue($this->name, $execution->getExpressionContext());

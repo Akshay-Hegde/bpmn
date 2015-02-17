@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractBoundaryEventBehavior;
+use KoolKode\BPMN\Engine\AbstractBoundaryActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\CreateSignalSubscriptionCommand;
 use KoolKode\Process\Node;
@@ -21,13 +21,13 @@ use KoolKode\Process\Node;
  * 
  * @author Martin Schröder
  */
-class SignalBoundaryEventBehavior extends AbstractBoundaryEventBehavior
+class SignalBoundaryEventBehavior extends AbstractBoundaryActivity
 {
 	protected $signal;
 	
-	public function __construct($attachedTo, $signal)
+	public function __construct($activityId, $attachedTo, $signal)
 	{
-		parent::__construct($attachedTo);
+		parent::__construct($activityId, $attachedTo);
 		
 		$this->signal = (string)$signal;
 	}
@@ -35,7 +35,20 @@ class SignalBoundaryEventBehavior extends AbstractBoundaryEventBehavior
 	/**
 	 * {@inheritdoc}
 	 */
-	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node)
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+		
+		parent::processSignal($execution, $signal, $variables);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateSignalSubscriptionCommand(
 			$this->signal,

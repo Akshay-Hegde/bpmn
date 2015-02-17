@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Engine;
 
+use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
 
 /**
@@ -20,12 +21,41 @@ use KoolKode\Process\Node;
  */
 abstract class AbstractScopeActivity extends AbstractActivity
 {
+	protected $activityId;
+	
+	public function __construct($activityId)
+	{
+		$this->activityId = (string)$activityId;
+	}
+	
+	public function getActivityId()
+	{
+		return $this->activityId;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function execute(Execution $execution)
+	{
+// 		$root = $execution->createNestedExecution($execution->getProcessModel());
+// 		$root->setNode($execution->getNode());
+
+		$root = $execution->createExecution(false);
+		$root->setActive(false);
+		$root->waitForSignal();
+		
+		$this->createEventSubscriptions($root, $this->activityId, $execution->getNode());
+		
+		$this->enter($root->createExecution(true));
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 */
 	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
-		parent::createEventSubscriptions($execution, $activityId, $node);
+		parent::createEventSubscriptions($execution, $this->activityId, $node);
 		
 		foreach($this->findAttachedBoundaryActivities($execution) as $node)
 		{
@@ -33,9 +63,43 @@ abstract class AbstractScopeActivity extends AbstractActivity
 				
 			if($behavior instanceof AbstractBoundaryActivity)
 			{
-				$behavior->createEventSubscriptions($execution, $activityId, $node);
+				$behavior->createEventSubscriptions($execution, $this->activityId, $node);
 			}
 		}
+	}
+	
+	/**
+	 * Interrupt the scope activity.
+	 * 
+	 * @param VirtualExecution $execution
+	 * @param array $transitions
+	 */
+	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
+	{
+		$this->leave($execution, $transitions);
+	}
+	
+	public function leave(VirtualExecution $execution, array $transitions = NULL)
+	{
+		if($execution->isConcurrent())
+		{
+			$root = $execution->getParentExecution();
+		}
+		else
+		{
+			$root = $execution;
+		}
+		
+		$this->clearEventSubscriptions($root, $this->activityId);
+		
+		// Fetch outer execution and move it to target node before transition.
+		$outer = $root->getParentExecution();
+		$outer->setActive(true);
+		$outer->setNode($execution->getNode());
+		
+		$root->terminate(false);
+	
+		$outer->takeAll($transitions);
 	}
 	
 	/**
@@ -49,7 +113,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 * @param array $transitions
 	 * @return VirtualExecution The new concurrent execution created by this method.
 	 */
-	protected function leaveConcurrent(VirtualExecution $execution, Node $node = NULL, array $transitions = NULL)
+	public function leaveConcurrent(VirtualExecution $execution, Node $node = NULL, array $transitions = NULL)
 	{
 		if($execution->isConcurrent())
 		{
@@ -57,13 +121,13 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		}
 		else
 		{
-			$root = $execution->introduceConcurrentRoot();
+			$root = $execution;
 		}
-			
+		
 		$exec = $root->createExecution(true);
 		$exec->setNode(($node === NULL) ? $execution->getNode() : $node);
 		
-		$exec->getEngine()->syncExecutions();
+		$this->createEventSubscriptions($root, $this->activityId, $execution->getProcessModel()->findNode($this->activityId));
 		
 		$exec->takeAll($transitions);
 		
@@ -76,10 +140,9 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 * @param VirtualExecution $execution
 	 * @return array<Node>
 	 */
-	protected function findAttachedBoundaryActivities(VirtualExecution $execution)
+	public function findAttachedBoundaryActivities(VirtualExecution $execution)
 	{
 		$model = $execution->getProcessModel();
-		$ref = ($execution->getNode() === NULL) ? NULL : $execution->getNode()->getId();
 		$activities = [];
 	
 		foreach($model->findNodes() as $node)
@@ -88,7 +151,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	
 			if($behavior instanceof AbstractBoundaryActivity)
 			{
-				if($ref == $behavior->getAttachedTo())
+				if($this->activityId == $behavior->getAttachedTo())
 				{
 					$activities[] = $node;
 				}
@@ -96,5 +159,23 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		}
 	
 		return $activities;
+	}
+	
+	/**
+	 * Find the execution that actvated the scope.
+	 * 
+	 * @param VirtualExecution $execution
+	 * @return VirtualExecution
+	 */
+	protected function findScopeExecution(VirtualExecution $execution)
+	{
+		$exec = $execution;
+		
+		while($exec->isConcurrent())
+		{
+			$exec = $exec->getParentExecution();
+		}
+	
+		return $exec;
 	}
 }

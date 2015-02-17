@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractSignalableBehavior;
+use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Runtime\Command\SignalEventReceivedCommand;
 
@@ -20,7 +20,7 @@ use KoolKode\BPMN\Runtime\Command\SignalEventReceivedCommand;
  * 
  * @author Martin Schröder
  */
-class IntermediateSignalThrowBehavior extends AbstractSignalableBehavior
+class IntermediateSignalThrowBehavior extends AbstractActivity
 {
 	protected $signalName;
 	
@@ -29,7 +29,10 @@ class IntermediateSignalThrowBehavior extends AbstractSignalableBehavior
 		$this->signalName = (string)$signalName;
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	/**
+	 * {@inheritdoc}
+	 */
+	public function enter(VirtualExecution $execution)
 	{
 		$execution->waitForSignal();
 		$execution->getEngine()->pushCommand(new SignalEventReceivedCommand(
@@ -38,5 +41,18 @@ class IntermediateSignalThrowBehavior extends AbstractSignalableBehavior
 			[],
 			$execution
 		));
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+	
+		return $this->leave($execution);
 	}
 }

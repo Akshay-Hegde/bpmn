@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractScopeBehavior;
+use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Expression\ExpressionInterface;
 
@@ -20,7 +20,7 @@ use KoolKode\Expression\ExpressionInterface;
  * 
  * @author Martin Schröder
  */
-class CallActivityBehavior extends AbstractScopeBehavior
+class CallActivityBehavior extends AbstractScopeActivity
 {
 	protected $processDefinitionKey;
 		
@@ -28,8 +28,10 @@ class CallActivityBehavior extends AbstractScopeBehavior
 	
 	protected $outputs = [];
 	
-	public function __construct($processDefinitionKey)
+	public function __construct($activityId, $processDefinitionKey)
 	{
+		parent::__construct($activityId);
+		
 		$this->processDefinitionKey = (string)$processDefinitionKey;
 	}
 	
@@ -57,7 +59,7 @@ class CallActivityBehavior extends AbstractScopeBehavior
 		}
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$context = $execution->getExpressionContext();
 		$definition = $execution->getEngine()->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionKey($this->processDefinitionKey)->findOne();
@@ -93,7 +95,7 @@ class CallActivityBehavior extends AbstractScopeBehavior
 		$sub->execute(array_shift($start));
 	}
 	
-	public function signalBehavior(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		$sub = $variables[VirtualExecution::KEY_EXECUTION];
 		
@@ -121,16 +123,16 @@ class CallActivityBehavior extends AbstractScopeBehavior
 			'task' => $this->getStringValue($this->name, $execution->getExpressionContext())
 		]);
 		
-		return $execution->takeAll(NULL, [$execution]);
+		return $this->leave($execution);
 	}
 	
-	public function interruptBehavior(VirtualExecution $execution)
+	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		foreach($execution->findChildExecutions() as $sub)
 		{
 			$sub->terminate(false);
 		}
 		
-		return parent::interruptBehavior($execution);
+		$this->leave($execution, $transitions);
 	}
 }

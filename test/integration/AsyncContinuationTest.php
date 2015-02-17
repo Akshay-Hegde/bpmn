@@ -27,7 +27,7 @@ class AsyncContinuationTest extends BusinessProcessTestCase
 	/**
 	 * @dataProvider provideAsyncHandler
 	 */
-	public function testAsyncBeforeTask($file, $async)
+	public function testAsync($file, $async)
 	{
 		if($async)
 		{
@@ -60,7 +60,7 @@ class AsyncContinuationTest extends BusinessProcessTestCase
 			$this->managementService->executeJob($job->getId());
 		}
 		
-		$task = $this->taskService->createTaskQuery()->executionId($process->getId())->findOne();
+		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertEquals('Task within job', $task->getName());
 		
 		$this->taskService->complete($task->getId());

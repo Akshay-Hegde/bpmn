@@ -26,21 +26,18 @@ class SubProcessTest extends BusinessProcessTestCase
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task A', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task B', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task C', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
@@ -48,10 +45,6 @@ class SubProcessTest extends BusinessProcessTestCase
 	
 	public function testWithSignal()
 	{
-		// FIXME: Sub processes / scopes need to use correct execution scopes!
-		
-		$this->markTestSkipped('Test requires correct scoping of executions in scopes!');
-		
 		$this->deployFile('SubProcessTest.bpmn');
 	
 		$process = $this->runtimeService->startProcessInstanceByKey('main');
@@ -60,44 +53,41 @@ class SubProcessTest extends BusinessProcessTestCase
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task A', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
 	
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task B', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->runtimeService->signalEventReceived('InterruptSignal');
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task D', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
 	
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task A', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task B', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
-				
-		$this->runtimeService->messageEventReceived('InfoMessage', $process->getId(), ['code' => 123]);
+		
+		$subs = $this->runtimeService->createExecutionQuery()->processInstanceId($process->getId())->messageEventSubscriptionName('InfoMessage')->findAll();
+		$this->assertCount(1, $subs);
+		
+		$this->runtimeService->messageEventReceived('InfoMessage', $subs[0]->getId(), ['code' => 123]);
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('Task C', $task->getName());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
 		
 		// Check variable set by message boundary event.
 		$execution = $this->processEngine->findExecution($task->getExecutionId());

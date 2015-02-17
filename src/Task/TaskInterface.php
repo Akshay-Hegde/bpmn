@@ -35,6 +35,13 @@ interface TaskInterface
 	public function getExecutionId();
 	
 	/**
+	 * Get the process instance ID that create the task.
+	 * 
+	 * @return UUID or NULL hen the task is not related to a process instance.
+	 */
+	public function getProcessInstanceId();
+	
+	/**
 	 * Get the name (as defined in a BPMN 2.0 process diagram) of the activity to be performed.
 	 * 
 	 * @return string

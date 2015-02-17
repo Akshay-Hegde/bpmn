@@ -26,11 +26,11 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('dataTask', $task->getActivityId());
 		$this->assertEquals('This is just a dummy task.', $task->getDocumentation());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->count());
 		
 		$this->taskService->complete($task->getId());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->count());
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
@@ -46,16 +46,18 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 	{
 		$this->deployFile('MessageBoundaryEventTest.bpmn');
 	
-		$process = $this->runtimeService->startProcessInstanceByKey('main');
+		$this->runtimeService->startProcessInstanceByKey('main');
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('dataTask', $task->getActivityId());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+		
+		$sub = $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->findAll();
+		$this->assertCount(1, $sub);
 	
-		$this->runtimeService->messageEventReceived('TimeoutMessage', $process->getId());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->runtimeService->messageEventReceived('TimeoutMessage', $sub[0]->getId());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		

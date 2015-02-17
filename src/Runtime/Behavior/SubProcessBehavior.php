@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractScopeBehavior;
+use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Process\Node;
 
@@ -20,27 +20,24 @@ use KoolKode\Process\Node;
  * 
  * @author Martin Schröder
  */
-class SubProcessBehavior extends AbstractScopeBehavior
+class SubProcessBehavior extends AbstractScopeActivity
 {
-	protected $id;
-	
 	protected $startNodeId;
 	
-	public function __construct($id, $startNodeId)
+	public function __construct($activityId, $startNodeId)
 	{
-		$this->id = (string)$id;
+		parent::__construct($activityId);
+		
 		$this->startNodeId = (string)$startNodeId;
 	}
 	
 	public function getId()
 	{
-		return $this->id;
+		return $this->activityId;
 	}
 	
-	public function executeBehavior(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
-		$this->createScopedEventSubscriptions($execution);
-		
 		$model = $execution->getProcessModel();
 		
 		$execution->getEngine()->debug('Starting sub process "{process}"', [
@@ -65,7 +62,7 @@ class SubProcessBehavior extends AbstractScopeBehavior
 		$sub->execute($startNode);
 	}
 	
-	public function signalBehavior(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		if(empty($variables[VirtualExecution::KEY_EXECUTION]))
 		{
@@ -84,29 +81,16 @@ class SubProcessBehavior extends AbstractScopeBehavior
 			'process' => $this->getStringValue($this->name, $execution->getExpressionContext())
 		]);
 		
-		return $execution->takeAll(NULL, [$execution]);
+		$this->leave($execution);
 	}
 	
-	public function interruptBehavior(VirtualExecution $execution)
+	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		foreach($execution->findChildExecutions() as $sub)
 		{
 			$sub->terminate(false);
 		}
 		
-		return parent::interruptBehavior($execution);
-	}
-	
-	public function createEventSubProcessSubscriptions(VirtualExecution $execution)
-	{
-		foreach($this->findAttachedBoundaryEvents($execution) as $event)
-		{
-			$behavior = $event->getBehavior();
-				
-			if($behavior instanceof EventSubProcessBehavior)
-			{
-				$behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $event);
-			}
-		}
+		$this->leave($execution, $transitions);
 	}
 }

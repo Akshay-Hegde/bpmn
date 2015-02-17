@@ -23,7 +23,7 @@ class SignalThrowingTest extends BusinessProcessTestCase
 		$this->deployFile('SignalThrowingTest.bpmn');
 		
 		$this->runtimeService->startProcessInstanceByKey('SignalThrowingTest');
-		$this->assertEquals(4, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('notifyBranchSignal')->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
@@ -33,7 +33,7 @@ class SignalThrowingTest extends BusinessProcessTestCase
 		$this->taskService->complete($task->getId(), [
 			'counter' => 1
 		]);
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('notifyBranchSignal')->count());
 		
 		$task = $this->taskService->createTaskQuery()->findOne();

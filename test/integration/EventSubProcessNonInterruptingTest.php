@@ -21,7 +21,7 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 		$this->deployFile('EventSubProcessNonInterruptingTest.bpmn');
 		
 		$this->runtimeService->startProcessInstanceByKey('main');
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
@@ -31,7 +31,7 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('UserTask_3', $task->getActivityId());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
@@ -39,24 +39,25 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 	
 	public function testProcessWithMessage()
 	{
-		$this->markTestSkipped('Test requires correct scoping of executions in scopes!');
-		
 		$this->deployFile('EventSubProcessNonInterruptingTest.bpmn');
 	
 		$process = $this->runtimeService->startProcessInstanceByKey('main');
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('UserTask_2', $task->getActivityId());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
-		$this->runtimeService->messageEventReceived('OrderItemAddedMessage', $process->getId());
+		$sub = $this->runtimeService->createExecutionQuery()->processInstanceId($process->getId())->messageEventSubscriptionName('OrderItemAddedMessage')->findAll();
+		$this->assertCount(1, $sub);
+		
+		$this->runtimeService->messageEventReceived('OrderItemAddedMessage', $sub[0]->getId());
 	
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('UserTask_1')->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('UserTask_1', $task->getActivityId());
-		$this->assertEquals(4, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(9, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
 		$this->taskService->complete($task->getId());
@@ -69,7 +70,7 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('UserTask_3', $task->getActivityId());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 	
 		$this->taskService->complete($task->getId());

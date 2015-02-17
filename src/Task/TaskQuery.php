@@ -230,6 +230,7 @@ class TaskQuery extends AbstractQuery
 		$task->setActivityId($row['activity']);
 		$task->setDocumentation($row['documentation']);
 		$task->setExecutionId($row['execution_id']);
+		$task->setProcessInstanceId($row['process_id']);
 		
 		return $task;
 	}
@@ -242,7 +243,7 @@ class TaskQuery extends AbstractQuery
 		}
 		else
 		{
-			$fields = 't.*';
+			$fields = 't.*, e.`process_id`';
 		}
 		
 		$sql = "	SELECT $fields
@@ -345,6 +346,7 @@ class TaskQuery extends AbstractQuery
 		$stmt->bindAll($params);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('execution_id', new UUIDTransformer());
+		$stmt->transform('process_id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

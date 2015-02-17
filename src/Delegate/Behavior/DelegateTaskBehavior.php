@@ -27,15 +27,17 @@ class DelegateTaskBehavior extends AbstractScopeActivity
 {
 	protected $typeName;
 	
-	public function __construct(ExpressionInterface $typeName)
+	public function __construct($activityId, ExpressionInterface $typeName)
 	{
+		parent::__construct($activityId);
+		
 		$this->typeName = $typeName;
 	}
 	
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function enter(VirtualExecution $execution)
+	public function enter(VirtualExecution $execution)
 	{
 		$engine = $execution->getEngine();
 		$typeName = $this->getStringValue($this->typeName, $execution->getExpressionContext());

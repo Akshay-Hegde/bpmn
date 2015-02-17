@@ -42,6 +42,7 @@ use KoolKode\Expression\Parser\ExpressionLexer;
 use KoolKode\Expression\Parser\ExpressionParser;
 use KoolKode\Process\ExpressionTrigger;
 use KoolKode\Process\ProcessBuilder;
+use KoolKode\Util\UUID;
 
 /**
  * Convenient builder that aids during creation of BPMN 2.0 process models.
@@ -213,7 +214,7 @@ class BusinessProcessBuilder
 	
 	public function task($id, $name = NULL)
 	{
-		$behavior = new TaskBehavior();
+		$behavior = new TaskBehavior($id);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -223,7 +224,7 @@ class BusinessProcessBuilder
 	
 	public function serviceTask($id, $name = NULL)
 	{
-		$behavior = new TaskBehavior();
+		$behavior = new TaskBehavior($id);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -233,7 +234,7 @@ class BusinessProcessBuilder
 	
 	public function delegateTask($id, $typeName, $name = NULL)
 	{
-		$behavior = new DelegateTaskBehavior($this->stringExp($typeName));
+		$behavior = new DelegateTaskBehavior($id, $this->stringExp($typeName));
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -243,7 +244,7 @@ class BusinessProcessBuilder
 	
 	public function expressionTask($id, $expression, $name = NULL)
 	{
-		$behavior = new ExpressionTaskBehavior($this->exp($expression));
+		$behavior = new ExpressionTaskBehavior($id, $this->exp($expression));
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -253,7 +254,7 @@ class BusinessProcessBuilder
 	
 	public function userTask($id, $name = NULL)
 	{
-		$behavior = new UserTaskBehavior();
+		$behavior = new UserTaskBehavior($id);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -263,7 +264,7 @@ class BusinessProcessBuilder
 	
 	public function manualTask($id, $name = NULL)
 	{
-		$behavior = new TaskBehavior();
+		$behavior = new TaskBehavior($id);
 		$behavior->setName($this->stringExp($name));
 	
 		$this->builder->node($id)->behavior($behavior);
@@ -273,7 +274,7 @@ class BusinessProcessBuilder
 	
 	public function scriptTask($id, $language, $script, $name = NULL)
 	{
-		$behavior = new ScriptTaskBehavior(strtolower($language), $script);
+		$behavior = new ScriptTaskBehavior($id, strtolower($language), $script);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -283,7 +284,7 @@ class BusinessProcessBuilder
 	
 	public function callActivity($id, $element, $name = NULL)
 	{
-		$behavior = new CallActivityBehavior($element);
+		$behavior = new CallActivityBehavior($id, $element);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -303,7 +304,7 @@ class BusinessProcessBuilder
 	
 	public function eventSubProcess($id, $attachedTo, $startNodeId, $name = NULL)
 	{
-		$behavior = new EventSubProcessBehavior($attachedTo, $startNodeId);
+		$behavior = new EventSubProcessBehavior($id, $attachedTo, $startNodeId);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -385,7 +386,7 @@ class BusinessProcessBuilder
 	
 	public function signalBoundaryEvent($id, $attachedTo, $signal, $name = NULL)
 	{
-		$behavior = new SignalBoundaryEventBehavior($attachedTo, $signal);
+		$behavior = new SignalBoundaryEventBehavior($id, $attachedTo, $signal);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
@@ -395,7 +396,7 @@ class BusinessProcessBuilder
 	
 	public function messageBoundaryEvent($id, $attachedTo, $message, $name = NULL)
 	{
-		$behavior = new MessageBoundaryEventBehavior($attachedTo, $message);
+		$behavior = new MessageBoundaryEventBehavior($id, $attachedTo, $message);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);

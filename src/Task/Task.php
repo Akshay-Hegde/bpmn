@@ -17,6 +17,7 @@ class Task implements TaskInterface, \JsonSerializable
 {
 	protected $id;
 	protected $executionId;
+	protected $processInstanceId;
 	protected $name;
 	protected $activityId;
 	protected $created;
@@ -72,6 +73,19 @@ class Task implements TaskInterface, \JsonSerializable
 	public function setExecutionId(UUID $executionId = NULL)
 	{
 		$this->executionId = $executionId;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getProcessInstanceId()
+	{
+		return $this->processInstanceId;
+	}
+	
+	public function setProcessInstanceId(UUID $processInstanceId = NULL)
+	{
+		$this->processInstanceId = $processInstanceId;
 	}
 	
 	/**

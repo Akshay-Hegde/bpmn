@@ -29,7 +29,7 @@ class EndEventsTest extends BusinessProcessTestCase
 		$this->assertEquals('Task A', $task->getName());
 		$this->assertNull($task->getAssignee());
 		$this->assertNull($task->getClaimDate());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->claim($task->getId(), 'foobar');
 		$task = $this->taskService->createTaskQuery()->findOne();
@@ -46,7 +46,7 @@ class EndEventsTest extends BusinessProcessTestCase
 		$this->assertNull($task->getClaimDate());
 		
 		$this->taskService->complete($task->getId());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('taskB')->findOne();
@@ -54,7 +54,7 @@ class EndEventsTest extends BusinessProcessTestCase
 		$this->assertEquals('Task B', $task->getName());
 		
 		$this->taskService->complete($task->getId());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('taskC')->findOne();

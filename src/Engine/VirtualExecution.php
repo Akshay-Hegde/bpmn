@@ -87,4 +87,9 @@ class VirtualExecution extends Execution
 	{
 		$this->transition = $trans;
 	}
+	
+	protected function injectVariablesLocal(array $variables)
+	{
+		$this->variables = $variables;
+	}
 }

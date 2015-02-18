@@ -345,6 +345,14 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	 */
 	public function findExecution(UUID $id)
 	{
+		static $injectVars = NULL;
+		
+		if($injectVars === NULL)
+		{
+			$injectVars = new \ReflectionMethod(VirtualExecution::class, 'injectVariablesLocal');
+			$injectVars->setAccessible(true);
+		}
+		
 		$ref = (string)$id;
 		
 		if(isset($this->executions[$ref]))
@@ -445,7 +453,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		foreach($variables as $id => $vars)
 		{
-			$executions[$id]->setVariablesLocal($vars);
+			$injectVars->invoke($executions[$id], $vars);
 		}
 		
 		foreach($executions as $execution)

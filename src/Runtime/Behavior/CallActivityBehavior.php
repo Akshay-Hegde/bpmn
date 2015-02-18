@@ -76,7 +76,7 @@ class CallActivityBehavior extends AbstractScopeActivity
 			throw new \RuntimeException(sprintf('Missing single non start event in process %s', $definition->getKey()));
 		}
 		
-		$sub = $execution->createNestedExecution($definition->getModel(), true);
+		$sub = $execution->createNestedExecution($definition->getModel(), true, true);
 		
 		foreach($this->inputs as $target => $source)
 		{

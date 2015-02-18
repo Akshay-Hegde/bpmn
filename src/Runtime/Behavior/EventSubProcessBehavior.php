@@ -45,7 +45,7 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
 		$behavior->createEventSubscriptions($execution, $activityId, $execution->getProcessModel()->findNode($this->activityId));
 	}
 	
-	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		$startNode = $execution->getProcessModel()->findNode($this->startNodeId);
 		

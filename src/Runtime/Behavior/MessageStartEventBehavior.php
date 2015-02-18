@@ -58,7 +58,7 @@ class MessageStartEventBehavior extends AbstractActivity implements StartEventBe
 /**
 	 * {@inheritdoc}
 	 */
-	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		foreach($variables as $k => $v)
 		{

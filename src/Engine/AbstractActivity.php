@@ -104,7 +104,7 @@ abstract class AbstractActivity implements ActivityInterface
 	 * @param string $signal
 	 * @param array $variables
 	 */
-	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		throw new \RuntimeException(sprintf('Signal <%s> is not supported by activity %s', ($signal === NULL) ? 'NULL' : $signal, get_class($this)));
 	}

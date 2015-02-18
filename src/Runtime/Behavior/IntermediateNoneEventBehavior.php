@@ -38,7 +38,7 @@ class IntermediateNoneEventBehavior extends AbstractActivity
 	/**
 	 * {@inheritdoc}
 	 */
-	public function processSignal(VirtualExecution $execution, $signal = NULL, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
 	{
 		foreach($variables as $k => $v)
 		{

@@ -11,7 +11,6 @@
 
 namespace KoolKode\BPMN;
 
-use KoolKode\BPMN\Runtime\Behavior\StartEventBehaviorInterface;
 use KoolKode\Xml\XmlDocumentBuilder;
 
 /**
@@ -321,46 +320,15 @@ class DiagramLoader
 		try
 		{
 			$triggeredByEvent = ('true' === strtolower($el->getAttribute('triggeredByEvent')));
-			
 			$inner = $this->parseProcessDefinition($el);
-			$builder->append($inner);
-			
-			$startNodeId = NULL;
-			
-			foreach($inner->build()->findStartNodes() as $candidate)
-			{
-				$behavior = $candidate->getBehavior();
-				
-				if($behavior instanceof StartEventBehaviorInterface)
-				{
-					$startNodeId = $candidate->getId();
-					
-					break;
-				}
-			}
-			
-			if($startNodeId === NULL)
-			{
-				throw new \RuntimeException(sprintf('Missing start node of sub process %s', $id));
-			}
 			
 			if($triggeredByEvent)
 			{
-				$sub = $builder->eventSubProcess($id, $parentSubId, $startNodeId, $el->getAttribute('name'));
-				
-				foreach($inner->build()->findStartNodes() as $startNode)
-				{
-					$sb = $startNode->getBehavior();
-					
-					if($sb instanceof StartEventBehaviorInterface)
-					{
-						$sub->setInterrupting($sb->isInterrupting());
-					}
-				}
+				$sub = $builder->eventSubProcess($id, $parentSubId, $inner, $el->getAttribute('name'));
 			}
 			else
 			{
-				$sub = $builder->subProcess($id, $startNodeId, $el->getAttribute('name'));
+				$sub = $builder->subProcess($id, $inner, $el->getAttribute('name'));
 			}
 			
 			$sub->setAsyncBefore($this->getAsyncBefore($el));

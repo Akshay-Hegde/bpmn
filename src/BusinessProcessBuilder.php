@@ -34,6 +34,7 @@ use KoolKode\BPMN\Runtime\Behavior\NoneEndEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\NoneStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalBoundaryEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalStartEventBehavior;
+use KoolKode\BPMN\Runtime\Behavior\StartEventBehaviorInterface;
 use KoolKode\BPMN\Runtime\Behavior\SubProcessBehavior;
 use KoolKode\BPMN\Runtime\Behavior\TerminateEndEventBehavior;
 use KoolKode\BPMN\Task\Behavior\UserTaskBehavior;
@@ -42,7 +43,7 @@ use KoolKode\Expression\Parser\ExpressionLexer;
 use KoolKode\Expression\Parser\ExpressionParser;
 use KoolKode\Process\ExpressionTrigger;
 use KoolKode\Process\ProcessBuilder;
-use KoolKode\Util\UUID;
+use KoolKode\Process\ProcessModel;
 
 /**
  * Convenient builder that aids during creation of BPMN 2.0 process models.
@@ -292,24 +293,66 @@ class BusinessProcessBuilder
 		return $behavior;
 	}
 	
-	public function subProcess($id, $startNodeId, $name = NULL)
+	public function subProcess($id, BusinessProcessBuilder $subProcess, $name = NULL)
 	{
-		$behavior = new SubProcessBehavior($id, $startNodeId);
+		$subModel = $subProcess->build();
+		$startNode = $this->findSubProcessStartNode($id, $subModel);
+		
+		$behavior = new SubProcessBehavior($id, $startNode->getId());
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
+		$this->builder->append($subProcess->builder);
 		
 		return $behavior;
 	}
 	
-	public function eventSubProcess($id, $attachedTo, $startNodeId, $name = NULL)
+	public function eventSubProcess($id, $attachedTo, BusinessProcessBuilder $subProcess, $name = NULL)
 	{
-		$behavior = new EventSubProcessBehavior($id, $attachedTo, $startNodeId);
+		$subModel = $subProcess->build();
+		$startNode = $this->findSubProcessStartNode($id, $subModel);
+		
+		$behavior = new EventSubProcessBehavior($id, $attachedTo, $startNode->getId());
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
+		$this->builder->append($subProcess->builder);
+		
+		foreach($subModel->findStartNodes() as $startNode)
+		{
+			$sb = $startNode->getBehavior();
+		
+			if($sb instanceof StartEventBehaviorInterface)
+			{
+				$behavior->setInterrupting($sb->isInterrupting());
+			}
+		}
 		
 		return $behavior;
+	}
+	
+	protected function findSubProcessStartNode($id, ProcessModel $subModel)
+	{
+		$startNode = NULL;
+		
+		foreach($subModel->findStartNodes() as $candidate)
+		{
+			$behavior = $candidate->getBehavior();
+		
+			if($behavior instanceof StartEventBehaviorInterface)
+			{
+				$startNode = $candidate;
+					
+				break;
+			}
+		}
+			
+		if($startNode === NULL)
+		{
+			throw new \RuntimeException(sprintf('Missing start node of sub process %s', $id));
+		}
+		
+		return $startNode;
 	}
 	
 	public function intermediateNoneEvent($id, $name = NULL)

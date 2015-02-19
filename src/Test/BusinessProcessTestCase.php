@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Test;
 use KoolKode\BPMN\Delegate\DelegateTaskRegistry;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Job\Executor\JobExecutor;
 use KoolKode\BPMN\Job\Scheduler\TestJobScheduler;
 use KoolKode\BPMN\ManagementService;
@@ -26,6 +27,7 @@ use KoolKode\Event\EventDispatcher;
 use KoolKode\Expression\ExpressionContextFactory;
 use KoolKode\Meta\Info\ReflectionTypeInfo;
 use KoolKode\Process\Event\CreateExpressionContextEvent;
+use KoolKode\Util\UUID;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -247,5 +249,35 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 	protected function registerServiceTaskHandler($processDefinitionKey, $activityId, callable $handler)
 	{
 		$this->serviceTaskHandlers[(string)$processDefinitionKey][(string)$activityId] = $handler;
+	}
+	
+	protected function dumpProcessInstances(UUID $id = NULL)
+	{
+		$query = $this->runtimeService->createProcessInstanceQuery();
+		
+		if($id !== NULL)
+		{
+			$query->processInstanceId($id);
+		}
+		
+		foreach($query->findAll() as $proc)
+		{
+			echo "\n";
+			$this->dumpExecution($this->processEngine->findExecution($proc->getId()));
+			echo "\n";
+		}
+	}
+	
+	protected function dumpExecution(VirtualExecution $exec)
+	{
+		$node = $exec->getNode();
+		$nodeId = ($node === NULL) ? NULL : $node->getId();
+		
+		printf("%s%s [ %s ]\n", str_repeat('  ', $exec->getExecutionDepth()), $nodeId, $exec->getId());
+	
+		foreach($exec->findChildExecutions() as $child)
+		{
+			$this->dumpExecution($child);
+		}
 	}
 }

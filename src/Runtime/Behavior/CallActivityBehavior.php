@@ -133,6 +133,6 @@ class CallActivityBehavior extends AbstractScopeActivity
 			$sub->terminate(false);
 		}
 		
-		$this->leave($execution, $transitions);
+		parent::interrupt($execution, $transitions);
 	}
 }

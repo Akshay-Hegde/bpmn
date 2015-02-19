@@ -49,7 +49,7 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
 	{
 		$startNode = $execution->getProcessModel()->findNode($this->startNodeId);
 		
-		$root = $this->findScopeExecution($execution);
+		$root = $execution->getScope();
 		$scope = $this->findScopeActivity($execution);
 		
 		if(!$this->isInterrupting())
@@ -64,15 +64,16 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
 		}
 		
 		$scope->clearEventSubscriptions($root, $scope->getActivityId());
-
+		
 		$root->setNode($this->findScopeNode($root));
 		$root->setActive(false);
 		$root->waitForSignal();
 		
-		$sub = $root->createExecution(true);
+		$sub = $root->createExecution(false);
 		$sub->setNode($startNode);
 		$sub->waitForSignal();
 		
+		// Delegate received signal to event sub process start event.
 		$sub->signal($signal, $variables);
 	}
 }

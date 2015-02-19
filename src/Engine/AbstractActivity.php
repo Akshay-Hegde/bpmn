@@ -31,7 +31,7 @@ abstract class AbstractActivity implements ActivityInterface
 	{
 		$this->createEventSubscriptions($execution, $execution->getNode()->getId());
 		
-		$this->enter($this->processExecution($execution));
+		$this->enter($execution);
 	}
 	
 	/**
@@ -130,10 +130,5 @@ abstract class AbstractActivity implements ActivityInterface
 		$this->clearEventSubscriptions($execution, $execution->getNode()->getId());
 		
 		$execution->takeAll($transitions);
-	}
-	
-	protected function processExecution(VirtualExecution $execution)
-	{
-		return $execution;
 	}
 }

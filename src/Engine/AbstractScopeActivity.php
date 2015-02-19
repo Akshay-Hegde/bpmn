@@ -38,16 +38,14 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 */
 	public function execute(Execution $execution)
 	{
-// 		$root = $execution->createNestedExecution($execution->getProcessModel());
-// 		$root->setNode($execution->getNode());
-
-		$root = $execution->createExecution(false);
+		$root = $execution->createNestedExecution($execution->getProcessModel(), true);
+		$root->setNode($execution->getNode());
 		$root->setActive(false);
 		$root->waitForSignal();
 		
 		$this->createEventSubscriptions($root, $this->activityId, $execution->getNode());
 		
-		$this->enter($root->createExecution(true));
+		$this->enter($root->createExecution(false));
 	}
 	
 	/**
@@ -79,16 +77,12 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		$this->leave($execution, $transitions);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function leave(VirtualExecution $execution, array $transitions = NULL)
-	{
-		if($execution->isConcurrent())
-		{
-			$root = $execution->getParentExecution();
-		}
-		else
-		{
-			$root = $execution;
-		}
+	{		
+		$root = $execution->getScope();
 		
 		$this->clearEventSubscriptions($root, $this->activityId);
 		
@@ -159,23 +153,5 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		}
 	
 		return $activities;
-	}
-	
-	/**
-	 * Find the execution that actvated the scope.
-	 * 
-	 * @param VirtualExecution $execution
-	 * @return VirtualExecution
-	 */
-	protected function findScopeExecution(VirtualExecution $execution)
-	{
-		$exec = $execution;
-		
-		while($exec->isConcurrent())
-		{
-			$exec = $exec->getParentExecution();
-		}
-	
-		return $exec;
 	}
 }

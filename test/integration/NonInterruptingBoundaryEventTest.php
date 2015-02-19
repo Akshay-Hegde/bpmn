@@ -54,7 +54,6 @@ class NonInterruptingBoundaryEventTest extends BusinessProcessTestCase
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
 		$this->runtimeService->signalEventReceived('TestSignal');
-		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TestSignal')->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
@@ -66,7 +65,7 @@ class NonInterruptingBoundaryEventTest extends BusinessProcessTestCase
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('dataTask', $task->getActivityId());
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+		$this->assertEquals(4, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TestSignal')->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		

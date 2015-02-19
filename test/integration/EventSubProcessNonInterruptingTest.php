@@ -57,7 +57,6 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('UserTask_1')->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
 		$this->assertEquals('UserTask_1', $task->getActivityId());
-		$this->assertEquals(9, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
 		$this->taskService->complete($task->getId());

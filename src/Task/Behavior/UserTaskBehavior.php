@@ -88,7 +88,7 @@ class UserTaskBehavior extends AbstractScopeActivity
 	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		$engine = $execution->getEngine();
-		$root = $this->findScopeExecution($execution);
+		$root = $execution->getScope();
 		
 		$params = [
 			'e1' => $root->getId()
@@ -114,6 +114,6 @@ class UserTaskBehavior extends AbstractScopeActivity
 			$engine->executeCommand(new RemoveUserTaskCommand($taskId));
 		}
 		
-		$this->leave($execution, $transitions);
+		parent::interrupt($execution, $transitions);
 	}
 }

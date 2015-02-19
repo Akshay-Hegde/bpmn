@@ -30,7 +30,7 @@ class TerminateEndEventBehavior extends AbstractActivity
 			'name' => $this->getStringValue($this->name, $execution->getExpressionContext())
 		]);
 		
-		$root = $execution->getScope();
+		$root = $execution->getScopeRoot();
 		$root->setNode($execution->getNode());
 		$root->setTransition($execution->getTransition());
 		$root->terminate();

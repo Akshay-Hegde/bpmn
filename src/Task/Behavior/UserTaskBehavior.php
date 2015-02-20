@@ -88,10 +88,7 @@ class UserTaskBehavior extends AbstractScopeActivity
 			return;
 		}
 		
-		foreach($variables as $k => $v)
-		{
-			$execution->setVariable($k, $v);
-		}
+		$this->passVariablesToExecution($execution, $variables);
 		
 		$this->leave($execution);
 	}

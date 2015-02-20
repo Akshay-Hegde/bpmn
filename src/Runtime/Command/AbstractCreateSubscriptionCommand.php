@@ -19,7 +19,7 @@ use KoolKode\Util\UUID;
 use KoolKode\BPMN\Job\Job;
 
 /**
- * Creates a message event subscription.
+ * Base class for event subscription commands.
  * 
  * @author Martin Schröder
  */

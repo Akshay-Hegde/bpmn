@@ -134,6 +134,20 @@ abstract class AbstractActivity implements ActivityInterface
 	}
 	
 	/**
+	 * Pass all variables given to the execution setting them in the executions's scope.
+	 * 
+	 * @param VirtualExecution $execution
+	 * @param array $variables
+	 */
+	protected function passVariablesToExecution(VirtualExecution $execution, array $variables)
+	{
+		foreach($variables as $k => $v)
+		{
+			$execution->setVariable($k, $v);
+		}
+	}
+	
+	/**
 	 * Delegate signal to a target node using the same execution.
 	 * 
 	 * @param VirtualExecution $execution

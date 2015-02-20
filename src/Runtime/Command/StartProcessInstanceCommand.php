@@ -46,7 +46,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 		$this->definitionId = $definition->getId();
 		$this->startNodeId = $startNode->getId();
 		$this->businessKey = ($businessKey === NULL) ? NULL : (string)$businessKey;
-		$this->variables = $variables;
+		$this->variables = serialize($variables);
 	}
 	
 	/**
@@ -68,7 +68,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 		$process = new VirtualExecution(UUID::createRandom(), $engine, $definition);
 		$process->setBusinessKey($this->businessKey);
 		
-		foreach($this->variables as $k => $v)
+		foreach(unserialize($this->variables) as $k => $v)
 		{
 			$process->setVariable($k, $v);
 		}

@@ -30,7 +30,7 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
 	{
 		$this->executionId = $executionId;
 		$this->variableName = (string)$variableName;
-		$this->variableValue = $variableValue;
+		$this->variableValue = serialize($variableValue);
 	}
 	
 	public function isSerializable()
@@ -41,6 +41,6 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$execution = $engine->findExecution($this->executionId);
-		$execution->setVariable($this->variableName, $this->variableValue);
+		$execution->setVariable($this->variableName, unserialize($this->variableValue));
 	}
 }

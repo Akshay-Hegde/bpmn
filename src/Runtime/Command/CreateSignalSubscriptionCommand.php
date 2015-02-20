@@ -11,68 +11,28 @@
 
 namespace KoolKode\BPMN\Runtime\Command;
 
-use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\Process\Node;
-use KoolKode\Util\UUID;
 
 /**
  * Creates a signal event subscription.
  * 
  * @author Martin Schröder
  */
-class CreateSignalSubscriptionCommand extends AbstractBusinessCommand
+class CreateSignalSubscriptionCommand extends AbstractCreateSubscriptionCommand
 {
-	protected $signal;
-	
-	protected $executionId;
-	
-	protected $activityId;
-	
-	protected $nodeId;
-	
-	protected $boundaryEvent;
-	
-	public function __construct($signal, VirtualExecution $execution, $activityId, Node $node = NULL, $boundaryEvent = false)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function getSubscriptionName()
 	{
-		$this->signal = (string)$signal;
-		$this->executionId = $execution->getId();
-		$this->activityId = (string)$activityId;
-		$this->nodeId = ($node === NULL) ? NULL : (string)$node->getId();
-		$this->boundaryEvent = $boundaryEvent ? true : false;
+		return 'signal';
 	}
 	
-	public function isSerializable()
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function getSubscriptionFlag()
 	{
-		return true;
-	}
-	
-	public function executeCommand(ProcessEngine $engine)
-	{
-		$execution = $engine->findExecution($this->executionId);
-		$nodeId = ($this->nodeId === NULL) ? NULL : $execution->getProcessModel()->findNode($this->nodeId)->getId();
-		
-		$sql = "	INSERT INTO `#__bpmn_event_subscription`
-						(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `boundary`, `name`, `created_at`)
-					VALUES
-						(:id, :eid, :aid, :node, :pid, :flags, :boundary, :signal, :created)
-		";
-		$stmt = $engine->prepareQuery($sql);
-		$stmt->bindValue('id', UUID::createRandom());
-		$stmt->bindValue('eid', $execution->getId());
-		$stmt->bindValue('aid', $this->activityId);
-		$stmt->bindValue('node', $nodeId);
-		$stmt->bindValue('pid', $execution->getRootExecution()->getId());
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_SIGNAL);
-		$stmt->bindValue('boundary', $this->boundaryEvent ? 1 : 0);
-		$stmt->bindValue('signal', $this->signal);
-		$stmt->bindValue('created', time());
-		$stmt->execute();
-		
-		$engine->debug('{execution} subscribed to signal <{signal}>', [
-			'execution' => (string)$execution,
-			'signal' => $this->signal
-		]);
+		return ProcessEngine::SUB_FLAG_SIGNAL;
 	}
 }

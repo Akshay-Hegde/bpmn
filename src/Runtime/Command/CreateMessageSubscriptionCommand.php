@@ -11,68 +11,28 @@
 
 namespace KoolKode\BPMN\Runtime\Command;
 
-use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\Process\Node;
-use KoolKode\Util\UUID;
 
 /**
  * Creates a message event subscription.
  * 
  * @author Martin Schröder
  */
-class CreateMessageSubscriptionCommand extends AbstractBusinessCommand
+class CreateMessageSubscriptionCommand extends AbstractCreateSubscriptionCommand
 {
-	protected $message;
-	
-	protected $executionId;
-	
-	protected $activityId;
-	
-	protected $nodeId;
-	
-	protected $boundaryEvent;
-	
-	public function __construct($message, VirtualExecution $execution, $activityId, Node $node = NULL, $boundaryEvent = false)
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function getSubscriptionName()
 	{
-		$this->message = (string)$message;
-		$this->executionId = $execution->getId();
-		$this->activityId = (string)$activityId;
-		$this->nodeId = ($node === NULL) ? NULL : (string)$node->getId();
-		$this->boundaryEvent = $boundaryEvent ? true : false;
+		return 'message';
 	}
 	
-	public function isSerializable()
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function getSubscriptionFlag()
 	{
-		return true;
-	}
-	
-	public function executeCommand(ProcessEngine $engine)
-	{
-		$execution = $engine->findExecution($this->executionId);
-		$nodeId = ($this->nodeId === NULL) ? NULL : $execution->getProcessModel()->findNode($this->nodeId)->getId();
-		
-		$sql = "	INSERT INTO `#__bpmn_event_subscription`
-						(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `boundary`, `name`, `created_at`)
-					VALUES
-						(:id, :eid, :aid, :node, :pid, :flags, :boundary, :message, :created)
-		";
-		$stmt = $engine->prepareQuery($sql);
-		$stmt->bindValue('id', UUID::createRandom());
-		$stmt->bindValue('eid', $execution->getId());
-		$stmt->bindValue('aid', $this->activityId);
-		$stmt->bindValue('node', $nodeId);
-		$stmt->bindValue('pid', $execution->getRootExecution()->getId());
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_MESSAGE);
-		$stmt->bindValue('boundary', $this->boundaryEvent ? 1 : 0);
-		$stmt->bindValue('message', $this->message);
-		$stmt->bindValue('created', time());
-		$stmt->execute();
-		
-		$engine->debug('{execution} subscribed to message <{message}>', [
-			'execution' => (string)$execution,
-			'message' => $this->message
-		]);
+		return ProcessEngine::SUB_FLAG_MESSAGE;
 	}
 }

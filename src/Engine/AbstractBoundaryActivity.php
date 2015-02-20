@@ -11,7 +11,6 @@
 
 namespace KoolKode\BPMN\Engine;
 
-use KoolKode\Process\Node;
 /**
  * Base class for BPMN boundary events.
  * 
@@ -19,10 +18,25 @@ use KoolKode\Process\Node;
  */
 abstract class AbstractBoundaryActivity extends AbstractActivity
 {
+	/**
+	 * ID of the boundary event or event sub process node.
+	 * 
+	 * @var string
+	 */
 	protected $activityId;
 	
+	/**
+	 * ID of the scope node that this boundary activity is attached to.
+	 * 
+	 * @var string
+	 */
 	protected $attachedTo;
 	
+	/**
+	 * Is this activity interrupting?
+	 * 
+	 * @var boolean
+	 */
 	protected $interrupting = true;
 	
 	public function __construct($activityId, $attachedTo)
@@ -82,23 +96,5 @@ abstract class AbstractBoundaryActivity extends AbstractActivity
 	public function findScopeActivity(VirtualExecution $execution)
 	{
 		return $execution->getProcessModel()->findNode($this->attachedTo)->getBehavior();
-	}
-	
-	/**
-	 * Find the execution that actvated the scope.
-	 *
-	 * @param VirtualExecution $execution
-	 * @return VirtualExecution
-	 */
-	protected function findScopeExecution(VirtualExecution $execution)
-	{
-		$exec = $execution;
-		
-		while($exec->isConcurrent())
-		{
-			$exec = $exec->getParentExecution();
-		}
-	
-		return $exec;
 	}
 }

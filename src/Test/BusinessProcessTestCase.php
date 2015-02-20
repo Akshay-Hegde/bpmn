@@ -99,12 +99,14 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		$logger = NULL;
 		
-		if($this->isDebug())
+		if(NULL !== ($logLevel = $this->getLogLevel()))
 		{
 			$stderr = fopen('php://stderr', 'wb');
 			
+			$levels = array_change_key_case(Logger::getLevels(), CASE_UPPER);
+			
 			$logger = new Logger('BPMN');
-			$logger->pushHandler(new StreamHandler($stderr));
+			$logger->pushHandler(new StreamHandler($stderr, $levels[strtoupper($logLevel)]));
 			$logger->pushProcessor(new PsrLogMessageProcessor());
 			
 			fwrite($stderr, "\n");
@@ -194,9 +196,16 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		}
 	}
 	
-	public function isDebug()
+	/**
+	 * Get the minimum level of log messages to be displayed.
+	 * 
+	 * Logging is not enabled by default.
+	 * 
+	 * @return string
+	 */
+	public function getlogLevel()
 	{
-		return false;
+		return NULL;
 	}
 	
 	protected function deployFile($file)

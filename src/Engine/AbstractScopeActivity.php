@@ -38,6 +38,11 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 */
 	public function execute(Execution $execution)
 	{
+		$execution->getEngine()->info('ENTER: scope <{scope}> at level {level}', [
+			'scope' => $this->activityId,
+			'level' => $execution->getExecutionDepth()
+		]);
+		
 		$root = $execution->createNestedExecution($execution->getProcessModel(), true);
 		$root->setNode($execution->getNode());
 		$root->setActive(false);
@@ -92,6 +97,11 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		$outer->setNode($execution->getNode());
 		
 		$root->terminate(false);
+		
+		$execution->getEngine()->info('LEAVE: scope <{scope}> at level {level}', [
+			'scope' => $this->activityId,
+			'level' => $outer->getExecutionDepth()
+		]);
 	
 		$outer->takeAll($transitions);
 	}
@@ -109,17 +119,15 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 */
 	public function leaveConcurrent(VirtualExecution $execution, Node $node = NULL, array $transitions = NULL)
 	{
-		if($execution->isConcurrent())
-		{
-			$root = $execution->getParentExecution();
-		}
-		else
-		{
-			$root = $execution;
-		}
+		$root = $execution->getScope();
+		$parent = $root->getParentExecution();
 		
-		$exec = $root->createExecution(true);
+		$exec = $parent->createExecution(true);
 		$exec->setNode(($node === NULL) ? $execution->getNode() : $node);
+		
+		$root->setConcurrent(true);
+		
+		$execution->getEngine()->syncExecutions();
 		
 		$this->createEventSubscriptions($root, $this->activityId, $execution->getProcessModel()->findNode($this->activityId));
 		

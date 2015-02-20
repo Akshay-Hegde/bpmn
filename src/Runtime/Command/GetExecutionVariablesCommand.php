@@ -29,11 +29,19 @@ class GetExecutionVariablesCommand extends AbstractBusinessCommand
 		$this->executionId = $executionId;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 * 
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		return $engine->findExecution($this->executionId)->getVariablesLocal();

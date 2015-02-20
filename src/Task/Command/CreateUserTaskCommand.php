@@ -42,6 +42,11 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
 		$this->documentation = ($documentation === NULL) ? NULL : (string)$documentation;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
@@ -59,6 +64,9 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
 		}
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$id = UUID::createRandom();

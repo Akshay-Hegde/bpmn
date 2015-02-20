@@ -42,16 +42,27 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		$this->sourceExecutionId = ($sourceExecution === NULL) ? NULL : $sourceExecution->getId();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getPriority()
 	{
 		return self::PRIORITY_DEFAULT - 100;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$sql = "	SELECT s.`id`, s.`execution_id`, s.`activity_id`, s.`node`

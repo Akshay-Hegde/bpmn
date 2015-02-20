@@ -23,6 +23,8 @@ abstract class AbstractBusinessCommand extends AbstractCommand
 {
 	/**
 	 * {@inheritdoc}
+	 * 
+	 * @codeCoverageIgnore
 	 */
 	public function isSerializable()
 	{

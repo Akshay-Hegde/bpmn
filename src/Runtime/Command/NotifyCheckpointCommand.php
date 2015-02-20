@@ -33,11 +33,19 @@ class NotifyCheckpointCommand extends AbstractBusinessCommand
 		$this->executionId = $execution->getId();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$engine->syncExecutions();

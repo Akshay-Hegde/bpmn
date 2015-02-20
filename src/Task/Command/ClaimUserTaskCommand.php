@@ -33,11 +33,19 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand
 		$this->assignee = (string)$assignee;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$task = $engine->getTaskService()->createTaskQuery()->taskId($this->taskId)->findOne();

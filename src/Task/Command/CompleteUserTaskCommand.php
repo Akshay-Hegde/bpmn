@@ -33,11 +33,19 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
 		$this->variables = serialize($variables);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$task = $engine->getTaskService()

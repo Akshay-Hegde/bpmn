@@ -51,6 +51,8 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 	
 	/**
 	 * {@inheritdoc}
+	 * 
+	 * @codeCoverageIgnore
 	 */
 	public function isSerializable()
 	{

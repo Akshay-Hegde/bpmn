@@ -30,16 +30,27 @@ class ThrowMessageCommand extends AbstractBusinessCommand
 		$this->executionId = $execution->getId();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getPriority()
 	{
 		return self::PRIORITY_DEFAULT - 500;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		// Need to sync here to preserve state at current node in execution loaded via query.

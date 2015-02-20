@@ -29,11 +29,19 @@ class RemoveUserTaskCommand extends AbstractBusinessCommand
 		$this->taskId = $taskId;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$task = $engine->getTaskService()

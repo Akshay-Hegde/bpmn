@@ -33,11 +33,19 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
 		$this->variableValue = serialize($variableValue);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public function isSerializable()
 	{
 		return true;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$execution = $engine->findExecution($this->executionId);

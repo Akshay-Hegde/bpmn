@@ -80,6 +80,8 @@ abstract class AbstractCreateSubscriptionCommand extends AbstractBusinessCommand
 	
 	/**
 	 * {@inheritdoc}
+	 * 
+	 * @codeCoverageIgnore
 	 */
 	public function isSerializable()
 	{

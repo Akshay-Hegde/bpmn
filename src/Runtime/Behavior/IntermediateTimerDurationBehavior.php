@@ -66,8 +66,8 @@ class IntermediateTimerDurationBehavior extends AbstractActivity implements Inte
 		$time = $now->add($interval);
 		
 		$execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand(
-			$execution,
 			$time,
+			$execution,
 			$activityId,
 			($node === NULL) ? $execution->getNode() : $node
 		));

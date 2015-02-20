@@ -134,6 +134,16 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		return $this->conn->prepare($sql);
 	}
 	
+	/**
+	 * Get the DB connection being used by the engine.
+	 * 
+	 * @return ConnectionInterface
+	 */
+	public function getConnection()
+	{
+		return $this->conn;
+	}
+	
 	public function setDelegateTaskFactory(DelegateTaskFactoryInterface $factory = NULL)
 	{
 		$this->delegateTaskFactory = $factory;

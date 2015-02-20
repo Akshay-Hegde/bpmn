@@ -23,9 +23,14 @@ class CreateSignalSubscriptionCommand extends AbstractCreateSubscriptionCommand
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function getSubscriptionName()
+	public function executeCommand(ProcessEngine $engine)
 	{
-		return 'signal';
+		$this->createSubscription($engine);
+		
+		$engine->debug('{execution} subscribed to signal <{name}>', [
+			'execution' => (string)$engine->findExecution($this->executionId),
+			'name' => $this->name
+		]);
 	}
 	
 	/**

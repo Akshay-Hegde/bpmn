@@ -23,9 +23,14 @@ class CreateMessageSubscriptionCommand extends AbstractCreateSubscriptionCommand
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function getSubscriptionName()
+	public function executeCommand(ProcessEngine $engine)
 	{
-		return 'message';
+		$this->createSubscription($engine);
+		
+		$engine->debug('{execution} subscribed to message <{name}>', [
+			'execution' => (string)$engine->findExecution($this->executionId),
+			'name' => $this->name
+		]);
 	}
 	
 	/**

@@ -11,7 +11,6 @@
 
 namespace KoolKode\BPMN\Runtime\Command;
 
-use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
@@ -24,32 +23,34 @@ use KoolKode\Util\UUID;
  * 
  * @author Martin Schröder
  */
-class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
+class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
 {
-	protected $executionId;
-	
+	/**
+	 * UNIX timestamp of the scheduled job execution date.
+	 * 
+	 * @var integer
+	 */
 	protected $time;
 	
-	protected $activityId;
-	
-	protected $nodeId;
-	
-	protected $boundaryEvent;
-	
-	public function __construct(VirtualExecution $execution, \DateTimeInterface $time, $activityId, Node $node = NULL, $boundaryEvent = false)
+	/**
+	 * Created a timer event subscription backed by a scheduled job.
+	 * 
+	 * @param \DateTimeInterface $time Schedule date.
+	 * @param VirtualExecution $execution Target execution.
+	 * @param string $activityId ID of the activity that created the event subscription.
+	 * @param Node $node Target node to receive the delegated signal or NULL in order to use the activity node.
+	 * @param boolean $boundaryEvent Is this a subscription for a boundary event?
+	 */
+	public function __construct(\DateTimeInterface $time, VirtualExecution $execution, $activityId, Node $node = NULL, $boundaryEvent = false)
 	{
-		$this->executionId = $execution->getId();
-		$this->time = new \DateTimeImmutable('@' . $time->getTimestamp(), new \DateTimeZone('UTC'));
-		$this->activityId = (string)$activityId;
-		$this->nodeId = ($node === NULL) ? NULL : (string)$node->getId();
-		$this->boundaryEvent = $boundaryEvent ? true : false;
+		parent::__construct('timer', $execution, $activityId, $node, $boundaryEvent);
+		
+		$this->time = $time->getTimestamp();
 	}
 	
-	public function isSerializable()
-	{
-		return true;
-	}
-	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$id = UUID::createRandom();
@@ -59,26 +60,9 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 		$job = $engine->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
 			AsyncCommandHandler::PARAM_COMMAND => new SignalExecutionCommand($execution),
 			AsyncCommandHandler::PARAM_NODE_ID => $nodeId
-		], $this->time);
+		], new \DateTimeImmutable('@' . $this->time, new \DateTimeZone('UTC')));
 		
-		$sql = "
-			INSERT INTO `#__bpmn_event_subscription`
-				(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `boundary`, `name`, `created_at`, `job_id`)
-			VALUES
-				(:id, :eid, :aid, :node, :pid, :flags, :boundary, :signal, :created, :job)
-		";
-		$stmt = $engine->prepareQuery($sql);
-		$stmt->bindValue('id', $id);
-		$stmt->bindValue('eid', $execution->getId());
-		$stmt->bindValue('aid', $this->activityId);
-		$stmt->bindValue('node', $nodeId);
-		$stmt->bindValue('pid', $execution->getRootExecution()->getId());
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
-		$stmt->bindValue('boundary', $this->boundaryEvent ? 1 : 0);
-		$stmt->bindValue('signal', 'timer');
-		$stmt->bindValue('created', time());
-		$stmt->bindValue('job', $job->getId());
-		$stmt->execute();
+		$this->createSubscription($engine, $job);
 		
 		$engine->debug('{execution} subscribed to timer job <{job}>', [
 			'execution' => (string)$execution,
@@ -86,5 +70,13 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 		]);
 		
 		return $id;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function getSubscriptionFlag()
+	{
+		return ProcessEngine::SUB_FLAG_TIMER;
 	}
 }

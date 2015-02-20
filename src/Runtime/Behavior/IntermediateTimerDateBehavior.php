@@ -63,8 +63,8 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
 		}
 		
 		$execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand(
-			$execution,
 			$date,
+			$execution,
 			$activityId,
 			($node === NULL) ? $execution->getNode() : $node
 		));

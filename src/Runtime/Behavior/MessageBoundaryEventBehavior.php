@@ -54,7 +54,8 @@ class MessageBoundaryEventBehavior extends AbstractBoundaryActivity
 			$this->message,
 			$execution,
 			$activityId,
-			$node
+			$node,
+			true
 		));
 	}
 }

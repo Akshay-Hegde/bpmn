@@ -34,12 +34,15 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 	
 	protected $nodeId;
 	
-	public function __construct(VirtualExecution $execution, \DateTimeInterface $time, $activityId, Node $node = NULL)
+	protected $boundaryEvent;
+	
+	public function __construct(VirtualExecution $execution, \DateTimeInterface $time, $activityId, Node $node = NULL, $boundaryEvent = false)
 	{
 		$this->executionId = $execution->getId();
 		$this->time = new \DateTimeImmutable('@' . $time->getTimestamp(), new \DateTimeZone('UTC'));
 		$this->activityId = (string)$activityId;
 		$this->nodeId = ($node === NULL) ? NULL : (string)$node->getId();
+		$this->boundaryEvent = $boundaryEvent ? true : false;
 	}
 	
 	public function isSerializable()
@@ -60,9 +63,9 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 		
 		$sql = "
 			INSERT INTO `#__bpmn_event_subscription`
-				(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `name`, `created_at`, `job_id`)
+				(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `boundary`, `name`, `created_at`, `job_id`)
 			VALUES
-				(:id, :eid, :aid, :node, :pid, :flags, :signal, :created, :job)
+				(:id, :eid, :aid, :node, :pid, :flags, :boundary, :signal, :created, :job)
 		";
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('id', $id);
@@ -71,6 +74,7 @@ class CreateTimerSubscriptionCommand extends AbstractBusinessCommand
 		$stmt->bindValue('node', $nodeId);
 		$stmt->bindValue('pid', $execution->getRootExecution()->getId());
 		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
+		$stmt->bindValue('boundary', $this->boundaryEvent ? 1 : 0);
 		$stmt->bindValue('signal', 'timer');
 		$stmt->bindValue('created', time());
 		$stmt->bindValue('job', $job->getId());

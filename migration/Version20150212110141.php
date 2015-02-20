@@ -44,6 +44,7 @@ class Version20150212110141 extends AbstractMigration
         $job->create();
         
         $subscription = $this->table('#__bpmn_event_subscription');
+        $subscription->addColumn('boundary', 'int', ['unsigned' => true, 'default' => 0]);
         $subscription->addColumn('job_id', 'uuid', ['default' => NULL]);
 //         $subscription->addForeignKey(['job_id'], '#__bpmn_job', ['id']);
         $subscription->update();
@@ -58,6 +59,7 @@ class Version20150212110141 extends AbstractMigration
     	
     	$subscription = $this->table('#__bpmn_event_subscription');
     	$subscription->removeColumn('job_id');
+    	$subscription->removeColumn('boundary');
     	$subscription->update();
     	
     	$this->dropTable('#__bpmn_job');

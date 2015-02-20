@@ -32,12 +32,15 @@ class CreateSignalSubscriptionCommand extends AbstractBusinessCommand
 	
 	protected $nodeId;
 	
-	public function __construct($signal, VirtualExecution $execution, $activityId, Node $node = NULL)
+	protected $boundaryEvent;
+	
+	public function __construct($signal, VirtualExecution $execution, $activityId, Node $node = NULL, $boundaryEvent = false)
 	{
 		$this->signal = (string)$signal;
 		$this->executionId = $execution->getId();
 		$this->activityId = (string)$activityId;
 		$this->nodeId = ($node === NULL) ? NULL : (string)$node->getId();
+		$this->boundaryEvent = $boundaryEvent ? true : false;
 	}
 	
 	public function isSerializable()
@@ -51,9 +54,9 @@ class CreateSignalSubscriptionCommand extends AbstractBusinessCommand
 		$nodeId = ($this->nodeId === NULL) ? NULL : $execution->getProcessModel()->findNode($this->nodeId)->getId();
 		
 		$sql = "	INSERT INTO `#__bpmn_event_subscription`
-						(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `name`, `created_at`)
+						(`id`, `execution_id`, `activity_id`, `node`, `process_instance_id`, `flags`, `boundary`, `name`, `created_at`)
 					VALUES
-						(:id, :eid, :aid, :node, :pid, :flags, :signal, :created)
+						(:id, :eid, :aid, :node, :pid, :flags, :boundary, :signal, :created)
 		";
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('id', UUID::createRandom());
@@ -62,6 +65,7 @@ class CreateSignalSubscriptionCommand extends AbstractBusinessCommand
 		$stmt->bindValue('node', $nodeId);
 		$stmt->bindValue('pid', $execution->getRootExecution()->getId());
 		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_SIGNAL);
+		$stmt->bindValue('boundary', $this->boundaryEvent ? 1 : 0);
 		$stmt->bindValue('signal', $this->signal);
 		$stmt->bindValue('created', time());
 		$stmt->execute();

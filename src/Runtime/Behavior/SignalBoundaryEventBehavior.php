@@ -54,7 +54,8 @@ class SignalBoundaryEventBehavior extends AbstractBoundaryActivity
 			$this->signal,
 			$execution,
 			$activityId,
-			$node
+			$node,
+			true
 		));
 	}
 }

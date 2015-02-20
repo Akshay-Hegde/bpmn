@@ -45,7 +45,6 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		
 		$root = $execution->createNestedExecution($execution->getProcessModel(), true);
 		$root->setNode($execution->getNode());
-		$root->setActive(false);
 		$root->waitForSignal();
 		
 		$this->createEventSubscriptions($root, $this->activityId, $execution->getNode());
@@ -93,7 +92,6 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		
 		// Fetch outer execution and move it to target node before transition.
 		$outer = $root->getParentExecution();
-		$outer->setActive(true);
 		$outer->setNode($execution->getNode());
 		
 		$root->terminate(false);

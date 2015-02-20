@@ -34,9 +34,13 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 			'amount' => $amount
 		]);
 		
-		$this->assertEquals($tasks, array_map(function(TaskInterface $task) {
+		$found = array_map(function(TaskInterface $task) {
 			return $task->getActivityId();
-		}, $this->taskService->createTaskQuery()->findAll()));
+		}, $this->taskService->createTaskQuery()->findAll());
+		
+		sort($found);
+		
+		$this->assertEquals($tasks, $found);
 	}
 	
 	public function provider2()
@@ -57,8 +61,48 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 			'amount' => $amount
 		]);
 		
-		$this->assertEquals($tasks, array_map(function(TaskInterface $task) {
+		$found = array_map(function(TaskInterface $task) {
 			return $task->getActivityId();
-		}, $this->taskService->createTaskQuery()->findAll()));
+		}, $this->taskService->createTaskQuery()->findAll());
+		
+		sort($found);
+		
+		$this->assertEquals($tasks, $found);
+	}
+	
+	public function provider3()
+	{
+		yield [1, ['task1']];
+		yield [2, ['task1', 'task2']];
+		yield [3, ['task1', 'task2', 'task3']];
+	}
+	
+	/**
+	 * @dataProvider provider3
+	 */
+	public function test3($count, array $tasks)
+	{
+		$this->deployFile('InclusiveGateway3.bpmn');
+	
+		$this->runtimeService->startProcessInstanceByKey('InclusiveGateway3', NULL, [
+			'count' => $count
+		]);
+	
+		$found = array_map(function(TaskInterface $task) {
+			return $task->getActivityId();
+		}, $this->taskService->createTaskQuery()->findAll());
+		
+		sort($found);
+		
+		$this->assertEquals($tasks, $found);
+		
+		for($i = 0; $i < $count; $i++)
+		{
+			$task = $this->taskService->createTaskQuery()->findOne();
+			$this->taskService->complete($task->getId());
+		}
+		
+		$this->assertEquals(0, $this->taskService->createTaskQuery()->count());
+		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
 	}
 }

@@ -54,7 +54,7 @@ abstract class AbstractBoundaryActivity extends AbstractActivity
 	/**
 	 * {@inheritdoc}
 	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
 		if($this->isInterrupting())
 		{

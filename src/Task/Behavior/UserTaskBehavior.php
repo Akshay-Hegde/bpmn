@@ -75,7 +75,7 @@ class UserTaskBehavior extends AbstractScopeActivity
 		$execution->waitForSignal();
 	}
 	
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
 		foreach($variables as $k => $v)
 		{

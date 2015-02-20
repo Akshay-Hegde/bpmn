@@ -40,7 +40,7 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
 	/**
 	 * {@inheritdoc}
 	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
 		foreach($variables as $k => $v)
 		{

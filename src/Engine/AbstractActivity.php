@@ -37,9 +37,9 @@ abstract class AbstractActivity implements ActivityInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function signal(Execution $execution, $signal, array $variables = [])
+	public function signal(Execution $execution, $signal, array $variables = [], array $delegation = [])
 	{
-		$this->processSignal($execution, $signal, $variables);
+		$this->processSignal($execution, $signal, $variables, $delegation);
 	}
 	
 	/**
@@ -100,11 +100,12 @@ abstract class AbstractActivity implements ActivityInterface
 	/**
 	 * Process the given signal, roughly equivalent to the signal() method of a SignalableBehavior.
 	 * 
-	 * @param VirtualExecution $execution
-	 * @param string $signal
-	 * @param array $variables
+	 * @param VirtualExecution $execution target execution.
+	 * @param string $signal Name of the signal.
+	 * @param array<string, mixed> $variables Signal data.
+	 * @param array<string, mixed> $delegation Signal delegation data.
 	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
 		throw new \RuntimeException(sprintf('Signal <%s> is not supported by activity %s', ($signal === NULL) ? 'NULL' : $signal, get_class($this)));
 	}

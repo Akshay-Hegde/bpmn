@@ -302,7 +302,8 @@ class BusinessProcessBuilder
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
-		$this->builder->append($subProcess->builder);
+		
+		$this->append($subProcess);
 		
 		return $behavior;
 	}
@@ -316,7 +317,8 @@ class BusinessProcessBuilder
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
-		$this->builder->append($subProcess->builder);
+		
+		$this->append($subProcess);
 		
 		foreach($subModel->findStartNodes() as $startNode)
 		{

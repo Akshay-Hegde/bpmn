@@ -62,14 +62,14 @@ class SubProcessBehavior extends AbstractScopeActivity
 		$sub->execute($startNode);
 	}
 	
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
-		if(empty($variables[VirtualExecution::KEY_EXECUTION]))
+		if(empty($delegation['executionId']))
 		{
 			return $execution->terminate(false);
 		}
 		
-		$sub = $variables[VirtualExecution::KEY_EXECUTION];
+		$sub = $execution->getEngine()->findExecution($delegation['executionId']);
 		
 		if(!$sub instanceof VirtualExecution)
 		{

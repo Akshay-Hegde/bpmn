@@ -95,9 +95,9 @@ class CallActivityBehavior extends AbstractScopeActivity
 		$sub->execute(array_shift($start));
 	}
 	
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [])
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
-		$sub = $variables[VirtualExecution::KEY_EXECUTION];
+		$sub = $execution->getEngine()->findExecution($delegation['executionId']);
 		
 		if(!$sub instanceof VirtualExecution)
 		{

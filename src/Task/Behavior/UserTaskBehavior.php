@@ -47,6 +47,9 @@ class UserTaskBehavior extends AbstractScopeActivity
 		$this->dueDate = $dueDate;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function enter(VirtualExecution $execution)
 	{
 		$context = $execution->getExpressionContext();
@@ -75,8 +78,16 @@ class UserTaskBehavior extends AbstractScopeActivity
 		$execution->waitForSignal();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($this->delegateSignal($execution, $signal, $variables, $delegation))
+		{
+			return;
+		}
+		
 		foreach($variables as $k => $v)
 		{
 			$execution->setVariable($k, $v);
@@ -85,6 +96,9 @@ class UserTaskBehavior extends AbstractScopeActivity
 		$this->leave($execution);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		$engine = $execution->getEngine();

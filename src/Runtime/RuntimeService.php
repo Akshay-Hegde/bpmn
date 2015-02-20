@@ -46,14 +46,12 @@ class RuntimeService
 	
 	public function messageEventReceived($messageName, UUID $executionId, array $variables = [])
 	{
-		$this->engine->executeCommand(new MessageEventReceivedCommand($messageName, $executionId, $variables));
+		$this->engine->pushCommand(new MessageEventReceivedCommand($messageName, $executionId, $variables));
 	}
 	
 	public function signalEventReceived($signalName, UUID $executionId = NULL, array $variables = [])
 	{
-		$ids = $this->engine->executeCommand(new SignalEventReceivedCommand($signalName, $executionId, $variables));
-		
-		return $this->createExecutionQuery()->executionId($ids)->findAll();
+		$this->engine->pushCommand(new SignalEventReceivedCommand($signalName, $executionId, $variables));
 	}
 	
 	public function startProcessInstance(ProcessDefinition $def, $businessKey = NULL, array $variables = [])

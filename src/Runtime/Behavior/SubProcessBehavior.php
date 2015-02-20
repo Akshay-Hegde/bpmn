@@ -36,6 +36,9 @@ class SubProcessBehavior extends AbstractScopeActivity
 		return $this->activityId;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function enter(VirtualExecution $execution)
 	{
 		$model = $execution->getProcessModel();
@@ -62,8 +65,16 @@ class SubProcessBehavior extends AbstractScopeActivity
 		$sub->execute($startNode);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($this->delegateSignal($execution, $signal, $variables, $delegation))
+		{
+			return;
+		}
+		
 		if(empty($delegation['executionId']))
 		{
 			return $execution->terminate(false);
@@ -84,6 +95,9 @@ class SubProcessBehavior extends AbstractScopeActivity
 		$this->leave($execution);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		foreach($execution->findChildExecutions() as $sub)

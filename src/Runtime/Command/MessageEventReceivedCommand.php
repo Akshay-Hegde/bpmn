@@ -70,10 +70,11 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 		
 		$execution = $engine->findExecution($this->executionId);
 		
+		$delegation = [];
+		
 		if($row['node'] !== NULL)
 		{
-			$execution->setNode($execution->getProcessModel()->findNode($row['node']));
-			$execution->setTransition(NULL);
+			$delegation['nodeId'] = $row['node'];
 		}
 		
 		// Delete timer jobs:
@@ -114,6 +115,6 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 			'execution' => (string)$execution
 		]);
 		
-		$execution->signal($this->messageName, $this->variables);
+		$execution->signal($this->messageName, $this->variables, $delegation);
 	}
 }

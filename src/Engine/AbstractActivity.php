@@ -132,4 +132,35 @@ abstract class AbstractActivity implements ActivityInterface
 		
 		$execution->takeAll($transitions);
 	}
+	
+	/**
+	 * Delegate signal to a target node using the same execution.
+	 * 
+	 * @param VirtualExecution $execution
+	 * @param string $signal
+	 * @param array $variables
+	 * @param array $delegation
+	 * @return boolean Returns true if the signal could be delegated.
+	 */
+	protected function delegateSignal(VirtualExecution $execution, $signal, array $variables, array $delegation)
+	{
+		if(empty($delegation['nodeId']))
+		{
+			return false;
+		}
+		
+		$node = $execution->getProcessModel()->findNode($delegation['nodeId']);
+		
+		$execution->getEngine()->debug('Delegating signal <{signal}> to {node}', [
+			'signal' => ($signal === NULL) ? 'NULL' : $signal,
+			'node' => (string)$node
+		]);
+		
+		$execution->setNode($node);
+		$execution->waitForSignal();
+		
+		$execution->signal($signal, $variables);
+		
+		return true;
+	}
 }

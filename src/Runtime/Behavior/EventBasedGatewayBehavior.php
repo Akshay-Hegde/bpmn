@@ -54,4 +54,12 @@ class EventBasedGatewayBehavior extends AbstractActivity
 		
 		$execution->waitForSignal();
 	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+	{
+		$this->delegateSignal($execution, $signal, $variables, $delegation);
+	}
 }

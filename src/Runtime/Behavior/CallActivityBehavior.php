@@ -59,6 +59,9 @@ class CallActivityBehavior extends AbstractScopeActivity
 		}
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function enter(VirtualExecution $execution)
 	{
 		$context = $execution->getExpressionContext();
@@ -95,8 +98,16 @@ class CallActivityBehavior extends AbstractScopeActivity
 		$sub->execute(array_shift($start));
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($this->delegateSignal($execution, $signal, $variables, $delegation))
+		{
+			return;
+		}
+		
 		$sub = $execution->getEngine()->findExecution($delegation['executionId']);
 		
 		if(!$sub instanceof VirtualExecution)
@@ -126,6 +137,9 @@ class CallActivityBehavior extends AbstractScopeActivity
 		return $this->leave($execution);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
 		foreach($execution->findChildExecutions() as $sub)

@@ -81,6 +81,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		$ids = [];
 		$executions = [];
+		$delegations = [];
 		
 		foreach($stmt->fetchRows() as $row)
 		{
@@ -89,8 +90,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			
 			if($row['node'] !== NULL)
 			{
-				$execution->setNode($execution->getProcessModel()->findNode($row['node']));
-				$execution->setTransition(NULL);
+				$delegations[(string)$execution->getId()] = ['nodeId' => $row['node']];
 			}
 		}
 		
@@ -136,13 +136,11 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			]);
 		}
 		
-		$uuids = [];
-		
 		foreach($executions as $execution)
 		{
-			$uuids[] = $execution->getId();
+			$id = (string)$execution->getId();
 			
-			$execution->signal($this->signal, $this->variables);
+			$execution->signal($this->signal, $this->variables, empty($delegations[$id]) ? [] : $delegations[$id]);
 		}
 		
 		// Include signal start events subscriptions.
@@ -173,7 +171,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 				$row['deployment_id']
 			);
 			
-			$uuids[] = $engine->executeCommand(new StartProcessInstanceCommand(
+			$engine->pushCommand(new StartProcessInstanceCommand(
 				$definition,
 				$definition->findSignalStartEvent($row['signal_name']),
 				($source === NULL) ? NULL : $source->getBusinessKey(),
@@ -185,7 +183,5 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		{
 			$source->signal();
 		}
-		
-		return $uuids;
 	}
 }

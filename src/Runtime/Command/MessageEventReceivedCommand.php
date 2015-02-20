@@ -24,14 +24,16 @@ use KoolKode\Util\UUID;
 class MessageEventReceivedCommand extends AbstractBusinessCommand
 {
 	protected $messageName;
+	
 	protected $executionId;
+	
 	protected $variables;
 	
 	public function __construct($messageName, UUID $executionId, array $variables = [])
 	{
 		$this->messageName = (string)$messageName;
 		$this->executionId = $executionId;
-		$this->variables = $variables;
+		$this->variables = serialize($variables);
 	}
 	
 	/**
@@ -126,6 +128,6 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 			'execution' => (string)$execution
 		]);
 		
-		$execution->signal($this->messageName, $this->variables, $delegation);
+		$execution->signal($this->messageName, unserialize($this->variables), $delegation);
 	}
 }

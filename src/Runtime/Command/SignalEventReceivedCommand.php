@@ -37,7 +37,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 	public function __construct($signal, UUID $executionId = NULL, array $variables = [], VirtualExecution $sourceExecution = NULL)
 	{
 		$this->signal = (string)$signal;
-		$this->variables = $variables;
+		$this->variables = serialize($variables);
 		$this->executionId = $executionId;
 		$this->sourceExecutionId = ($sourceExecution === NULL) ? NULL : $sourceExecution->getId();
 	}
@@ -147,11 +147,13 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			]);
 		}
 		
+		$vars = unserialize($this->variables);
+		
 		foreach($executions as $execution)
 		{
 			$id = (string)$execution->getId();
 			
-			$execution->signal($this->signal, $this->variables, empty($delegations[$id]) ? [] : $delegations[$id]);
+			$execution->signal($this->signal, $vars, empty($delegations[$id]) ? [] : $delegations[$id]);
 		}
 		
 		// Include signal start events subscriptions.
@@ -186,7 +188,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 				$definition,
 				$definition->findSignalStartEvent($row['signal_name']),
 				($source === NULL) ? NULL : $source->getBusinessKey(),
-				$this->variables
+				$vars
 			));
 		}
 				

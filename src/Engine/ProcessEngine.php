@@ -26,7 +26,7 @@ use KoolKode\Database\UUIDTransformer;
 use KoolKode\Event\EventDispatcherInterface;
 use KoolKode\Expression\ExpressionContextFactoryInterface;
 use KoolKode\Process\AbstractEngine;
-use KoolKode\Process\Command\CallbackCommand;
+use KoolKode\Process\Command\VoidCommand;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
 use KoolKode\Process\Transition;
@@ -288,7 +288,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 				$execution->setNode(NULL);
 				
 				// return No-op command instead of execute node command.
-				return new CallbackCommand(function() { });
+				return new VoidCommand();
 			}
 			
 			$this->warning('Behavior of {node} should be executed via "{handler}" job within {execution}', [
@@ -326,7 +326,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 					$execution->setNode(NULL);
 						
 					// return No-op command instead of execute node command.
-					return new CallbackCommand(function() { });
+					return new VoidCommand();
 				}
 		
 				$this->warning('Behavior of {node} should be executed via "{handler}" job within {execution}', [

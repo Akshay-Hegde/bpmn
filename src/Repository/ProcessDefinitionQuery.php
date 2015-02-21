@@ -155,7 +155,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 			unserialize(BinaryData::decode($row['definition'])),
 			$row['name'],
 			new \DateTimeImmutable('@' . $row['deployed_at']),
-			$row['deployment_id']
+			$row['deployment_id'],
+			$row['resource_id']
 		);
 	}
 	

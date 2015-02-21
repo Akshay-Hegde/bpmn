@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace KoolKode\BPMN;
+namespace KoolKode\BPMN\Gateway;
 
 use KoolKode\BPMN\Task\TaskInterface;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class EventBaseGatewayTest extends BusinessProcessTestCase
 {
-	public function providePathSignals()
+	public function provider1()
 	{
 		return [
 			['A', 'Play on Novice'],
@@ -26,19 +26,13 @@ class EventBaseGatewayTest extends BusinessProcessTestCase
 	}
 	
 	/**
-	 * @dataProvider providePathSignals
+	 * @dataProvider provider1
 	 */
-	public function testEventGate($signal, $mode)
+	public function test1($signal, $mode)
 	{
-		$this->deployFile('EventBasedGatewayTest.bpmn');
+		$this->deployFile('EventBasedGateway1.bpmn');
 		
-		$task1 = $this->taskService->createTask('Unrelated task #1', 100, 'Some doc :)');
-		$this->assertTrue($task1 instanceof TaskInterface);
-		$this->assertEquals('Unrelated task #1', $task1->getName());
-		$this->assertEquals(100, $task1->getPriority());
-		$this->assertEquals('Some doc :)', $task1->getDocumentation());
-		
-		$process = $this->runtimeService->startProcessInstanceByKey('mk');
+		$process = $this->runtimeService->startProcessInstanceByKey('EventBasedGateway1');
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('A')->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('B')->count());
@@ -56,9 +50,5 @@ class EventBaseGatewayTest extends BusinessProcessTestCase
 		
 		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		
-		$this->taskService->removeTask($task1->getId());
-		$this->assertEquals(0, $this->taskService->createTaskQuery()->count());
 	}
 }

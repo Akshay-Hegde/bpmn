@@ -16,7 +16,7 @@
 	],
 	"require" : {
 		"php" : ">=5.5.0",
-		"koolkode/process" : "^0.1.8",
+		"koolkode/process" : "^0.1.9",
 		"koolkode/expression" : "~0.1",
 		"koolkode/util" : "~0.1",
 		"koolkode/xml" : "~0.1",

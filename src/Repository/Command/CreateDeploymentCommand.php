@@ -49,7 +49,7 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
 		$stmt->bindValue('time', time());
 		$stmt->execute();
 		
-		$engine->info('Created deployment "{name}" with identifier {id}', [
+		$engine->info('Created deployment "{name}" with identifier <{id}>', [
 			'name' => $name,
 			'id' => (string)$id
 		]);
@@ -67,21 +67,23 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
 		foreach($this->builder as $name => $stream)
 		{
 			$in = $stream->getContents();
+			$resourceId = UUID::createRandom();
 			
-			$stmt->bindValue('id', UUID::createRandom());
+			$stmt->bindValue('id', $resourceId);
 			$stmt->bindValue('name', $name);
 			$stmt->bindValue('data', new BinaryData($in));
 			$stmt->execute();
 			
-			$engine->debug('Deployed resource "{name}"', [
-				'name' => $name
+			$engine->debug('Deployed resource "{name}" with identifer <{resourceId}>', [
+				'name' => $name,
+				'resourceId' => (string)$resourceId
 			]);
 			
 			if($this->builder->isProcessResource($name))
 			{
 				foreach($parser->parseDiagramString($in) as $process)
 				{
-					$engine->pushCommand(new DeployBusinessProcessCommand($process, $id));
+					$engine->pushCommand(new DeployBusinessProcessCommand($process, $id, $resourceId));
 				}
 			}
 		}

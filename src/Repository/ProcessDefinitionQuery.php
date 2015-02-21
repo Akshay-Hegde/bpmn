@@ -32,6 +32,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 	
 	protected $deploymentId;
 	
+	protected $resourceId;
+	
 	protected $latestVersion;
 	
 	protected $messageEventSubscriptionNames;
@@ -76,6 +78,15 @@ class ProcessDefinitionQuery extends AbstractQuery
 			return new UUID($value);
 		});
 		
+		return $this;
+	}
+	
+	public function resourceId($id)
+	{
+		$this->populateMultiProperty($this->resourceId, $id, function($value) {
+			return new UUID($value);
+		});
+	
 		return $this;
 	}
 	
@@ -172,7 +183,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 		$this->buildPredicate("p.`id`", $this->processDefinitionId, $where, $params);
 		$this->buildPredicate("p.`process_key`", $this->processDefinitionKey, $where, $params);
 		$this->buildPredicate("p.`revision`", $this->processDefinitionVersion, $where, $params);
-		$this->buildPredicate("d.`id`", $this->deploymentId, $where, $params);
+		$this->buildPredicate("d.`deployment_id`", $this->deploymentId, $where, $params);
+		$this->buildPredicate('p.`resource_id`', $this->resourceId, $where, $params);
 		
 		foreach((array)$this->messageEventSubscriptionNames as $name)
 		{
@@ -227,6 +239,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		$stmt->bindAll($params);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('deployment_id', new UUIDTransformer());
+		$stmt->transform('resource_id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

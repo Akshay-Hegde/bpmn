@@ -31,10 +31,13 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
 	
 	protected $deploymentId;
 	
-	public function __construct(BusinessProcessBuilder $builder, UUID $deploymentId = NULL)
+	protected $resourceId;
+	
+	public function __construct(BusinessProcessBuilder $builder, UUID $deploymentId = NULL, UUID $resourceId)
 	{
 		$this->builder = $builder;
 		$this->deploymentId = $deploymentId;
+		$this->resourceId = $resourceId;
 	}
 	
 	public function getPriority()
@@ -60,13 +63,14 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
 		$time = time();
 			
 		$sql = "	INSERT INTO `#__bpmn_process_definition`
-						(`id`, `deployment_id`, `process_key`, `revision`, `definition`, `name`, `deployed_at`)
+						(`id`, `deployment_id`, `resource_id`, `process_key`, `revision`, `definition`, `name`, `deployed_at`)
 					VALUES
-						(:id, :deployment, :key, :revision, :model, :name, :deployed)
+						(:id, :deployment, :resource, :key, :revision, :model, :name, :deployed)
 		";
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('id', $id);
 		$stmt->bindValue('deployment', $this->deploymentId);
+		$stmt->bindValue('resource', $this->resourceId);
 		$stmt->bindValue('key', $this->builder->getKey());
 		$stmt->bindValue('revision', $revision + 1);
 		$stmt->bindValue('model', new BinaryData(serialize($model), 3));

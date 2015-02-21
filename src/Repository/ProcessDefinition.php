@@ -26,8 +26,9 @@ class ProcessDefinition implements \JsonSerializable
 	protected $model;
 	protected $deployed;
 	protected $deploymentId;
+	protected $resourceId;
 	
-	public function __construct(UUID $id, $key, $revision, ProcessModel $model, $name, \DateTimeImmutable $deployed, UUID $deploymentId = NULL)
+	public function __construct(UUID $id, $key, $revision, ProcessModel $model, $name, \DateTimeImmutable $deployed, UUID $deploymentId = NULL, UUID $resourceId = NULL)
 	{
 		$this->id = $id;
 		$this->key = $key;
@@ -36,6 +37,7 @@ class ProcessDefinition implements \JsonSerializable
 		$this->model = $model;
 		$this->deployed = $deployed;
 		$this->deploymentId = $deploymentId;
+		$this->resourceId = $resourceId;
 	}
 	
 	public function jsonSerialize()
@@ -83,6 +85,11 @@ class ProcessDefinition implements \JsonSerializable
 	public function getDeploymentId()
 	{
 		return $this->deploymentId;
+	}
+	
+	public function getResourceId()
+	{
+		return $this->resourceId;
 	}
 	
 	public function findNoneStartEvent()

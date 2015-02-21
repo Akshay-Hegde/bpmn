@@ -31,11 +31,8 @@ class Version20150212110141 extends AbstractMigration
         $job->addColumn('retries', 'int', ['unsigned' => true, 'default' => 0]);
         $job->addColumn('handler_type', 'varchar');
         $job->addColumn('handler_data', 'blob', ['default' => NULL]);
-        
-        // TODO: This should really be a datetime / timestamp type!
         $job->addColumn('scheduled_at', 'bigint', ['default' => NULL]);
         $job->addColumn('run_at', 'bigint', ['default' => NULL]);
-        
         $job->addIndex(['execution_id']);
         $job->addIndex(['lock_owner']);
         $job->addIndex(['handler_type']);
@@ -43,10 +40,13 @@ class Version20150212110141 extends AbstractMigration
         $job->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
         $job->create();
         
+        $def = $this->table('#__bpmn_process_definition');
+        $def->addColumn('resource_id', 'uuid', ['default' => NULL]);
+        $def->update();
+        
         $subscription = $this->table('#__bpmn_event_subscription');
         $subscription->addColumn('boundary', 'int', ['unsigned' => true, 'default' => 0]);
         $subscription->addColumn('job_id', 'uuid', ['default' => NULL]);
-//         $subscription->addForeignKey(['job_id'], '#__bpmn_job', ['id']);
         $subscription->update();
     }
     
@@ -55,7 +55,9 @@ class Version20150212110141 extends AbstractMigration
      */
     public function down()
     {
-//     	$this->dropForeignKey('#__bpmn_event_subscription', ['job_id'], '#__bpmn_job', ['id']);
+    	$def = $this->table('#__bpmn_process_definition');
+    	$def->removeColumn('resource_id');
+    	$def->update();
     	
     	$subscription = $this->table('#__bpmn_event_subscription');
     	$subscription->removeColumn('job_id');

@@ -57,6 +57,11 @@ class Deployment implements \JsonSerializable
 		return $this->deployDate;
 	}
 	
+	public function getProcessEngine()
+	{
+		return $this->engine;
+	}
+	
 	public function findResources()
 	{
 		$resources = [];

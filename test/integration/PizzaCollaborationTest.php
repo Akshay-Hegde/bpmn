@@ -14,6 +14,8 @@ namespace KoolKode\BPMN;
 use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\ExecutionInterface;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
+use KoolKode\BPMN\Repository\DeployedResource;
+use KoolKode\BPMN\Repository\Deployment;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 use KoolKode\BPMN\Test\MessageHandler;
 
@@ -23,7 +25,15 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 	{
 		$this->jobExecutor->registerJobHandler(new AsyncCommandHandler());
 		
-		$this->deployFile('PizzaCollaborationTest.bpmn');
+		$deployment = $this->deployFile('PizzaCollaborationTest.bpmn');
+		$this->assertTrue($deployment instanceof Deployment);
+		
+		$resources = $deployment->findResources();
+		$this->assertCount(1, $resources);
+		
+		$diagram = array_pop($resources);
+		$this->assertTrue($diagram instanceof DeployedResource);
+		$this->assertEquals(file_get_contents(__DIR__ . '/PizzaCollaborationTest.bpmn'), $diagram->getContents());
 		
 		$process = $this->runtimeService->startProcessInstanceByKey('CustomerOrdersPizza', 'Pizza Funghi');
 		$this->assertTrue($process instanceof ExecutionInterface);

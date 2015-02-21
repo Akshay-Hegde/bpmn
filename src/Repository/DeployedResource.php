@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Repository;
 
+use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\Util\UUID;
 
 class DeployedResource implements \JsonSerializable
@@ -49,5 +50,26 @@ class DeployedResource implements \JsonSerializable
 	public function getDeployment()
 	{
 		return $this->deployment;
+	}
+	
+	public function getProcessEngine()
+	{
+		return $this->deployment->getProcessEngine();
+	}
+	
+	public function getContents()
+	{
+		$stmt = $this->deployment->getProcessEngine()->prepareQuery("
+			SELECT `data` FROM `#__bpmn_resource` WHERE `id` = :id
+		");
+		$stmt->bindValue('id', $this->id);
+		$stmt->execute();
+		
+		if(false === ($row = $stmt->fetchNextRow()))
+		{
+			throw new \OutOfBoundsException(sprintf('Resource %s not found in repository', $this->id));
+		}
+		
+		return BinaryData::decode($row['data']);
 	}
 }

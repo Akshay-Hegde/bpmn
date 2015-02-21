@@ -24,9 +24,12 @@ class GetExecutionVariablesCommand extends AbstractBusinessCommand
 {
 	protected $executionId;
 	
-	public function __construct(UUID $executionId)
+	protected $local;
+	
+	public function __construct(UUID $executionId, $local = false)
 	{
 		$this->executionId = $executionId;
+		$this->local = $local ? true : false;
 	}
 	
 	/**
@@ -44,6 +47,13 @@ class GetExecutionVariablesCommand extends AbstractBusinessCommand
 	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
-		return $engine->findExecution($this->executionId)->getVariablesLocal();
+		$execution = $engine->findExecution($this->executionId);
+		
+		if($this->local)
+		{
+			return $execution->getVariablesLocal();
+		}
+		
+		return $execution->getVariables();
 	}
 }

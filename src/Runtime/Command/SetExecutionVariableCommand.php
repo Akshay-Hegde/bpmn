@@ -23,14 +23,19 @@ use KoolKode\Util\UUID;
 class SetExecutionVariableCommand extends AbstractBusinessCommand
 {
 	protected $executionId;
+	
 	protected $variableName;
+	
 	protected $variableValue;
 	
-	public function __construct(UUID $executionId, $variableName, $variableValue)
+	protected $local;
+	
+	public function __construct(UUID $executionId, $variableName, $variableValue, $local = true)
 	{
 		$this->executionId = $executionId;
 		$this->variableName = (string)$variableName;
 		$this->variableValue = serialize($variableValue);
+		$this->local = $local ? true : false;
 	}
 	
 	/**
@@ -49,6 +54,14 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
 	public function executeCommand(ProcessEngine $engine)
 	{
 		$execution = $engine->findExecution($this->executionId);
-		$execution->setVariable($this->variableName, unserialize($this->variableValue));
+		
+		if($this->local)
+		{
+			$execution->setVariableLocal($this->variableName, unserialize($this->variableValue));
+		}
+		else
+		{
+			$execution->setVariable($this->variableName, unserialize($this->variableValue));
+		}
 	}
 }

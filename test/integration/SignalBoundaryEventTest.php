@@ -24,7 +24,7 @@ class SignalBoundaryEventTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('dataTask', $task->getActivityId());
+		$this->assertEquals('dataTask', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
 		
@@ -34,7 +34,7 @@ class SignalBoundaryEventTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('submitTask', $task->getActivityId());
+		$this->assertEquals('submitTask', $task->getDefinitionKey());
 		
 		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
@@ -48,7 +48,7 @@ class SignalBoundaryEventTest extends BusinessProcessTestCase
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('dataTask', $task->getActivityId());
+		$this->assertEquals('dataTask', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
 	
@@ -59,7 +59,7 @@ class SignalBoundaryEventTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('delayTask', $task->getActivityId());
+		$this->assertEquals('delayTask', $task->getDefinitionKey());
 		
 		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());

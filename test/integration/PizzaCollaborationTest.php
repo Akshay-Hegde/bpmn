@@ -32,7 +32,7 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 		$this->assertFalse($process->isEnded());
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertEquals('choosePizzaTask', $task->getActivityId());
+		$this->assertEquals('choosePizzaTask', $task->getDefinitionKey());
 		$this->assertEquals(0, $this->managementService->createJobQuery()->count());
 		
 		$this->taskService->complete($task->getId(), []);
@@ -43,7 +43,7 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 		$this->managementService->executeJob($jobs[0]->getId());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertEquals('preparePizzaTask', $task->getActivityId());
+		$this->assertEquals('preparePizzaTask', $task->getDefinitionKey());
 		
 		$this->taskService->complete($task->getId(), []);
 		
@@ -55,7 +55,7 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 		$this->assertEquals(5, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertEquals('fileReportTask', $task->getActivityId());
+		$this->assertEquals('fileReportTask', $task->getDefinitionKey());
 		
 		$process = $this->runtimeService->createExecutionQuery()->findOne();
 		

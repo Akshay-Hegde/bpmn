@@ -37,7 +37,7 @@ class ExclusiveGatewayTest extends BusinessProcessTestCase
 		]);
 		
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 		
 		sort($found);
@@ -58,7 +58,7 @@ class ExclusiveGatewayTest extends BusinessProcessTestCase
 		$this->runtimeService->startProcessInstanceByKey('ExclusiveGateway2');
 	
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 	
 		sort($found);
@@ -68,7 +68,7 @@ class ExclusiveGatewayTest extends BusinessProcessTestCase
 		$this->taskService->complete($this->taskService->createTaskQuery()->taskDefinitionKey('task1')->findOne()->getId());
 		
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 		
 		sort($found);
@@ -78,7 +78,7 @@ class ExclusiveGatewayTest extends BusinessProcessTestCase
 		$this->taskService->complete($this->taskService->createTaskQuery()->taskDefinitionKey('task2')->findOne()->getId());
 		
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 		
 		sort($found);

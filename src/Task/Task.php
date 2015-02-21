@@ -19,7 +19,7 @@ class Task implements TaskInterface, \JsonSerializable
 	protected $executionId;
 	protected $processInstanceId;
 	protected $name;
-	protected $activityId;
+	protected $definitionKey;
 	protected $created;
 	protected $claimDate;
 	protected $assignee;
@@ -45,7 +45,7 @@ class Task implements TaskInterface, \JsonSerializable
 			'id' => (string)$this->id,
 			'executionId' => (string)$this->executionId,
 			'name' => $this->name,
-			'activityId' => $this->activityId,
+			'definitionKey' => $this->definitionKey,
 			'assignee' => $this->assignee,
 			'creationDate' => $this->created->format(\DateTime::ISO8601),
 			'claimDate' => ($this->claimDate === NULL) ? NULL : $this->claimDate->format(\DateTime::ISO8601),
@@ -112,14 +112,14 @@ class Task implements TaskInterface, \JsonSerializable
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getActivityId()
+	public function getDefinitionKey()
 	{
-		return $this->activityId;
+		return $this->definitionKey;
 	}
 	
-	public function setActivityId($activityId = NULL)
+	public function setDefinitionKey($definitionKey = NULL)
 	{
-		$this->activityId = ($activityId === NULL) ? NULL : (string)$activityId;
+		$this->definitionKey = ($definitionKey === NULL) ? NULL : (string)$definitionKey;
 	}
 	
 	/**

@@ -25,12 +25,12 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_2', $task->getActivityId());
+		$this->assertEquals('UserTask_2', $task->getDefinitionKey());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_3', $task->getActivityId());
+		$this->assertEquals('UserTask_3', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
@@ -46,7 +46,7 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_2', $task->getActivityId());
+		$this->assertEquals('UserTask_2', $task->getDefinitionKey());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
 		$sub = $this->runtimeService->createExecutionQuery()->processInstanceId($process->getId())->messageEventSubscriptionName('OrderItemAddedMessage')->findAll();
@@ -56,19 +56,19 @@ class EventSubProcessNonInterruptingTest extends BusinessProcessTestCase
 	
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('UserTask_1')->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_1', $task->getActivityId());
+		$this->assertEquals('UserTask_1', $task->getDefinitionKey());
 		$this->assertEquals(2, $this->taskService->createTaskQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_2', $task->getActivityId());
+		$this->assertEquals('UserTask_2', $task->getDefinitionKey());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_3', $task->getActivityId());
+		$this->assertEquals('UserTask_3', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 	

@@ -37,7 +37,7 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 		]);
 		
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 		
 		sort($found);
@@ -66,7 +66,7 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 		]);
 		
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 		
 		sort($found);
@@ -95,7 +95,7 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 		]);
 	
 		$found = array_map(function(TaskInterface $task) {
-			return $task->getActivityId();
+			return $task->getDefinitionKey();
 		}, $this->taskService->createTaskQuery()->findAll());
 		
 		sort($found);

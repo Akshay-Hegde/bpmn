@@ -48,7 +48,7 @@ class SimpleProcessTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->taskDefinitionKey('amountTask')->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('amountTask', $task->getActivityId());
+		$this->assertEquals('amountTask', $task->getDefinitionKey());
 		$this->assertEquals('Enter amount', $task->getName());
 		$this->assertEquals($process->getId(), $task->getProcessInstanceId());
 		$this->assertNull($task->getAssignee());
@@ -62,7 +62,7 @@ class SimpleProcessTest extends BusinessProcessTestCase
 		foreach($this->taskService->createTaskQuery()->taskDefinitionKey('discountTask')->findAll() as $task)
 		{
 			$this->assertTrue($task instanceof TaskInterface);
-			$this->assertEquals('discountTask', $task->getActivityId());
+			$this->assertEquals('discountTask', $task->getDefinitionKey());
 			$this->assertEquals('Calculate granted discount', $task->getName());
 			$this->assertEquals($process->getId(), $task->getProcessInstanceId());
 			$this->assertNull($task->getAssignee());

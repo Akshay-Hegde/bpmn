@@ -227,7 +227,7 @@ class TaskQuery extends AbstractQuery
 			empty($row['due_at']) ? NULL : new \DateTimeImmutable('@' . $row['due_at'])
 		);
 		
-		$task->setActivityId($row['activity']);
+		$task->setDefinitionKey($row['activity']);
 		$task->setDocumentation($row['documentation']);
 		$task->setExecutionId($row['execution_id']);
 		$task->setProcessInstanceId($row['process_id']);

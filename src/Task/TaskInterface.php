@@ -61,7 +61,7 @@ interface TaskInterface
 	 * 
 	 * @return string ID or NULL if the task is not related to an execution.
 	 */
-	public function getActivityId();
+	public function getDefinitionKey();
 
 	/**
 	 * Get the time of creation of this activity instance.

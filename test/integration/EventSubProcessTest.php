@@ -25,12 +25,12 @@ class EventSubProcessTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_2', $task->getActivityId());
+		$this->assertEquals('UserTask_2', $task->getDefinitionKey());
 		
 		$this->taskService->complete($task->getId());
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_3', $task->getActivityId());
+		$this->assertEquals('UserTask_3', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		
 		$this->taskService->complete($task->getId());
@@ -47,7 +47,7 @@ class EventSubProcessTest extends BusinessProcessTestCase
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_2', $task->getActivityId());
+		$this->assertEquals('UserTask_2', $task->getDefinitionKey());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
 		$sub = $this->runtimeService->createExecutionQuery()->processInstanceId($process->getId())->messageEventSubscriptionName('OrderItemAddedMessage')->findAll();
@@ -57,7 +57,7 @@ class EventSubProcessTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_1', $task->getActivityId());
+		$this->assertEquals('UserTask_1', $task->getDefinitionKey());
 		$this->assertEquals(5, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		
@@ -65,7 +65,7 @@ class EventSubProcessTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('UserTask_3', $task->getActivityId());
+		$this->assertEquals('UserTask_3', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 	

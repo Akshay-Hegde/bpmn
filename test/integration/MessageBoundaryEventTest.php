@@ -24,7 +24,7 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('dataTask', $task->getActivityId());
+		$this->assertEquals('dataTask', $task->getDefinitionKey());
 		$this->assertEquals('This is just a dummy task.', $task->getDocumentation());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->count());
@@ -35,7 +35,7 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('submitTask', $task->getActivityId());
+		$this->assertEquals('submitTask', $task->getDefinitionKey());
 		$this->assertEquals('', $task->getDocumentation());
 		
 		$this->taskService->complete($task->getId());
@@ -50,7 +50,7 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 	
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('dataTask', $task->getActivityId());
+		$this->assertEquals('dataTask', $task->getDefinitionKey());
 		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
 		
 		$sub = $this->runtimeService->createExecutionQuery()->messageEventSubscriptionName('TimeoutMessage')->findAll();
@@ -63,7 +63,7 @@ class MessageBoundaryEventTest extends BusinessProcessTestCase
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('delayTask', $task->getActivityId());
+		$this->assertEquals('delayTask', $task->getDefinitionKey());
 		
 		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());

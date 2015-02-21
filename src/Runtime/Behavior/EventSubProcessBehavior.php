@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractBoundaryActivity;
 use KoolKode\BPMN\Engine\ActivityInterface;
+use KoolKode\BPMN\Engine\Event\ActivityCanceledEvent;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\Process\Node;
 
@@ -72,6 +73,8 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
 		$sub = $root->createExecution(false);
 		$sub->setNode($startNode);
 		$sub->waitForSignal();
+		
+		$sub->getEngine()->notify(new ActivityCanceledEvent($this->attachedTo, $sub, $sub->getEngine()));
 		
 		// Delegate received signal to event sub process start event.
 		$sub->signal($signal, $variables);

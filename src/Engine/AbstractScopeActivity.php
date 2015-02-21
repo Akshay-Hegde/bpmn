@@ -11,6 +11,9 @@
 
 namespace KoolKode\BPMN\Engine;
 
+use KoolKode\BPMN\Engine\Event\ActivityCanceledEvent;
+use KoolKode\BPMN\Engine\Event\ActivityCompletedEvent;
+use KoolKode\BPMN\Engine\Event\ActivityStartedEvent;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
 
@@ -38,6 +41,8 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 */
 	public function execute(Execution $execution)
 	{
+		$execution->getEngine()->notify(new ActivityStartedEvent($this->activityId, $execution, $execution->getEngine()));
+		
 		$execution->getEngine()->info('ENTER: scope <{scope}> at level {level} using {execution}', [
 			'scope' => $this->activityId,
 			'level' => $execution->getExecutionDepth(),
@@ -79,13 +84,13 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 */
 	public function interrupt(VirtualExecution $execution, array $transitions = NULL)
 	{
-		$this->leave($execution, $transitions);
+		$this->leave($execution, $transitions, true);
 	}
 	
 	/**
 	 * {@inheritdoc}
 	 */
-	public function leave(VirtualExecution $execution, array $transitions = NULL)
+	public function leave(VirtualExecution $execution, array $transitions = NULL, $canceled = false)
 	{
 		$root = $execution->getScope();
 		
@@ -96,6 +101,13 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		$outer->setNode($execution->getNode());
 		
 		$root->terminate(false);
+		
+		if($canceled)
+		{
+			$execution->getEngine()->notify(new ActivityCanceledEvent($this->activityId, $outer, $outer->getEngine()));
+		}
+		
+		$execution->getEngine()->notify(new ActivityCompletedEvent($this->activityId, $outer, $outer->getEngine()));
 		
 		$execution->getEngine()->info('LEAVE: scope <{scope}> at level {level} using {execution}', [
 			'scope' => $this->activityId,

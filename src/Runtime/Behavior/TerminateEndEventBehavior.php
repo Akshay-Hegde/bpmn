@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractActivity;
+use KoolKode\BPMN\Engine\Event\ActivityCompletedEvent;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
@@ -30,9 +31,12 @@ class TerminateEndEventBehavior extends AbstractActivity
 			'name' => $this->getStringValue($this->name, $execution->getExpressionContext())
 		]);
 		
+		$engine = $execution->getEngine();
+		$engine->notify(new ActivityCompletedEvent($execution->getNode()->getId(), $execution, $engine));
+		
 		$root = $execution->getScopeRoot();
 		$root->setNode($execution->getNode());
 		$root->setTransition($execution->getTransition());
-		$root->terminate();
+		$root->terminate(false);
 	}
 }

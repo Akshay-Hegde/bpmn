@@ -11,6 +11,8 @@
 
 namespace KoolKode\BPMN\Engine;
 
+use KoolKode\BPMN\Engine\Event\ActivityCompletedEvent;
+use KoolKode\BPMN\Engine\Event\ActivityStartedEvent;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
@@ -29,6 +31,8 @@ abstract class AbstractActivity implements ActivityInterface
 	 */
 	public function execute(Execution $execution)
 	{
+		$execution->getEngine()->notify(new ActivityStartedEvent($execution->getNode()->getId(), $execution, $execution->getEngine()));
+		
 		$this->createEventSubscriptions($execution, $execution->getNode()->getId());
 		
 		$this->enter($execution);
@@ -128,6 +132,8 @@ abstract class AbstractActivity implements ActivityInterface
 	 */
 	public function leave(VirtualExecution $execution, array $transitions = NULL)
 	{
+		$execution->getEngine()->notify(new ActivityCompletedEvent($execution->getNode()->getId(), $execution, $execution->getEngine()));
+		
 		$this->clearEventSubscriptions($execution, $execution->getNode()->getId());
 		
 		$execution->takeAll($transitions);

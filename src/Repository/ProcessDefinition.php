@@ -48,7 +48,8 @@ class ProcessDefinition implements \JsonSerializable
 			'revision' => $this->revision,
 			'name' => $this->name,
 			'deployDate' => $this->deployed->format(\DateTime::ISO8601),
-			'deploymentId' => ($this->deploymentId === NULL) ? NULL : (string)$this->deploymentId
+			'deploymentId' => $this->deploymentId,
+			'resourceId' => $this->resourceId
 		];
 	}
 	

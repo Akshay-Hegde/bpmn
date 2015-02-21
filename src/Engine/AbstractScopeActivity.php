@@ -38,9 +38,10 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 */
 	public function execute(Execution $execution)
 	{
-		$execution->getEngine()->info('ENTER: scope <{scope}> at level {level}', [
+		$execution->getEngine()->info('ENTER: scope <{scope}> at level {level} using {execution}', [
 			'scope' => $this->activityId,
-			'level' => $execution->getExecutionDepth()
+			'level' => $execution->getExecutionDepth(),
+			'execution' => (string)$execution
 		]);
 		
 		$root = $execution->createNestedExecution($execution->getProcessModel(), true);
@@ -85,7 +86,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
 	 * {@inheritdoc}
 	 */
 	public function leave(VirtualExecution $execution, array $transitions = NULL)
-	{		
+	{
 		$root = $execution->getScope();
 		
 		$this->clearEventSubscriptions($root, $this->activityId);
@@ -96,9 +97,10 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		
 		$root->terminate(false);
 		
-		$execution->getEngine()->info('LEAVE: scope <{scope}> at level {level}', [
+		$execution->getEngine()->info('LEAVE: scope <{scope}> at level {level} using {execution}', [
 			'scope' => $this->activityId,
-			'level' => $outer->getExecutionDepth()
+			'level' => $outer->getExecutionDepth(),
+			'execution' => (string)$outer
 		]);
 	
 		$outer->takeAll($transitions);

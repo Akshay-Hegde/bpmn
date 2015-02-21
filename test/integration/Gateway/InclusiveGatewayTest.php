@@ -24,6 +24,8 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 	}
 	
 	/**
+	 * Test split behavior of inclusive gateway.
+	 * 
 	 * @dataProvider provider1
 	 */
 	public function test1($amount, array $tasks)
@@ -51,6 +53,8 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 	}
 	
 	/**
+	 * Test split behavior of inclusive gateway including defaut flow.
+	 * 
 	 * @dataProvider provider2
 	 */
 	public function test2($amount, array $tasks)
@@ -78,6 +82,8 @@ class InclusiveGatewayTest extends BusinessProcessTestCase
 	}
 	
 	/**
+	 * Test join behavior of inclusive gateway.
+	 * 
 	 * @dataProvider provider3
 	 */
 	public function test3($count, array $tasks)

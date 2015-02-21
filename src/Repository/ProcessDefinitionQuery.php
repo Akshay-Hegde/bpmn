@@ -183,7 +183,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		$this->buildPredicate("p.`id`", $this->processDefinitionId, $where, $params);
 		$this->buildPredicate("p.`process_key`", $this->processDefinitionKey, $where, $params);
 		$this->buildPredicate("p.`revision`", $this->processDefinitionVersion, $where, $params);
-		$this->buildPredicate("d.`deployment_id`", $this->deploymentId, $where, $params);
+		$this->buildPredicate("d.`id`", $this->deploymentId, $where, $params);
 		$this->buildPredicate('p.`resource_id`', $this->resourceId, $where, $params);
 		
 		foreach((array)$this->messageEventSubscriptionNames as $name)

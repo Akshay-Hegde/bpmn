@@ -73,6 +73,10 @@ class HistoryService
 		{
 			$this->recordUserTaskUnclaimed($event);
 		}
+		elseif($event instanceof UserTaskCompletedEvent)
+		{
+			$this->recordUserTaskCompleted($event);
+		}
 	}
 	
 	protected function recordExecutionCreated(ExecutionCreatedEvent $event)

@@ -34,9 +34,4 @@ class ExecutionCreatedEvent extends AbstractAuditEvent
 		
 		$this->execution = $execution;
 	}
-	
-	public function isProcessInstance()
-	{
-		return $this->execution->isRootExecution();
-	}
 }

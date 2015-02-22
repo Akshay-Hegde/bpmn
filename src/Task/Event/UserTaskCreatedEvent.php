@@ -12,7 +12,7 @@
 namespace KoolKode\BPMN\Task\Event;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\ProcessEngineEvent;
+use KoolKode\BPMN\History\Event\AbstractAuditEvent;
 use KoolKode\BPMN\Task\TaskInterface;
 
 /**
@@ -20,7 +20,7 @@ use KoolKode\BPMN\Task\TaskInterface;
  * 
  * @author Martin Schröder
  */
-class UserTaskCreatedEvent extends ProcessEngineEvent
+class UserTaskCreatedEvent extends AbstractAuditEvent
 {
 	/**
 	 * The user task that has been created.
@@ -32,6 +32,7 @@ class UserTaskCreatedEvent extends ProcessEngineEvent
 	public function __construct(TaskInterface $task, ProcessEngine $engine)
 	{
 		$this->task = $task;
+		$this->timestamp = new \DateTimeImmutable();
 		$this->engine = $engine;
 	}
 }

@@ -11,9 +11,9 @@
 
 namespace KoolKode\BPMN\Engine;
 
-use KoolKode\BPMN\Engine\Event\ActivityCanceledEvent;
-use KoolKode\BPMN\Engine\Event\ActivityCompletedEvent;
-use KoolKode\BPMN\Engine\Event\ActivityStartedEvent;
+use KoolKode\BPMN\History\Event\ActivityCanceledEvent;
+use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
+use KoolKode\BPMN\History\Event\ActivityStartedEvent;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
 

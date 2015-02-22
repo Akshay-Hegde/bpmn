@@ -12,6 +12,8 @@
 namespace KoolKode\BPMN\Engine;
 
 use KoolKode\BPMN\Delegate\DelegateTaskFactoryInterface;
+use KoolKode\BPMN\History\Event\ExecutionCreatedEvent;
+use KoolKode\BPMN\History\Event\ExecutionTerminatedEvent;
 use KoolKode\BPMN\Job\Executor\JobExecutorInterface;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
 use KoolKode\BPMN\Job\Job;
@@ -510,7 +512,11 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		$this->syncVariables($execution, $syncData);
 		
-		return parent::syncNewExecution($execution, $syncData);
+		$result = parent::syncNewExecution($execution, $syncData);
+		
+		$this->notify(new ExecutionCreatedEvent($execution, $this));
+		
+		return $result;
 	}
 	
 	/**
@@ -563,7 +569,11 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$stmt->bindValue('id', $execution->getId());
 		$stmt->execute();
 		
-		return parent::syncRemovedExecution($execution);
+		$result = parent::syncRemovedExecution($execution);
+		
+		$this->notify(new ExecutionTerminatedEvent($execution, $this));
+		
+		return $result;
 	}
 	
 	protected function syncVariables(Execution $execution, array $syncData)

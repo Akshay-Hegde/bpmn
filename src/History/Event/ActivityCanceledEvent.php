@@ -9,18 +9,17 @@
 * file that was distributed with this source code.
 */
 
-namespace KoolKode\BPMN\Engine\Event;
+namespace KoolKode\BPMN\History\Event;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\ProcessEngineEvent;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
- * Is triggered whenever an execution leaves a scope 
+ * Is triggered whenever an activity is being canceled. 
  * 
  * @author Martin Schröder
  */
-class ActivityCompletedEvent extends ProcessEngineEvent
+class ActivityCanceledEvent extends AbstractAuditEvent
 {
 	/**
 	 * ID of the activity / scope being completed.
@@ -40,6 +39,7 @@ class ActivityCompletedEvent extends ProcessEngineEvent
 	{
 		$this->name = (string)$name;
 		$this->execution = $execution;
+		$this->timestamp = new \DateTimeImmutable();
 		$this->engine = $engine;
 	}
 }

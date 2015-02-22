@@ -12,8 +12,8 @@
 namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractActivity;
-use KoolKode\BPMN\Engine\Event\ActivityCompletedEvent;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
 
 /**
  * Terminates all executions within the same root scope including the root itself.

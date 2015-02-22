@@ -9,37 +9,34 @@
 * file that was distributed with this source code.
 */
 
-namespace KoolKode\BPMN\Engine\Event;
+namespace KoolKode\BPMN\History\Event;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
-use KoolKode\BPMN\Engine\ProcessEngineEvent;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
- * Is triggered whenever an activity is being canceled. 
+ * Is triggered whenever an execution has been created. 
  * 
  * @author Martin Schröder
  */
-class ActivityCanceledEvent extends ProcessEngineEvent
+class ExecutionCreatedEvent extends AbstractAuditEvent
 {
 	/**
-	 * ID of the activity / scope being completed.
-	 * 
-	 * @var string
-	 */
-	public $name;
-	
-	/**
-	 * The related execution.
+	 * The created execution.
 	 * 
 	 * @var VirtualExecution
 	 */
 	public $execution;
 	
-	public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
+	public function __construct(VirtualExecution $execution, ProcessEngine $engine)
 	{
-		$this->name = (string)$name;
 		$this->execution = $execution;
+		$this->timestamp = new \DateTimeImmutable();
 		$this->engine = $engine;
+	}
+	
+	public function isProcessInstance()
+	{
+		return $this->execution->isRootExecution();
 	}
 }

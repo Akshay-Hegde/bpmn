@@ -13,8 +13,8 @@ namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractBoundaryActivity;
 use KoolKode\BPMN\Engine\ActivityInterface;
-use KoolKode\BPMN\Engine\Event\ActivityCanceledEvent;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\History\Event\ActivityCanceledEvent;
 use KoolKode\Process\Node;
 
 /**

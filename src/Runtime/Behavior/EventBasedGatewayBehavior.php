@@ -13,6 +13,8 @@ namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
+use KoolKode\BPMN\History\Event\ActivityStartedEvent;
 
 /**
  * Exclusive gateway based on intermediate catch events connected to it.
@@ -26,13 +28,14 @@ class EventBasedGatewayBehavior extends AbstractActivity
 	 */
 	public function enter(VirtualExecution $execution)
 	{
+		$engine = $execution->getEngine();
 		$model = $execution->getProcessModel();
 		$gateway = $execution->getNode();
 		$transitions = $model->findOutgoingTransitions($gateway->getId());
 		
 		if(count($transitions) < 2)
 		{
-			throw new \RuntimeException(sprintf('Event based gateway must be connected to at least 2 intermediate catch events'));
+			throw new \RuntimeException(sprintf('Event based gateway %s must be connected to at least 2 intermediate catch events', $gateway->getId()));
 		}
 		
 		foreach($transitions as $trans)
@@ -52,6 +55,8 @@ class EventBasedGatewayBehavior extends AbstractActivity
 			$behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $eventNode);
 		}
 		
+		$engine->notify(new ActivityCompletedEvent($gateway->getId(), $execution, $engine));
+		
 		$execution->waitForSignal();
 	}
 	
@@ -60,6 +65,11 @@ class EventBasedGatewayBehavior extends AbstractActivity
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		$engine = $execution->getEngine();
+		$node = $execution->getProcessModel()->findNode($delegation['nodeId']);
+		
+		$engine->notify(new ActivityStartedEvent($node->getId(), $execution, $engine));
+		
 		$this->delegateSignal($execution, $signal, $variables, $delegation);
 	}
 }

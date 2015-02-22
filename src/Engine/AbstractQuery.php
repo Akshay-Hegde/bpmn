@@ -13,6 +13,8 @@ namespace KoolKode\BPMN\Engine;
 
 abstract class AbstractQuery
 {
+	protected $orderings = [];
+	
 	protected function populateMultiProperty(& $prop, $value, callable $converter = NULL)
 	{
 		if(is_array($value) || $value instanceof \Traversable)
@@ -60,5 +62,27 @@ abstract class AbstractQuery
 		}
 	
 		$where[] = sprintf('%s IN (%s)', $name, implode(', ', $ph));
+	}
+	
+	protected function buildOrderings()
+	{
+		$sql = '';
+		
+		if(!empty($this->orderings))
+		{
+			$sql .= ' ORDER BY ';
+			
+			foreach($this->orderings as $i => $order)
+			{
+				if($i != 0)
+				{
+					$sql .= ', ';
+				}
+				
+				$sql .= vsprintf('%s %s', $order);
+			}
+		}
+		
+		return $sql;
 	}
 }

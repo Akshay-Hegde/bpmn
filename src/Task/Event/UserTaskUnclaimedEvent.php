@@ -31,8 +31,8 @@ class UserTaskUnclaimedEvent extends AbstractAuditEvent
 	
 	public function __construct(TaskInterface $task, ProcessEngine $engine)
 	{
+		parent::__construct($engine);
+		
 		$this->task = $task;
-		$this->timestamp = new \DateTimeImmutable();
-		$this->engine = $engine;
 	}
 }

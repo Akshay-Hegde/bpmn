@@ -287,6 +287,8 @@ class ExecutionQuery extends AbstractQuery
 			$sql .= ' WHERE ' . implode(' AND ', $where);
 		}
 		
+		$sql .= $this->buildOrderings();
+		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);
 		$stmt->transform('def_id', new UUIDTransformer());

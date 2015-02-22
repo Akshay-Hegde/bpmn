@@ -236,6 +236,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 			$sql .= ' WHERE ' . implode(' AND ', $where);
 		}
 		
+		$sql .= $this->buildOrderings();
+		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);
 		$stmt->transform('id', new UUIDTransformer());

@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Engine;
 use KoolKode\BPMN\Delegate\DelegateTaskFactoryInterface;
 use KoolKode\BPMN\History\Event\ExecutionCreatedEvent;
 use KoolKode\BPMN\History\Event\ExecutionTerminatedEvent;
+use KoolKode\BPMN\History\HistoryService;
 use KoolKode\BPMN\Job\Executor\JobExecutorInterface;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
 use KoolKode\BPMN\Job\Job;
@@ -66,6 +67,8 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	
 	protected $managementService;
 	
+	protected $historyService;
+	
 	public function __construct(ConnectionInterface $conn, EventDispatcherInterface $dispatcher, ExpressionContextFactoryInterface $factory, $handleTransactions = true)
 	{
 		parent::__construct($dispatcher, $factory);
@@ -80,6 +83,9 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$this->runtimeService = new RuntimeService($this);
 		$this->taskService = new TaskService($this);
 		$this->managementService = new ManagementService($this);
+		$this->historyService = new HistoryService($this);
+		
+		$this->eventDispatcher->connect([$this->historyService, 'recordEvent']);
 	}
 	
 	public function __debugInfo()
@@ -115,6 +121,14 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	public function getTaskService()
 	{
 		return $this->taskService;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getHistoryService()
+	{
+		return $this->historyService;
 	}
 	
 	/**

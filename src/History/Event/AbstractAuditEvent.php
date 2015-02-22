@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\History\Event;
 
+use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\ProcessEngineEvent;
 
 /**
@@ -26,4 +27,10 @@ abstract class AbstractAuditEvent extends ProcessEngineEvent
 	 * @var \DateTimeInterface
 	 */
 	public $timestamp;
+	
+	public function __construct(ProcessEngine $engine)
+	{
+		$this->engine = $engine;
+		$this->timestamp = \DateTimeImmutable::createFromFormat('U.u', sprintf('%0.3f', microtime(true)));
+	}
 }

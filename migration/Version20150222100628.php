@@ -23,17 +23,19 @@ class Version20150222100628 extends AbstractMigration
      */
     public function up()
     {
-    	// FIXME: Need to keep track of process definition ID here!
-    	
     	$exec = $this->table('#__bpmn_history_execution');
     	$exec->addColumn('id', 'uuid', ['primary_key' => true]);
     	$exec->addColumn('process_id', 'uuid');
+    	$exec->addColumn('definition_id', 'uuid');
     	$exec->addColumn('started_at', 'bigint');
     	$exec->addColumn('ended_at', 'bigint', ['default' => NULL]);
     	$exec->addColumn('duration', 'bigint', ['default' => NULL, 'unsigned' => true]);
     	$exec->addIndex(['process_id']);
+    	$exec->addIndex(['definition_id']);
     	$exec->addIndex(['started_at']);
     	$exec->addIndex(['ended_at']);
+    	$exec->addForeignKey(['process_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
+    	$exec->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id'], ['delete' => 'RESTRICT']);
     	$exec->create();
     	
     	$task = $this->table('#__bpmn_history_task');
@@ -47,7 +49,7 @@ class Version20150222100628 extends AbstractMigration
     	$task->addColumn('description', 'text', ['default' => NULL]);
     	$task->addColumn('assignee', 'varchar', ['default' => NULL]);
     	$task->addColumn('priority', 'int', ['unsigned' => true]);
-    	$task->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id']);
+    	$task->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
     	$task->create();
     	
     	$activity = $this->table('#__bpmn_history_activity');
@@ -63,8 +65,8 @@ class Version20150222100628 extends AbstractMigration
     	$activity->addIndex(['activity']);
     	$activity->addIndex(['started_at']);
     	$activity->addIndex(['ended_at']);
-    	$activity->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id']);
-    	$activity->addForeignKey(['task_id'], '#__bpmn_history_task', ['id']);
+    	$activity->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
+    	$activity->addForeignKey(['task_id'], '#__bpmn_history_task', ['id'], ['delete' => 'RESTRICT']);
     	$activity->create();
     }
     

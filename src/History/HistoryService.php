@@ -80,6 +80,7 @@ class HistoryService
 		$this->engine->getConnection()->insert('#__bpmn_history_execution', [
 			'id' => $event->execution->getId(),
 			'process_id' => $event->execution->getRootExecution()->getId(),
+			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
 			'started_at' => $this->createTimeStanpMillis($event->timestamp)
 		]);
 	}

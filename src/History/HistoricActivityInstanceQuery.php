@@ -26,6 +26,10 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 	
 	protected $processInstanceId;
 	
+	protected $processDefinitionId;
+	
+	protected $processDefinitionKey;
+	
 	protected $activityDefinitionKey;
 	
 	protected $completed;
@@ -59,6 +63,24 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 	{
 		$this->populateMultiProperty($this->processInstanceId, $id, function($value) {
 			return new UUID($value);
+		});
+	
+		return $this;
+	}
+	
+	public function processDefinitionId($id)
+	{
+		$this->populateMultiProperty($this->processDefinitionId, $id, function($value) {
+			return new UUID($value);
+		});
+	
+		return $this;
+	}
+	
+	public function processDefinitionKey($key)
+	{
+		$this->populateMultiProperty($this->processDefinitionKey, $key, function($value) {
+			return (string)$value;
 		});
 	
 		return $this;
@@ -146,6 +168,8 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		$activity = new HistoricActivityInstance(
 			$row['id'],
 			$row['execution_id'],
+			$row['definition_id'],
+			$row['process_key'],
 			$row['activity'],
 			$row['started_at']
 		);
@@ -173,10 +197,13 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		else
 		{
 			$fields[] = 'a.*';
+			$fields[] = 'e.`definition_id`';
+			$fields[] = 'd.`process_key`';
 		}
 	
 		$sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_history_activity` AS a';
 		$sql .= ' INNER JOIN `#__bpmn_history_execution` AS e ON (e.`id` = a.`execution_id`)';
+		$sql .= ' INNER JOIN `#__bpmn_process_definition` AS d ON (e.`definition_id` = d.`id`)';
 	
 		$where = [];
 		$params = [];
@@ -184,6 +211,8 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		$this->buildPredicate("a.`id`", $this->activityId, $where, $params);
 		$this->buildPredicate("e.`id`", $this->executionId, $where, $params);
 		$this->buildPredicate("e.`process_id`", $this->processInstanceId, $where, $params);
+		$this->buildPredicate('d.`id`', $this->processDefinitionId, $where, $params);
+		$this->buildPredicate('d.`process_key`', $this->processDefinitionKey, $where, $params);
 		$this->buildPredicate("a.`activity`", $this->activityDefinitionKey, $where, $params);
 		
 		if($this->completed === true)
@@ -217,6 +246,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		$stmt->setOffset($offset);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('execution_id', new UUIDTransformer());
+		$stmt->transform('definition_id', new UUIDTransformer());
 		$stmt->transform('task_id', new UUIDTransformer());
 		$stmt->transform('started_at', new DateTimeMillisTransformer());
 		$stmt->transform('ended_at', new DateTimeMillisTransformer());

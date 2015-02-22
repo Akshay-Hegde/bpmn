@@ -19,6 +19,10 @@ class HistoricActivityInstance implements \JsonSerializable
 	
 	protected $executionId;
 	
+	protected $processDefinitionId;
+	
+	protected $processDefinitionKey;
+	
 	protected $definitionKey;
 	
 	protected $startedAt;
@@ -29,10 +33,12 @@ class HistoricActivityInstance implements \JsonSerializable
 	
 	protected $completed = false;
 	
-	public function __construct(UUID $id, UUID $executionId, $definitionKey, \DateTimeInterface $startedAt)
+	public function __construct(UUID $id, UUID $executionId, UUID $processDefinitionId, $processDefinitionKey, $definitionKey, \DateTimeInterface $startedAt)
 	{
 		$this->id = $id;
 		$this->executionId = $executionId;
+		$this->processDefinitionId = $processDefinitionId;
+		$this->processDefinitionKey = (string)$processDefinitionKey;
 		$this->definitionKey = (string)$definitionKey;
 		$this->startedAt = clone $startedAt;
 	}
@@ -57,6 +63,16 @@ class HistoricActivityInstance implements \JsonSerializable
 	public function getExecutionId()
 	{
 		return $this->executionId;
+	}
+	
+	public function getProcessDefinitionId()
+	{
+		return $this->processDefinitionId;
+	}
+	
+	public function getProcessDefinitionKey()
+	{
+		return $this->processDefinitionKey;
 	}
 	
 	public function getDefinitionKey()

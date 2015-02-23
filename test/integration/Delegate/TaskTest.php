@@ -16,7 +16,7 @@ use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class TaskTest extends BusinessProcessTestCase
 {
-	protected $verified = false;
+	protected $verifiedEvent = false;
 		
 	/**
 	 * Test event is being triggered for manual tasks.
@@ -27,12 +27,12 @@ class TaskTest extends BusinessProcessTestCase
 		
 		$this->eventDispatcher->connect(function(TaskExecutedEvent $event) {
 			$this->assertEquals('test', $event->execution->getActivityId());
-			$this->verified = true;
+			$this->verifiedEvent = true;
 		});
 		
 		$this->runtimeService->startProcessInstanceByKey('Task1');
 		
-		$this->assertTrue($this->verified);
+		$this->assertTrue($this->verifiedEvent);
 	}
 	
 	/**
@@ -44,11 +44,11 @@ class TaskTest extends BusinessProcessTestCase
 	
 		$this->eventDispatcher->connect(function(TaskExecutedEvent $event) {
 			$this->assertEquals('test', $event->execution->getActivityId());
-			$this->verified = true;
+			$this->verifiedEvent = true;
 		});
 	
 		$this->runtimeService->startProcessInstanceByKey('Task2');
 
-		$this->assertTrue($this->verified);
+		$this->assertTrue($this->verifiedEvent);
 	}
 }

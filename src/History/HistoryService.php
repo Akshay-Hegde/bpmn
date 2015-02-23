@@ -85,7 +85,7 @@ class HistoryService
 			'id' => $event->execution->getId(),
 			'process_id' => $event->execution->getRootExecution()->getId(),
 			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
-			'started_at' => $this->createTimeStanpMillis($event->timestamp)
+			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
 	}
 	
@@ -97,7 +97,7 @@ class HistoryService
 				`duration` = :timestamp - `started_at`
 			WHERE `id` = :execution
 		");
-		$stmt->bindValue('timestamp', $this->createTimeStanpMillis($event->timestamp));
+		$stmt->bindValue('timestamp', DateTimeMillisTransformer::encode($event->timestamp));
 		$stmt->bindValue('execution', $event->execution->getId());
 		$stmt->execute();
 		
@@ -116,7 +116,7 @@ class HistoryService
 			'id' => UUID::createRandom(),
 			'execution_id' => $event->execution->getId(),
 			'activity' => $event->name,
-			'started_at' => $this->createTimeStanpMillis($event->timestamp)
+			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
 	}
 	
@@ -142,7 +142,7 @@ class HistoryService
 					`completed` = 1
 				WHERE `id` = :id
 			");
-			$stmt->bindValue('timestamp', $this->createTimeStanpMillis($event->timestamp));
+			$stmt->bindValue('timestamp', DateTimeMillisTransformer::encode($event->timestamp));
 			$stmt->bindValue('id', $id);
 			$stmt->execute();
 			
@@ -177,7 +177,7 @@ class HistoryService
 				SET `ended_at` = :timestamp
 				WHERE `id` = :id
 			");
-			$stmt->bindValue('timestamp', $this->createTimeStanpMillis($event->timestamp));
+			$stmt->bindValue('timestamp', DateTimeMillisTransformer::encode($event->timestamp));
 			$stmt->bindValue('id', $id);
 			$stmt->execute();
 			
@@ -201,7 +201,7 @@ class HistoryService
 			'definition_key' => $event->task->getDefinitionKey(),
 			'assignee' => $event->task->getAssignee(),
 			'priority' => $event->task->getPriority(),
-			'started_at' => $this->createTimeStanpMillis($event->timestamp)
+			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
 	}
 	
@@ -231,7 +231,7 @@ class HistoryService
 				`completed` = 1
 			WHERE `id` = :task
 		");
-		$stmt->bindValue('timestamp', $this->createTimeStanpMillis($event->timestamp));
+		$stmt->bindValue('timestamp', DateTimeMillisTransformer::encode($event->timestamp));
 		$stmt->bindValue('task', $event->task->getId());
 		$stmt->execute();
 		
@@ -242,10 +242,5 @@ class HistoryService
 		");
 		$stmt->bindValue('task', $event->task->getId());
 		$stmt->execute();
-	}
-	
-	protected function createTimeStanpMillis(\DateTimeInterface $date)
-	{
-		return $date->format('U') . sprintf('%03u', ceil((int)$date->format('u') / 1000));
 	}
 }

@@ -25,6 +25,11 @@ class DateTimeMillisTransformer
 			return NULL;
 		}
 		
-		return \DateTimeImmutable::createFromFormat('U.u', (float)$value / 1000);
+		return \DateTimeImmutable::createFromFormat('U.u', sprintf('%.03f', (float)$value / 1000));
+	}
+	
+	public static function encode(\DateTimeInterface $date)
+	{
+		return $date->format('U') . sprintf('%03u', ceil((int)$date->format('u') / 1000));
 	}
 }

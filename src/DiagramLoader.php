@@ -224,14 +224,22 @@ class DiagramLoader
 	
 	protected function parseScriptTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
 	{
-		$script = '';
-		
-		foreach($this->xpath->query('m:script', $el) as $scriptElement)
+		if($el->hasAttributeNS(self::NS_IMPL, 'resource'))
 		{
-			$script .= $scriptElement->textContent;
+			$scriptTask = $builder->scriptResourceTask($id, $el->getAttributeNS(self::NS_IMPL, 'resource'), $el->getAttribute('name'));
+		}
+		else
+		{
+			$script = '';
+			
+			foreach($this->xpath->query('m:script', $el) as $scriptElement)
+			{
+				$script .= $scriptElement->textContent;
+			}
+			
+			$scriptTask = $builder->scriptTask($id, $el->getAttribute('scriptFormat'), $script, $el->getAttribute('name'));
 		}
 		
-		$scriptTask = $builder->scriptTask($id, $el->getAttribute('scriptFormat'), $script, $el->getAttribute('name'));
 		$scriptTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
 		$scriptTask->setAsyncBefore($this->getAsyncBefore($el));
 		$scriptTask->setAsyncAfter($this->getAsyncAfter($el));

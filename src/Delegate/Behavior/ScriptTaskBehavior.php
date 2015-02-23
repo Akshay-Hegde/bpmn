@@ -25,17 +25,27 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 {
 	protected $language;
 	
-	protected $resultVariable;
+	protected $scriptResource;
 	
 	protected $script;
 	
-	public function __construct($activityId, $language, $script)
+	protected $resultVariable;
+	
+	public function __construct($activityId)
 	{
 		parent::__construct($activityId);
-		
-		$this->language = strtolower($language);
+	}
+	
+	public function setScriptResource($resource)
+	{
+		$this->scriptResource = (string)$resource;
+	}
+	
+	public function setScript($script, $language = 'php')
+	{
 		$this->script = (string)$script;
-				
+		$this->language = strtolower($language);
+		
 		if($this->language !== 'php')
 		{
 			throw new \InvalidArgumentException(sprintf('Only PHP is supported as scripting language, given "%s"', $this->language));
@@ -55,10 +65,25 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 		$engine = $execution->getEngine();
 		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
 		
-		$execution->getEngine()->debug('Evaluate <{language}> script task "{task}"', [
+		$engine->debug('Evaluate <{language}> script task "{task}"', [
 			'language' => $this->language,
 			'task' => $name
 		]);
+		
+		if($this->scriptResource !== NULL)
+		{
+			$process = $engine->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionId($execution->getProcessModel()->getId())->findOne();
+			$deployment = $engine->getRepositoryService()->createDeploymentQuery()->deploymentId($process->getDeploymentId())->findOne();
+			
+			$resource = $deployment->findResourceById($process->getResourceId());
+			
+			$file = str_replace('./', '', dirname($resource->getName()) . '/' . $this->scriptResource);
+			$script = '?>' . $deployment->findResource($file)->getContents();
+		}
+		else
+		{
+			$script = $this->script;
+		}
 		
 		// Isolate scope to prevent manipulation of local / instance variables:
 		$callback = function(DelegateExecution $execution, $script) {
@@ -70,7 +95,7 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 			$callback = $callback->bindTo(NULL, NULL);
 		}
 		
-		$result = $callback(new DelegateExecution($execution), $this->script);
+		$result = $callback(new DelegateExecution($execution), $script);
 		
 		if($this->resultVariable !== NULL)
 		{

@@ -275,11 +275,23 @@ class BusinessProcessBuilder
 	
 	public function scriptTask($id, $language, $script, $name = NULL)
 	{
-		$behavior = new ScriptTaskBehavior($id, strtolower($language), $script);
+		$behavior = new ScriptTaskBehavior($id);
+		$behavior->setScript($script, $language);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);
 		
+		return $behavior;
+	}
+	
+	public function scriptResourceTask($id, $resource, $name = NULL)
+	{
+		$behavior = new ScriptTaskBehavior($id);
+		$behavior->setScriptResource($resource);
+		$behavior->setName($this->stringExp($name));
+	
+		$this->builder->node($id)->behavior($behavior);
+	
 		return $behavior;
 	}
 	

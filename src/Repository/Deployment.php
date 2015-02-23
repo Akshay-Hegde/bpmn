@@ -23,6 +23,8 @@ class Deployment implements \JsonSerializable
 	
 	protected $deployDate;
 	
+	protected $resources;
+	
 	protected $engine;
 	
 	public function __construct(ProcessEngine $engine, UUID $id, $name, \DateTimeImmutable $deployDate)
@@ -62,25 +64,54 @@ class Deployment implements \JsonSerializable
 		return $this->engine;
 	}
 	
-	public function findResources()
+	public function findResourceById(UUID $id)
 	{
-		$resources = [];
-		
-		$sql = "	SELECT `id`, `name`
-					FROM `#__bpmn_resource`
-					WHERE `deployment_id` = :id
-					ORDER BY `name`
-		";
-		$stmt = $this->engine->prepareQuery($sql);
-		$stmt->bindValue('id', $this->id);
-		$stmt->transform('id', new UUIDTransformer());
-		$stmt->execute();
-		
-		while(false !== ($row = $stmt->fetchNextRow()))
+		foreach($this->findResources() as $resource)
 		{
-			$resources[$row['name']] = new DeployedResource($this, $row['id'], $row['name']);
+			if($resource->getId() == $id)
+			{
+				return $resource;
+			}
 		}
 		
-		return $resources;
+		throw new \OutOfBoundsException(sprintf('Resource %s not found in deployment %s', $id, $this->id));
+	}
+	
+	public function findResource($name)
+	{
+		foreach($this->findResources() as $n => $resource)
+		{
+			if($n == $name)
+			{
+				return $resource;
+			}
+		}
+		
+		throw new \OutOfBoundsException(sprintf('Resource "%s" not found in deployment %s', $name, $this->id));
+	}
+	
+	public function findResources()
+	{
+		if($this->resources === NULL)
+		{
+			$this->resources = [];
+			
+			$sql = "	SELECT `id`, `name`
+						FROM `#__bpmn_resource`
+						WHERE `deployment_id` = :id
+						ORDER BY `name`
+			";
+			$stmt = $this->engine->prepareQuery($sql);
+			$stmt->bindValue('id', $this->id);
+			$stmt->transform('id', new UUIDTransformer());
+			$stmt->execute();
+			
+			while(false !== ($row = $stmt->fetchNextRow()))
+			{
+				$this->resources[$row['name']] = new DeployedResource($this, $row['id'], $row['name']);
+			}
+		}
+		
+		return $this->resources;
 	}
 }

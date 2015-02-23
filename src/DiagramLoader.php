@@ -117,6 +117,8 @@ class DiagramLoader
 				return $this->parseScriptTask($id, $el, $builder);
 			case 'userTask':
 				return $this->parseUserTask($id, $el, $builder);
+			case 'task':
+				return $this->parseManualTask($id, $el, $builder);
 			case 'manualTask':
 				return $this->parseManualTask($id, $el, $builder);
 			case 'sendTask':

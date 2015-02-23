@@ -109,6 +109,13 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByActivityDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['a.`activity`', $ascending ? 'ASC' : 'DESC'];
+		
+		return $this;
+	}
+	
 	public function orderByStartedAt($ascending = true)
 	{
 		$this->orderings[] = ['a.`started_at`', $ascending ? 'ASC' : 'DESC'];

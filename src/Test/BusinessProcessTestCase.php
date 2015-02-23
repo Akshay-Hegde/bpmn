@@ -15,6 +15,7 @@ use KoolKode\BPMN\Delegate\DelegateTaskRegistry;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\History\HistoricActivityInstance;
 use KoolKode\BPMN\History\HistoryService;
 use KoolKode\BPMN\Job\Executor\JobExecutor;
 use KoolKode\BPMN\Job\Scheduler\TestJobScheduler;
@@ -295,5 +296,19 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		{
 			$this->dumpExecution($child);
 		}
+	}
+	
+	protected function findCompletedActivityDefinitionKeys(UUID $processId = NULL)
+	{
+		$query = $this->historyService->createHistoricActivityInstanceQuery()->completed(true)->orderByStartedAt();
+		
+		if($processId !== NULL)
+		{
+			$query->processInstanceId($processId);
+		}
+		
+		return array_map(function(HistoricActivityInstance $activity) {
+			return $activity->getDefinitionKey();
+		}, $query->findAll());
 	}
 }

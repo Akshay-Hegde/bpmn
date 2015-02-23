@@ -85,13 +85,13 @@ class RuntimeService
 		return $this->createProcessInstanceQuery()->processInstanceId($id)->findOne();
 	}
 	
-	public function getExecutionVariables(UUID $executionId)
+	public function getExecutionVariables(UUID $executionId, $local = false)
 	{
-		return $this->engine->executeCommand(new GetExecutionVariablesCommand($executionId));
+		return $this->engine->executeCommand(new GetExecutionVariablesCommand($executionId, $local));
 	}
 	
-	public function setExecutionVariable(UUID $executionId, $variableName, $variableValue)
+	public function setExecutionVariable(UUID $executionId, $variableName, $variableValue, $local = false)
 	{
-		$this->engine->executeCommand(new SetExecutionVariableCommand($executionId, $variableName, $variableValue));
+		$this->engine->executeCommand(new SetExecutionVariableCommand($executionId, $variableName, $variableValue, $local));
 	}
 }

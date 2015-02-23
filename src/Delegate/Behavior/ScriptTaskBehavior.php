@@ -60,7 +60,17 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 			'task' => $name
 		]);
 		
-		$result = eval($this->script);
+		// Isolate scope to prevent manipulation of local / instance variables:
+		$callback = function(DelegateExecution $execution, $script) {
+			return eval($script);
+		};
+		
+		if(method_exists($callback, 'bindTo'))
+		{
+			$callback = $callback->bindTo(NULL, NULL);
+		}
+		
+		$result = $callback(new DelegateExecution($execution), $this->script);
 		
 		if($this->resultVariable !== NULL)
 		{

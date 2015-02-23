@@ -237,8 +237,7 @@ class HistoryService
 		
 		$stmt = $this->engine->prepareQuery("
 			UPDATE `#__bpmn_history_task`
-			SET `duration` = `ended_at` - `started_at`,
-				`completed` = 1
+			SET `duration` = `ended_at` - `started_at`
 			WHERE `id` = :task
 		");
 		$stmt->bindValue('task', $event->task->getId());

@@ -43,7 +43,7 @@ class ExclusiveGatewayBehavior extends ExclusiveChoiceBehavior
 	
 		$result = parent::execute($execution);
 	
-		$engine->notice(new ActivityCompletedEvent($activityId, $execution, $engine));
+		$engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
 	
 		return $result;
 	}

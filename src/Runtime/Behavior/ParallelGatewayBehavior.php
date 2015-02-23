@@ -36,10 +36,8 @@ class ParallelGatewayBehavior extends SyncBehavior
 		
 		$engine->notify(new ActivityStartedEvent($activityId, $execution, $engine));
 		
-		$result = parent::execute($execution);
+		parent::execute($execution);
 		
-		$engine->notice(new ActivityCompletedEvent($activityId, $execution, $engine));
-		
-		return $result;
+		$engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
 	}
 }

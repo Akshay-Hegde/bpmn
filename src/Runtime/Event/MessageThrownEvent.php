@@ -11,9 +11,9 @@
 
 namespace KoolKode\BPMN\Runtime\Event;
 
+use KoolKode\BPMN\Delegate\DelegateExecutionInterface;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\ProcessEngineEvent;
-use KoolKode\BPMN\Runtime\ExecutionInterface;
 
 /**
  * Is triggered whenever a message needs to be thrown from an execution.
@@ -25,11 +25,11 @@ class MessageThrownEvent extends ProcessEngineEvent
 	/**
 	 * The execution throwing the message.
 	 * 
-	 * @var ExecutionInterface
+	 * @var DelegateExecutionInterface
 	 */
 	public $execution;
 	
-	public function __construct(ExecutionInterface $execution, ProcessEngine $engine)
+	public function __construct(DelegateExecutionInterface $execution, ProcessEngine $engine)
 	{
 		$this->execution = $execution;
 		$this->engine = $engine;

@@ -34,13 +34,14 @@ class IntermediateSignalThrowBehavior extends AbstractActivity
 	 */
 	public function enter(VirtualExecution $execution)
 	{
-		$execution->waitForSignal();
 		$execution->getEngine()->pushCommand(new SignalEventReceivedCommand(
 			$this->signalName,
 			NULL,
 			[],
 			$execution
 		));
+		
+		$execution->waitForSignal();
 	}
 	
 	/**

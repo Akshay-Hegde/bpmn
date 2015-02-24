@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Runtime\Command;
 
+use KoolKode\BPMN\Delegate\DelegateExecution;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
@@ -18,6 +19,8 @@ use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 
 /**
  * Notifies event listeners when a message throw event has been executed.
+ * 
+ * This command has lower priority leaving some time for concurrent executions to create subscriptions etc.
  * 
  * @author Martin Schröder
  */
@@ -53,18 +56,10 @@ class ThrowMessageCommand extends AbstractBusinessCommand
 	 */
 	public function executeCommand(ProcessEngine $engine)
 	{
-		// Need to sync here to preserve state at current node in execution loaded via query.
-		$engine->syncExecutions();
+		$execution = $engine->findExecution($this->executionId);
 		
-		$execution = $engine->getRuntimeService()
-							->createExecutionQuery()
-							->executionId($this->executionId)
-							->findOne();
+		$engine->notify(new MessageThrownEvent(new DelegateExecution($execution), $engine));
 		
-		// Signal execution to continue creating subscriptions etc...
-		$engine->findExecution($this->executionId)->signal();
-		
-		// Notifications should be domain events that are executed outside a transaction!
-		$engine->notify(new MessageThrownEvent($execution, $engine));
+		$execution->signal();
 	}
 }

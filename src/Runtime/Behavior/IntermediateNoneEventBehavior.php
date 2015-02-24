@@ -11,9 +11,10 @@
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
+use KoolKode\BPMN\Delegate\DelegateExecution;
 use KoolKode\BPMN\Engine\AbstractActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\BPMN\Runtime\Command\NotifyCheckpointCommand;
+use KoolKode\BPMN\Runtime\Event\CheckpointReachedEvent;
 
 /**
  * None events are used as checkpoints within a process.
@@ -27,21 +28,18 @@ class IntermediateNoneEventBehavior extends AbstractActivity
 	 */
 	public function enter(VirtualExecution $execution)
 	{
-		$execution->getEngine()->pushCommand(new NotifyCheckpointCommand(
-			$this->getStringValue($this->name, $execution->getExpressionContext()),	
-			$execution
-		));
+		$engine = $execution->getEngine();
 		
-		$execution->waitForSignal();
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
-	{
-		$this->passVariablesToExecution($execution, $variables);
-	
-		return $this->leave($execution);
+		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
+		
+		$engine->debug('{execution} reached checkpoint "{checkpoint}" ({node})', [
+			'execution' => (string)$execution,
+			'checkpoint' => $this->name,
+			'node' => $execution->getNode()->getId()
+		]);
+		
+		$engine->notify(new CheckpointReachedEvent($name, new DelegateExecution($execution), $engine));
+		
+		$this->leave($execution);
 	}
 }

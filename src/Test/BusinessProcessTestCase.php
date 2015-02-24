@@ -131,7 +131,9 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		// Provide message handler subscriptions.
 		$this->eventDispatcher->connect(function(MessageThrownEvent $event) {
 			
-			$key = $event->execution->getProcessDefinition()->getKey();
+			$def = $this->repositoryService->createProcessDefinitionQuery()->processDefinitionId($event->execution->getProcessDefinitionId())->findOne();
+			
+			$key = $def->getKey();
 			$id = $event->execution->getActivityId();
 			
 			if(isset($this->messageHandlers[$key][$id]))

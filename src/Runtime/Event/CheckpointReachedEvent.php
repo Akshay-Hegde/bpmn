@@ -11,9 +11,9 @@
 
 namespace KoolKode\BPMN\Runtime\Event;
 
+use KoolKode\BPMN\Delegate\DelegateExecutionInterface;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\ProcessEngineEvent;
-use KoolKode\BPMN\Runtime\ExecutionInterface;
 
 /**
  * Is triggered whenever a specific checkpoint within a process has been reached.
@@ -32,11 +32,11 @@ class CheckpointReachedEvent extends ProcessEngineEvent
 	/**
 	 * The execution throwing the message.
 	 * 
-	 * @var ExecutionInterface
+	 * @var DelegateExecutionInterface
 	 */
 	public $execution;
 	
-	public function __construct($name, ExecutionInterface $execution, ProcessEngine $engine)
+	public function __construct($name, DelegateExecutionInterface $execution, ProcessEngine $engine)
 	{
 		$this->name = (string)$name;
 		$this->execution = $execution;

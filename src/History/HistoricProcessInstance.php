@@ -33,13 +33,16 @@ class HistoricProcessInstance implements \JsonSerializable
 	
 	protected $duration;
 	
-	public function __construct(UUID $id, UUID $processDefinitionId, $processDefinitionKey, $startActivityId, \DateTimeInterface $startedAt)
+	protected $variables;
+	
+	public function __construct(UUID $id, UUID $processDefinitionId, $processDefinitionKey, $startActivityId, \DateTimeInterface $startedAt, array $variables = [])
 	{
 		$this->id = $id;
 		$this->processDefinitionId = $processDefinitionId;
 		$this->processDefinitionKey = (string)$processDefinitionKey;
 		$this->startActivityId = (string)$startActivityId;
 		$this->startedAt = clone $startedAt;
+		$this->variables = $variables;
 	}
 	
 	public function jsonSerialize()
@@ -125,5 +128,30 @@ class HistoricProcessInstance implements \JsonSerializable
 	public function isFinished()
 	{
 		return $this->endedAt !== NULL;
+	}
+	
+	public function hasVariable($name)
+	{
+		return array_key_exists($name, $this->variables);
+	}
+	
+	public function getVariable($name)
+	{
+		if(array_key_exists($name, $this->variables))
+		{
+			return $this->variables[$name];
+		}
+		
+		if(func_num_args() > 1)
+		{
+			return func_get_arg(1);
+		}
+		
+		throw new \OutOfBoundsException(sprintf('Variable "%s" not defined in process instance %s', $name, $this->id));
+	}
+	
+	public function getVariables()
+	{
+		return $this->variables;
 	}
 }

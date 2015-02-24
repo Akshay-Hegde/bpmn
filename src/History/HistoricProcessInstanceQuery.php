@@ -15,6 +15,7 @@ use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
+use KoolKode\BPMN\Engine\BinaryData;
 
 class HistoricProcessInstanceQuery extends AbstractQuery
 {
@@ -134,7 +135,8 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 			$row['definition_id'],
 			$row['process_key'],
 			$row['start_activity'],
-			$row['started_at']
+			$row['started_at'],
+			unserialize(BinaryData::decode($row['vars']))
 		);
 		
 		$process->setBusinessKey($row['business_key']);
@@ -160,10 +162,12 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 		else
 		{
 			$fields[] = 'p.*';
+			$fields[] = 'v.`data` AS vars';
 			$fields[] = 'd.`process_key`';
 		}
 	
 		$sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_history_process` AS p';
+		$sql .= ' INNER JOIN `#__bpmn_history_variables` AS v ON (v.`process_id` = p.`id`)';
 		$sql .= ' INNER JOIN `#__bpmn_process_definition` AS d ON (p.`definition_id` = d.`id`)';
 	
 		$where = [];

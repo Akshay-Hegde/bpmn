@@ -105,10 +105,20 @@ class HistoryService
 			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
 		
-		$this->engine->getConnection()->insert('#__bpmn_history_variables', [
-			'process_id' => $event->execution->getId(),
-			'data' => new BinaryData(serialize($event->variables))
-		]);
+// 		$this->engine->getConnection()->insert('#__bpmn_history_variables', [
+// 			'process_id' => $event->execution->getId(),
+// 			'data' => new BinaryData(serialize($event->variables))
+// 		]);
+		
+		$stmt = $this->engine->prepareQuery("
+			INSERT INTO `#__bpmn_history_variables`
+				(`process_id`, `data`)
+			VALUES
+				(:process, :vars)
+		");
+		$stmt->bindValue('process', $event->execution->getId());
+		$stmt->bindValue('vars', new BinaryData(serialize($event->variables)));
+		$stmt->execute();
 	}
 	
 	protected function recordExecutionModified(ExecutionModifiedEvent $event)
@@ -125,11 +135,22 @@ class HistoryService
 			'business_key' => $event->execution->getBusinessKey()
 		]);
 		
-		$this->engine->getConnection()->update('#__bpmn_history_variables', [
-			'process_id' => $event->execution->getId()
-		], [
-			'data' => new BinaryData(serialize($event->variables))
-		]);
+		// FIXME: insert() / update() do not encode binary data using decorator!
+		
+// 		$this->engine->getConnection()->update('#__bpmn_history_variables', [
+// 			'process_id' => $event->execution->getId()
+// 		], [
+// 			'data' => new BinaryData(serialize($event->variables))
+// 		]);
+
+		$stmt = $this->engine->prepareQuery("
+			UPDATE `#__bpmn_history_variables`
+			SET `data` = :vars
+			WHERE `process_id` = :process
+		");
+		$stmt->bindValue('vars', new BinaryData(serialize($event->variables)));
+		$stmt->bindValue('process', $event->execution->getId());
+		$stmt->execute();
 	}
 	
 	protected function recordExecutionTerminated(ExecutionTerminatedEvent $event)

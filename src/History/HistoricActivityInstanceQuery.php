@@ -221,11 +221,11 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		
 		if($this->canceled === true)
 		{
-			$where[] = 'a.`duration` IS NOT NULL AND a.`completed` = 0';
+			$where[] = '(a.`duration` IS NOT NULL AND a.`completed` = 0)';
 		}
 		elseif($this->canceled === false)
 		{
-			$where[] = 'a.`duration` IS NULL OR a.`completed` = 1';
+			$where[] = '(a.`duration` IS NULL OR a.`completed` = 1)';
 		}
 		
 		if(!empty($where))

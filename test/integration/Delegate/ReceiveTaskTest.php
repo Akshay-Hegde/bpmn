@@ -37,14 +37,14 @@ class ReceiveTaskTest extends BusinessProcessTestCase
 		{
 			if(!$execution->isScope() && $execution->isWaiting())
 			{
-				$this->runtimeService->signal($execution->getId(), ['test' => str_replace('\\', '.', __CLASS__)]);
+				$this->runtimeService->signal($execution->getId(), ['test' => __CLASS__]);
 			}
 		}
 		
 		$this->assertTrue($this->verifiedEvent);
 		$this->assertEquals(['start', 'receive1'], $this->findCompletedActivityDefinitionKeys());
 		$this->assertEquals([
-			'test' => str_replace('\\', '.', __CLASS__)
+			'test' => __CLASS__
 		], $this->runtimeService->getExecutionVariables($process->getId()));
 	}
 }

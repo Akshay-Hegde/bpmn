@@ -138,8 +138,6 @@ abstract class AbstractScopeActivity extends AbstractActivity
 		
 		$root->setConcurrent(true);
 		
-		$execution->getEngine()->syncExecutions();
-		
 		$this->createEventSubscriptions($root, $this->activityId, $execution->getProcessModel()->findNode($this->activityId));
 		
 		$exec->takeAll($transitions);

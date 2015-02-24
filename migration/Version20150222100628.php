@@ -23,36 +23,30 @@ class Version20150222100628 extends AbstractMigration
      */
     public function up()
     {
-    	$exec = $this->table('#__bpmn_history_execution');
+    	$exec = $this->table('#__bpmn_history_process');
     	$exec->addColumn('id', 'uuid', ['primary_key' => true]);
-    	$exec->addColumn('parent_id', 'uuid', ['default' => NULL]);
-    	$exec->addColumn('process_id', 'uuid');
     	$exec->addColumn('definition_id', 'uuid');
     	$exec->addColumn('business_key', 'varchar', ['default' => NULL]);
-    	$exec->addColumn('state', 'int', ['unsigned' => true]);
     	$exec->addColumn('start_activity', 'varchar');
     	$exec->addColumn('end_activity', 'varchar', ['default' => NULL]);
     	$exec->addColumn('started_at', 'bigint');
     	$exec->addColumn('ended_at', 'bigint', ['default' => NULL]);
     	$exec->addColumn('duration', 'bigint', ['default' => NULL, 'unsigned' => true]);
-    	$exec->addIndex(['process_id']);
     	$exec->addIndex(['definition_id']);
     	$exec->addIndex(['started_at']);
     	$exec->addIndex(['ended_at']);
-    	$exec->addForeignKey(['parent_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
-    	$exec->addForeignKey(['process_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
     	$exec->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id'], ['delete' => 'RESTRICT']);
     	$exec->create();
     	
     	$vars = $this->table('#__bpmn_history_variables');
-    	$vars->addColumn('execution_id', 'uuid', ['primary_key' => true]);
+    	$vars->addColumn('process_id', 'uuid', ['primary_key' => true]);
     	$vars->addColumn('data', 'blob');
-    	$vars->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id']);
+    	$vars->addForeignKey(['process_id'], '#__bpmn_history_process', ['id']);
     	$vars->create();
     	
     	$task = $this->table('#__bpmn_history_task');
     	$task->addColumn('id', 'uuid', ['primary_key' => true]);
-    	$task->addColumn('execution_id', 'uuid', ['default' => NULL]);
+    	$task->addColumn('process_id', 'uuid', ['default' => NULL]);
     	$task->addColumn('definition_key', 'varchar', ['default' => NULL]);
     	$task->addColumn('started_at', 'bigint');
     	$task->addColumn('ended_at', 'bigint', ['default' => NULL]);
@@ -61,23 +55,22 @@ class Version20150222100628 extends AbstractMigration
     	$task->addColumn('description', 'text', ['default' => NULL]);
     	$task->addColumn('assignee', 'varchar', ['default' => NULL]);
     	$task->addColumn('priority', 'int', ['unsigned' => true]);
-    	$task->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
+    	$task->addForeignKey(['process_id'], '#__bpmn_history_process', ['id'], ['delete' => 'RESTRICT']);
     	$task->create();
     	
     	$activity = $this->table('#__bpmn_history_activity');
     	$activity->addColumn('id', 'uuid', ['primary_key' => true]);
-    	$activity->addColumn('execution_id', 'uuid');
+    	$activity->addColumn('process_id', 'uuid');
     	$activity->addColumn('task_id', 'uuid', ['default' => NULL]);
     	$activity->addColumn('activity', 'varchar');
     	$activity->addColumn('started_at', 'bigint');
     	$activity->addColumn('ended_at', 'bigint', ['default' => NULL]);
     	$activity->addColumn('duration', 'bigint', ['default' => NULL, 'unsigned' => true]);
     	$activity->addColumn('completed', 'int', ['default' => 0, 'unsigned' => 1]);
-    	$activity->addIndex(['execution_id']);
     	$activity->addIndex(['activity']);
     	$activity->addIndex(['started_at']);
     	$activity->addIndex(['ended_at']);
-    	$activity->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
+    	$activity->addForeignKey(['process_id'], '#__bpmn_history_process', ['id'], ['delete' => 'RESTRICT']);
     	$activity->addForeignKey(['task_id'], '#__bpmn_history_task', ['id'], ['delete' => 'RESTRICT']);
     	$activity->create();
     }
@@ -90,6 +83,6 @@ class Version20150222100628 extends AbstractMigration
     	$this->dropTable('#__bpmn_history_activity');
     	$this->dropTable('#__bpmn_history_task');
     	$this->dropTable('#__bpmn_history_variables');
-    	$this->dropTable('#__bpmn_history_execution');
+    	$this->dropTable('#__bpmn_history_process');
     }
 }

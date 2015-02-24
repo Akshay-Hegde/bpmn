@@ -529,7 +529,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		$vars = empty($syncData['variables']) ? [] : $syncData['variables'];
 		
-		$this->notify(new ExecutionCreatedEvent($execution, $syncData['state'], $vars, $this));
+		$this->notify(new ExecutionCreatedEvent($execution, $vars, $this));
 		
 		return parent::syncNewExecution($execution, $syncData);
 	}
@@ -566,7 +566,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		$vars = empty($syncData['variables']) ? [] : $syncData['variables'];
 		
-		$this->notify(new ExecutionModifiedEvent($execution, $syncData['state'], $vars, $this));
+		$this->notify(new ExecutionModifiedEvent($execution, $vars, $this));
 		
 		return parent::syncModifiedExecution($execution, $syncData);
 	}

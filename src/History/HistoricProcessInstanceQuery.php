@@ -16,11 +16,9 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
-class HistoricActivityInstanceQuery extends AbstractQuery
+class HistoricProcessInstanceQuery extends AbstractQuery
 {
 	protected $engine;
-	
-	protected $activityId;
 	
 	protected $processInstanceId;
 	
@@ -28,24 +26,17 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 	
 	protected $processDefinitionKey;
 	
-	protected $activityDefinitionKey;
+	protected $processBusinessKey;
 	
-	protected $completed;
+	protected $startActivityId;
 	
-	protected $canceled;
+	protected $endActivityId;
+	
+	protected $finished;
 	
 	public function __construct(ProcessEngine $engine)
 	{
 		$this->engine = $engine;
-	}
-	
-	public function activityId($id)
-	{
-		$this->populateMultiProperty($this->activityId, $id, function($value) {
-			return new UUID($value);
-		});
-	
-		return $this;
 	}
 	
 	public function processInstanceId($id)
@@ -75,54 +66,31 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		return $this;
 	}
 	
-	public function activityDefinitionKey($definitionKey)
+	public function processBusinessKey($key)
 	{
-		$this->populateMultiProperty($this->activityDefinitionKey, $definitionKey, function($value) {
-			return (string)$value;
-		});
+		$this->populateMultiProperty($this->processBusinessKey, $key);
 	
 		return $this;
 	}
 	
-	public function completed($completed)
+	public function startActivityId($id)
 	{
-		$this->completed = $completed ? true : false;
+		$this->populateMultiProperty($this->startActivityId, $id);
+	
+		return $this;
+	}
+	
+	public function endActivityId($id)
+	{
+		$this->populateMultiProperty($this->endActivityId, $id);
+	
+		return $this;
+	}
+	
+	public function finished($finished)
+	{
+		$this->finished = $finished ? true : false;
 		
-		return $this;
-	}
-	
-	public function canceled($canceled)
-	{
-		$this->canceled = $canceled ? true : false;
-	
-		return $this;
-	}
-	
-	public function orderByActivityDefinitionKey($ascending = true)
-	{
-		$this->orderings[] = ['a.`activity`', $ascending ? 'ASC' : 'DESC'];
-		
-		return $this;
-	}
-	
-	public function orderByStartedAt($ascending = true)
-	{
-		$this->orderings[] = ['a.`started_at`', $ascending ? 'ASC' : 'DESC'];
-		
-		return $this;
-	}
-	
-	public function orderByEndedAt($ascending = true)
-	{
-		$this->orderings[] = ['a.`ended_at`', $ascending ? 'ASC' : 'DESC'];
-	
-		return $this;
-	}
-	
-	public function orderByDuration($ascending = true)
-	{
-		$this->orderings[] = ['a.`duration`', $ascending ? 'ASC' : 'DESC'];
-	
 		return $this;
 	}
 	
@@ -140,10 +108,10 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 	
 		if($row === false)
 		{
-			throw new \OutOfBoundsException(sprintf('No matching historic activity instance found'));
+			throw new \OutOfBoundsException(sprintf('No matching historic process instance found'));
 		}
 	
-		return $this->unserializeActivity($row);
+		return $this->unserializeProcess($row);
 	}
 	
 	public function findAll()
@@ -153,33 +121,32 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 	
 		while($row = $stmt->fetchNextRow())
 		{
-			$result[] = $this->unserializeActivity($row);
+			$result[] = $this->unserializeProcess($row);
 		}
 	
 		return $result;
 	}
 	
-	protected function unserializeActivity(array $row)
+	protected function unserializeProcess(array $row)
 	{
-		$activity = new HistoricActivityInstance(
+		$process = new HistoricProcessInstance(
 			$row['id'],
-			$row['process_id'],
 			$row['definition_id'],
 			$row['process_key'],
-			$row['activity'],
+			$row['start_activity'],
 			$row['started_at']
 		);
 		
-		$activity->setEndedAt($row['ended_at']);
+		$process->setBusinessKey($row['business_key']);
+		$process->setEndActivityId($row['end_activity']);
+		$process->setEndedAt($row['ended_at']);
 		
 		if($row['duration'] !== NULL)
 		{
-			$activity->setDuration((float)$row['duration'] / 1000 + .001);
+			$process->setDuration((float)$row['duration'] / 1000 + .001);
 		}
-		
-		$activity->setCompleted($row['completed']);
 	
-		return $activity;
+		return $process;
 	}
 	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
@@ -192,40 +159,30 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		}
 		else
 		{
-			$fields[] = 'a.*';
-			$fields[] = 'p.`definition_id`';
+			$fields[] = 'p.*';
 			$fields[] = 'd.`process_key`';
 		}
 	
-		$sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_history_activity` AS a';
-		$sql .= ' INNER JOIN `#__bpmn_history_process` AS p ON (p.`id` = a.`process_id`)';
+		$sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_history_process` AS p';
 		$sql .= ' INNER JOIN `#__bpmn_process_definition` AS d ON (p.`definition_id` = d.`id`)';
 	
 		$where = [];
 		$params = [];
 	
-		$this->buildPredicate("a.`id`", $this->activityId, $where, $params);
 		$this->buildPredicate("p.`id`", $this->processInstanceId, $where, $params);
+		$this->buildPredicate('p.`business_key`', $this->processBusinessKey, $where, $params);
+		$this->buildPredicate("p.`start_activity`", $this->startActivityId, $where, $params);
+		$this->buildPredicate("p.`end_activity`", $this->endActivityId, $where, $params);
 		$this->buildPredicate('d.`id`', $this->processDefinitionId, $where, $params);
 		$this->buildPredicate('d.`process_key`', $this->processDefinitionKey, $where, $params);
-		$this->buildPredicate("a.`activity`", $this->activityDefinitionKey, $where, $params);
 		
-		if($this->completed === true)
+		if($this->finished === true)
 		{
-			$where[] = 'a.`completed` = 1';
+			$where[] = 'p.`ended_at` IS NOT NULL';
 		}
-		elseif($this->completed === false)
+		elseif($this->finished === false)
 		{
-			$where[] = 'a.`completed` = 0';
-		}
-		
-		if($this->canceled === true)
-		{
-			$where[] = 'a.`duration` IS NOT NULL AND a.`completed` = 0';
-		}
-		elseif($this->canceled === false)
-		{
-			$where[] = 'a.`duration` IS NULL OR a.`completed` = 1';
+			$where[] = 'p.`ended_at` IS NULL';
 		}
 		
 		if(!empty($where))
@@ -240,9 +197,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->transform('id', new UUIDTransformer());
-		$stmt->transform('process_id', new UUIDTransformer());
 		$stmt->transform('definition_id', new UUIDTransformer());
-		$stmt->transform('task_id', new UUIDTransformer());
 		$stmt->transform('started_at', new DateTimeMillisTransformer());
 		$stmt->transform('ended_at', new DateTimeMillisTransformer());
 		$stmt->execute();

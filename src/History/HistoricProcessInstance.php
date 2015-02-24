@@ -13,7 +13,7 @@ namespace KoolKode\BPMN\History;
 
 use KoolKode\Util\UUID;
 
-class HistoricActivityInstance implements \JsonSerializable
+class HistoricProcessInstance implements \JsonSerializable
 {
 	protected $id;
 	
@@ -23,7 +23,11 @@ class HistoricActivityInstance implements \JsonSerializable
 	
 	protected $processDefinitionKey;
 	
-	protected $definitionKey;
+	protected $businessKey;
+	
+	protected $startActivityId;
+	
+	protected $endActivityId;
 	
 	protected $startedAt;
 	
@@ -31,15 +35,13 @@ class HistoricActivityInstance implements \JsonSerializable
 	
 	protected $duration;
 	
-	protected $completed = false;
-	
-	public function __construct(UUID $id, UUID $processInstanceId, UUID $processDefinitionId, $processDefinitionKey, $definitionKey, \DateTimeInterface $startedAt)
+	public function __construct(UUID $id, UUID $processInstanceId, UUID $processDefinitionId, $processDefinitionKey, $startActivityId, \DateTimeInterface $startedAt)
 	{
 		$this->id = $id;
 		$this->processInstanceId = $processInstanceId;
 		$this->processDefinitionId = $processDefinitionId;
 		$this->processDefinitionKey = (string)$processDefinitionKey;
-		$this->definitionKey = (string)$definitionKey;
+		$this->startActivityId = (string)$startActivityId;
 		$this->startedAt = clone $startedAt;
 	}
 	
@@ -50,11 +52,12 @@ class HistoricActivityInstance implements \JsonSerializable
 			'processInstanceId' => $this->processInstanceId,
 			'processDefinitionId' => $this->processDefinitionId,
 			'processDefinitionKey' => $this->processDefinitionKey,
-			'definitionKey' => $this->definitionKey,
+			'startActivityId' => $this->startActivityId,
+			'endActivityId' => $this->endActivityId,
 			'startedAt' => $this->startedAt->format(\DateTime::ISO8601),
-			'endetAt' => ($this->endedAt === NULL) ? NULL : $this->endedAt->format(\DateTime::ISO8601),
+			'endedAt' => ($this->endedAt === NULL) ? NULL : $this->endedAt->format(\DateTime::ISO8601),
 			'duration' => $this->duration,
-			'completed' => $this->completed
+			'finished' => $this->isFinished()
 		];
 	}
 	
@@ -78,9 +81,29 @@ class HistoricActivityInstance implements \JsonSerializable
 		return $this->processDefinitionKey;
 	}
 	
-	public function getDefinitionKey()
+	public function getBusinessKey()
 	{
-		return $this->definitionKey;
+		return $this->businessKey;
+	}
+	
+	public function setBusinessKey($businessKey = NULL)
+	{
+		$this->businessKey = ($businessKey === NULL) ? NULL : (string)$businessKey;
+	}
+	
+	public function getStartActivityId()
+	{
+		return $this->startActivityId;
+	}
+	
+	public function getEndActivityId()
+	{
+		return $this->endActivityId;
+	}
+	
+	public function setEndActivityId($endActivityId = NULL)
+	{
+		$this->endActivityId = ($endActivityId === NULL) ? NULL : (string)$endActivityId;
 	}
 	
 	public function getStartedAt()
@@ -108,13 +131,8 @@ class HistoricActivityInstance implements \JsonSerializable
 		$this->duration = ($duration === NULL) ? NULL : (float)$duration;
 	}
 	
-	public function isCompleted()
+	public function isFinished()
 	{
-		return $this->completed;
-	}
-	
-	public function setCompleted($completed)
-	{
-		$this->completed = $completed ? true : false;
+		return $this->endedAt !== NULL;
 	}
 }

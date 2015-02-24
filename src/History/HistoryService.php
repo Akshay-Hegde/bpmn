@@ -87,37 +87,37 @@ class HistoryService
 	
 	protected function recordExecutionCreated(ExecutionCreatedEvent $event)
 	{
-		$parent = $event->execution->getParentExecution();
+		if(!$event->execution->isRootExecution())
+		{
+			return;
+		}
 		
-		$this->engine->getConnection()->insert('#__bpmn_history_execution', [
+		$this->engine->getConnection()->insert('#__bpmn_history_process', [
 			'id' => $event->execution->getId(),
-			'parent_id' => ($parent === NULL) ? NULL : $parent->getId(),
-			'process_id' => $event->execution->getRootExecution()->getId(),
 			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
 			'business_key' => $event->execution->getBusinessKey(),
-			'state' => $event->state,
 			'start_activity' => $event->execution->getNode()->getId(),
 			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
 		
 		$this->engine->getConnection()->insert('#__bpmn_history_variables', [
-			'execution_id' => $event->execution->getId(),
+			'process_id' => $event->execution->getId(),
 			'data' => new BinaryData(serialize($event->variables))
 		]);
 	}
 	
 	protected function recordExecutionModified(ExecutionModifiedEvent $event)
 	{
-		$parent = $event->execution->getParentExecution();
+		if(!$event->execution->isRootExecution())
+		{
+			return;
+		}
 		
-		$this->engine->getConnection()->update('#__bpmn_history_execution', [
+		$this->engine->getConnection()->update('#__bpmn_history_process', [
 			'id' => $event->execution->getId()
 		], [
-			'process_id' => $event->execution->getRootExecution()->getId(),
-			'parent_id' => ($parent === NULL) ? NULL : $parent->getId(),
 			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
-			'business_key' => $event->execution->getBusinessKey(),
-			'state' => $event->state
+			'business_key' => $event->execution->getBusinessKey()
 		]);
 		
 		$this->engine->getConnection()->update('#__bpmn_history_variables', [
@@ -129,8 +129,13 @@ class HistoryService
 	
 	protected function recordExecutionTerminated(ExecutionTerminatedEvent $event)
 	{
+		if(!$event->execution->isRootExecution())
+		{
+			return;
+		}
+		
 		$stmt = $this->engine->prepareQuery("
-			UPDATE `#__bpmn_history_execution`
+			UPDATE `#__bpmn_history_process`
 			SET `ended_at` = :timestamp,
 				`duration` = :timestamp - `started_at`,
 				`end_activity` = :activity
@@ -142,7 +147,7 @@ class HistoryService
 		$stmt->execute();
 		
 		$stmt = $this->engine->prepareQuery("
-			UPDATE `#__bpmn_history_execution`
+			UPDATE `#__bpmn_history_process`
 			SET `duration` = `ended_at` - `started_at`
 			WHERE `id` = :execution
 		");
@@ -154,7 +159,7 @@ class HistoryService
 	{
 		$this->engine->getConnection()->insert('#__bpmn_history_activity', [
 			'id' => UUID::createRandom(),
-			'execution_id' => $event->execution->getId(),
+			'process_id' => $event->execution->getRootExecution()->getId(),
 			'activity' => $event->name,
 			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
@@ -165,11 +170,11 @@ class HistoryService
 		$stmt = $this->engine->prepareQuery("
 			SELECT `id`
 			FROM `#__bpmn_history_activity`
-			WHERE `execution_id` = :execution AND `activity` = :activity
+			WHERE `process_id` = :execution AND `activity` = :activity
 			ORDER BY `started_at` DESC
 		");
 		$stmt->setLimit(1);
-		$stmt->bindValue('execution', $event->execution->getId());
+		$stmt->bindValue('execution', $event->execution->getRootExecution()->getId());
 		$stmt->bindValue('activity', $event->name);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->execute();
@@ -201,11 +206,11 @@ class HistoryService
 		$stmt = $this->engine->prepareQuery("
 			SELECT `id`
 			FROM `#__bpmn_history_activity`
-			WHERE `execution_id` = :execution AND `activity` = :activity
+			WHERE `process_id` = :execution AND `activity` = :activity
 			ORDER BY `started_at` DESC
 		");
 		$stmt->setLimit(1);
-		$stmt->bindValue('execution', $event->execution->getId());
+		$stmt->bindValue('execution', $event->execution->getRootExecution()->getId());
 		$stmt->bindValue('activity', $event->name);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->execute();
@@ -233,11 +238,9 @@ class HistoryService
 	
 	protected function recordUserTaskCreated(UserTaskCreatedEvent $event)
 	{
-		$executionId = $event->task->getExecutionId();
-		
 		$this->engine->getConnection()->insert('#__bpmn_history_task', [
 			'id' => $event->task->getId(),
-			'execution_id' => $executionId,
+			'process_id' => $this->engine->findExecution($event->task->getExecutionId())->getRootExecution()->getId(),
 			'definition_key' => $event->task->getDefinitionKey(),
 			'assignee' => $event->task->getAssignee(),
 			'priority' => $event->task->getPriority(),

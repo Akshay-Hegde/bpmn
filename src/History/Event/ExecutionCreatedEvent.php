@@ -29,25 +29,17 @@ class ExecutionCreatedEvent extends AbstractAuditEvent
 	public $execution;
 	
 	/**
-	 * Internal execution state / flags.
-	 * 
-	 * @var integer
-	 */
-	public $state;
-	
-	/**
 	 * Execution variables to be recorded.
 	 *
 	 * @var array
 	 */
 	public $variables;
 	
-	public function __construct(VirtualExecution $execution, $state, array $variables, ProcessEngine $engine)
+	public function __construct(VirtualExecution $execution, array $variables, ProcessEngine $engine)
 	{
 		parent::__construct($engine);
 		
 		$this->execution = $execution;
-		$this->state = (int)$state;
 		$this->variables = $variables;
 	}
 }

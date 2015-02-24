@@ -126,7 +126,7 @@ class HistoryService
 		]);
 		
 		$this->engine->getConnection()->update('#__bpmn_history_variables', [
-			'execution_id' => $event->execution->getId()
+			'process_id' => $event->execution->getId()
 		], [
 			'data' => new BinaryData(serialize($event->variables))
 		]);

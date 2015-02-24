@@ -2,40 +2,25 @@
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd" id="__Avd8BcxEeSikp7EEUdgXA" exporter="camunda modeler" exporterVersion="2.6.0" targetNamespace="http://activiti.org/bpmn">
   <bpmn2:process id="EventBasedGateway1" name="Event Based Gateway 1" isExecutable="true">
     <bpmn2:documentation>Testing Gateway - Mortal Kombat Style :)</bpmn2:documentation>
-    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_1" name="Signal A&#xD;&#xA;received">
+    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_1" name="Novice">
       <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_8</bpmn2:outgoing>
       <bpmn2:signalEventDefinition id="_MessageEventDefinition_6" signalRef="Signal_1"/>
     </bpmn2:intermediateCatchEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_5" name="" sourceRef="IntermediateCatchEvent_1" targetRef="UserTask_1"/>
-    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_2" name="Signal B&#xD;&#xA;received">
+    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_2" name="Hard">
       <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
       <bpmn2:signalEventDefinition id="_SignalEventDefinition_6" signalRef="Signal_2"/>
     </bpmn2:intermediateCatchEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_6" name="" sourceRef="IntermediateCatchEvent_2" targetRef="UserTask_2"/>
-    <bpmn2:userTask id="UserTask_1" name="Play on Novice">
-      <bpmn2:incoming>SequenceFlow_5</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_12</bpmn2:outgoing>
-    </bpmn2:userTask>
-    <bpmn2:userTask id="UserTask_3" name="Play on Master">
-      <bpmn2:incoming>SequenceFlow_7</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_14</bpmn2:outgoing>
-    </bpmn2:userTask>
-    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_3" name="Signal C&#xD;&#xA;received">
+    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_3" name="Master">
       <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_7</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_10</bpmn2:outgoing>
       <bpmn2:signalEventDefinition id="_SignalEventDefinition_7" signalRef="Signal_3"/>
     </bpmn2:intermediateCatchEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_7" name="" sourceRef="IntermediateCatchEvent_3" targetRef="UserTask_3"/>
-    <bpmn2:startEvent id="StartEvent_1" name="Choose your&#xD;&#xA;destiny...">
+    <bpmn2:startEvent id="start" name="Choose your&#xD;&#xA;destiny...">
       <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
     </bpmn2:startEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="StartEvent_1" targetRef="EventBasedGateway_1"/>
-    <bpmn2:userTask id="UserTask_2" name="Play on Medium">
-      <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_13</bpmn2:outgoing>
-    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="start" targetRef="EventBasedGateway_1"/>
     <bpmn2:eventBasedGateway id="EventBasedGateway_1">
       <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
@@ -45,25 +30,25 @@
     <bpmn2:sequenceFlow id="SequenceFlow_2" name="" sourceRef="EventBasedGateway_1" targetRef="IntermediateCatchEvent_1"/>
     <bpmn2:sequenceFlow id="SequenceFlow_3" name="" sourceRef="EventBasedGateway_1" targetRef="IntermediateCatchEvent_2"/>
     <bpmn2:sequenceFlow id="SequenceFlow_4" name="" sourceRef="EventBasedGateway_1" targetRef="IntermediateCatchEvent_3"/>
-    <bpmn2:endEvent id="EndEvent_2" name="Fight!">
-      <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
+    <bpmn2:endEvent id="novice" name="Fight!">
+      <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
     </bpmn2:endEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_12" name="" sourceRef="UserTask_1" targetRef="EndEvent_2"/>
-    <bpmn2:endEvent id="EndEvent_3" name="Fight!">
-      <bpmn2:incoming>SequenceFlow_13</bpmn2:incoming>
+    <bpmn2:sequenceFlow id="SequenceFlow_8" name="" sourceRef="IntermediateCatchEvent_1" targetRef="novice"/>
+    <bpmn2:endEvent id="hard" name="Fight!">
+      <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
     </bpmn2:endEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_13" name="" sourceRef="UserTask_2" targetRef="EndEvent_3"/>
-    <bpmn2:endEvent id="EndEvent_4" name="Fight!">
-      <bpmn2:incoming>SequenceFlow_14</bpmn2:incoming>
+    <bpmn2:sequenceFlow id="SequenceFlow_9" name="" sourceRef="IntermediateCatchEvent_2" targetRef="hard"/>
+    <bpmn2:endEvent id="master" name="Fight">
+      <bpmn2:incoming>SequenceFlow_10</bpmn2:incoming>
     </bpmn2:endEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_14" name="" sourceRef="UserTask_3" targetRef="EndEvent_4"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_10" name="" sourceRef="IntermediateCatchEvent_3" targetRef="master"/>
   </bpmn2:process>
   <bpmn2:signal id="Signal_1" name="A"/>
   <bpmn2:signal id="Signal_2" name="B"/>
   <bpmn2:signal id="Signal_3" name="C"/>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="EventBasedGateway1">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_6" bpmnElement="StartEvent_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_6" bpmnElement="start">
         <dc:Bounds height="36.0" width="36.0" x="28.0" y="145.0"/>
         <bpmndi:BPMNLabel>
           <dc:Bounds height="38.0" width="89.0" x="2.0" y="186.0"/>
@@ -123,56 +108,26 @@
           <dc:Bounds height="6.0" width="6.0" x="178.0" y="254.0"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_UserTask_7" bpmnElement="UserTask_1">
-        <dc:Bounds height="80.0" width="100.0" x="300.0" y="24.0"/>
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_12" bpmnElement="novice">
+        <dc:Bounds height="36.0" width="36.0" x="300.0" y="46.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="SequenceFlow_5" sourceElement="_BPMNShape_IntermediateCatchEvent_8" targetElement="_BPMNShape_UserTask_7">
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_8" bpmnElement="SequenceFlow_8" sourceElement="_BPMNShape_IntermediateCatchEvent_8" targetElement="_BPMNShape_EndEvent_12">
         <di:waypoint xsi:type="dc:Point" x="250.0" y="64.0"/>
         <di:waypoint xsi:type="dc:Point" x="300.0" y="64.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="264.0" y="44.0"/>
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_UserTask_8" bpmnElement="UserTask_2">
-        <dc:Bounds height="80.0" width="100.0" x="300.0" y="124.0"/>
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_13" bpmnElement="hard">
+        <dc:Bounds height="36.0" width="36.0" x="300.0" y="146.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="SequenceFlow_6" sourceElement="_BPMNShape_IntermediateCatchEvent_9" targetElement="_BPMNShape_UserTask_8">
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_9" bpmnElement="SequenceFlow_9" sourceElement="_BPMNShape_IntermediateCatchEvent_9" targetElement="_BPMNShape_EndEvent_13">
         <di:waypoint xsi:type="dc:Point" x="250.0" y="164.0"/>
         <di:waypoint xsi:type="dc:Point" x="300.0" y="164.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="272.0" y="157.0"/>
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_UserTask_9" bpmnElement="UserTask_3">
-        <dc:Bounds height="80.0" width="100.0" x="300.0" y="224.0"/>
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_14" bpmnElement="master">
+        <dc:Bounds height="36.0" width="36.0" x="300.0" y="246.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="SequenceFlow_7" sourceElement="_BPMNShape_IntermediateCatchEvent_10" targetElement="_BPMNShape_UserTask_9">
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_10" bpmnElement="SequenceFlow_10" sourceElement="_BPMNShape_IntermediateCatchEvent_10" targetElement="_BPMNShape_EndEvent_14">
         <di:waypoint xsi:type="dc:Point" x="250.0" y="264.0"/>
         <di:waypoint xsi:type="dc:Point" x="300.0" y="264.0"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="272.0" y="264.0"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_9" bpmnElement="EndEvent_2">
-        <dc:Bounds height="36.0" width="36.0" x="450.0" y="46.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_12" bpmnElement="SequenceFlow_12" sourceElement="_BPMNShape_UserTask_7" targetElement="_BPMNShape_EndEvent_9">
-        <di:waypoint xsi:type="dc:Point" x="400.0" y="64.0"/>
-        <di:waypoint xsi:type="dc:Point" x="450.0" y="64.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_10" bpmnElement="EndEvent_3">
-        <dc:Bounds height="36.0" width="36.0" x="450.0" y="146.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_13" bpmnElement="SequenceFlow_13" sourceElement="_BPMNShape_UserTask_8" targetElement="_BPMNShape_EndEvent_10">
-        <di:waypoint xsi:type="dc:Point" x="400.0" y="164.0"/>
-        <di:waypoint xsi:type="dc:Point" x="450.0" y="164.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_11" bpmnElement="EndEvent_4">
-        <dc:Bounds height="36.0" width="36.0" x="450.0" y="246.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_14" bpmnElement="SequenceFlow_14" sourceElement="_BPMNShape_UserTask_9" targetElement="_BPMNShape_EndEvent_11">
-        <di:waypoint xsi:type="dc:Point" x="400.0" y="264.0"/>
-        <di:waypoint xsi:type="dc:Point" x="450.0" y="264.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

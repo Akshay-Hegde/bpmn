@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Gateway;
 
+use KoolKode\BPMN\History\HistoricProcessInstance;
 use KoolKode\BPMN\Task\TaskInterface;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
@@ -19,9 +20,9 @@ class EventBaseGatewayTest extends BusinessProcessTestCase
 	public function provider1()
 	{
 		return [
-			['A', 'Play on Novice'],
-			['B', 'Play on Medium'],
-			['C', 'Play on Master']
+			['A', 'novice'],
+			['B', 'hard'],
+			['C', 'master']
 		];
 	}
 	
@@ -33,22 +34,21 @@ class EventBaseGatewayTest extends BusinessProcessTestCase
 		$this->deployFile('EventBasedGateway1.bpmn');
 		
 		$process = $this->runtimeService->startProcessInstanceByKey('EventBasedGateway1');
+		$this->assertTrue($process instanceof HistoricProcessInstance);
+		$this->assertFalse($process->isFinished());
+		$this->assertEquals('start', $process->getStartActivityId());
+		
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('A')->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('B')->count());
 		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('C')->count());
 		
 		$this->runtimeService->signalEventReceived($signal);
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('A')->count());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('B')->count());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('C')->count());
-		
-		$task = $this->taskService->createTaskQuery()->processInstanceId($process->getId())->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals($mode, $task->getName());
-		
-		$this->taskService->complete($task->getId());
 		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
+		
+		$process = $this->historyService->createHistoricProcessInstanceQuery()->processInstanceId($process->getId())->findOne();
+		$this->assertTrue($process instanceof HistoricProcessInstance);
+		$this->assertTrue($process->isFinished());
+		$this->assertEquals($mode, $process->getEndActivityId());
 	}
 }

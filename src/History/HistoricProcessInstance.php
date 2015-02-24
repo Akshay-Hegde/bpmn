@@ -51,6 +51,7 @@ class HistoricProcessInstance implements \JsonSerializable
 			'id' => $this->id,
 			'processDefinitionId' => $this->processDefinitionId,
 			'processDefinitionKey' => $this->processDefinitionKey,
+			'businessKey' => $this->businessKey,
 			'startActivityId' => $this->startActivityId,
 			'endActivityId' => $this->endActivityId,
 			'startedAt' => $this->startedAt->format(\DateTime::ISO8601),

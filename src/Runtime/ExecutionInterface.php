@@ -23,13 +23,6 @@ use KoolKode\Util\UUID;
 interface ExecutionInterface
 {
 	/**
-	 * Check if the execution is a root execution = process instance.
-	 * 
-	 * @return boolean
-	 */
-	public function isProcessInstance();
-	
-	/**
 	 * Get the unique identifier of this execution.
 	 * 
 	 * @return UUID
@@ -64,6 +57,48 @@ interface ExecutionInterface
 	 * @return string Identifier of activity being executed or NULL when the execution has terminated.
 	 */
 	public function getActivityId();
+	
+	/**
+	 * Check if the execution is a process instance.
+	 * 
+	 * @return boolean
+	 */
+	public function isProcessInstance();
+	
+	/**
+	 * Check if the execution is active.
+	 * 
+	 * @return boolean
+	 */
+	public function isActive();
+	
+	/**
+	 * Check if the execution is concurrent.
+	 * 
+	 * @return boolean
+	 */
+	public function isConcurrent();
+	
+	/**
+	 * Check if the execution is a scope.
+	 *
+	 * @return boolean
+	 */
+	public function isScope();
+	
+	/**
+	 * Check if the execution is a scope root.
+	 *
+	 * @return boolean
+	 */
+	public function isScopeRoot();
+	
+	/**
+	 * Check if the execution is waiting for a signal.
+	 *
+	 * @return boolean
+	 */
+	public function isWaiting();
 	
 	/**
 	 * Check if this execution has been teminated.

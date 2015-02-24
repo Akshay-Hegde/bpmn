@@ -52,6 +52,48 @@ interface DelegateExecutionInterface
 	public function getBusinessKey();
 	
 	/**
+	 * Check if the execution is a process instance.
+	 * 
+	 * @return boolean
+	 */
+	public function isProcessInstance();
+	
+	/**
+	 * Check if the execution is active.
+	 * 
+	 * @return boolean
+	 */
+	public function isActive();
+	
+	/**
+	 * Check if the execution is concurrent.
+	 * 
+	 * @return boolean
+	 */
+	public function isConcurrent();
+	
+	/**
+	 * Check if the execution is a scope.
+	 *
+	 * @return boolean
+	 */
+	public function isScope();
+	
+	/**
+	 * Check if the execution is a scope root.
+	 *
+	 * @return boolean
+	 */
+	public function isScopeRoot();
+	
+	/**
+	 * Check if the execution is waiting for a signal.
+	 *
+	 * @return boolean
+	 */
+	public function isWaiting();
+	
+	/**
 	 * Create an expression context bound to the underlying execution.
 	 * 
 	 * @return ExpressionContextInterface

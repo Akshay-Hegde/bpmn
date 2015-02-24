@@ -22,11 +22,17 @@ class DelegateExecution implements DelegateExecutionInterface
 		$this->execution = $execution;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getExecutionId()
 	{
 		return $this->execution->getId();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getActivityId()
 	{
 		$node = $this->execution->getNode();
@@ -34,26 +40,89 @@ class DelegateExecution implements DelegateExecutionInterface
 		return ($node === NULL) ? NULL : $node->getId();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getProcessInstanceId()
 	{
 		return $this->execution->getRootExecution()->getId();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isProcessInstance()
+	{
+		return $this->execution->isRootExecution();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isActive()
+	{
+		return $this->execution->isActive();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isConcurrent()
+	{
+		return $this->execution->isConcurrent();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isScope()
+	{
+		return $this->execution->isScope();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isScopeRoot()
+	{
+		return $this->execution->isScopeRoot();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isWaiting()
+	{
+		return $this->execution->isWaiting();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getBusinessKey()
 	{
 		return $this->execution->getBusinessKey();
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getExpressionContext()
 	{
 		return $this->execution->getExpressionContext();
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
 	public function hasVariable($name)
 	{
 		return $this->execution->hasVariable($name);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function getVariable($name)
 	{
 		if(func_num_args() > 1)
@@ -64,11 +133,17 @@ class DelegateExecution implements DelegateExecutionInterface
 		return $this->execution->getVariable($name);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function setVariable($name, $value)
 	{
 		$this->execution->setVariable($name, $value);
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function removeVariable($name)
 	{
 		$this->execution->removeVariable($name);

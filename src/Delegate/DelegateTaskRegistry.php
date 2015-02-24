@@ -20,6 +20,9 @@ class DelegateTaskRegistry implements DelegateTaskFactoryInterface
 		$this->tasks[($typeName === NULL) ? get_class($task) : (string)$typeName] = $task;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 */
 	public function createDelegateTask($typeName)
 	{
 		if(isset($this->tasks[$typeName]))

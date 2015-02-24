@@ -13,6 +13,7 @@ namespace KoolKode\BPMN;
 
 use KoolKode\BPMN\Delegate\Behavior\DelegateTaskBehavior;
 use KoolKode\BPMN\Delegate\Behavior\ExpressionTaskBehavior;
+use KoolKode\BPMN\Delegate\Behavior\ReceiveTaskBehavior;
 use KoolKode\BPMN\Delegate\Behavior\ScriptTaskBehavior;
 use KoolKode\BPMN\Delegate\Behavior\TaskBehavior;
 use KoolKode\BPMN\Runtime\Behavior\CallActivityBehavior;
@@ -246,6 +247,16 @@ class BusinessProcessBuilder
 	public function expressionTask($id, $expression, $name = NULL)
 	{
 		$behavior = new ExpressionTaskBehavior($id, $this->exp($expression));
+		$behavior->setName($this->stringExp($name));
+		
+		$this->builder->node($id)->behavior($behavior);
+		
+		return $behavior;
+	}
+	
+	public function receiveTask($id, $name = NULL)
+	{
+		$behavior = new ReceiveTaskBehavior($id);
 		$behavior->setName($this->stringExp($name));
 		
 		$this->builder->node($id)->behavior($behavior);

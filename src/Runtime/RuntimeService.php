@@ -17,6 +17,7 @@ use KoolKode\BPMN\Runtime\Command\GetExecutionVariablesCommand;
 use KoolKode\BPMN\Runtime\Command\MessageEventReceivedCommand;
 use KoolKode\BPMN\Runtime\Command\SetExecutionVariableCommand;
 use KoolKode\BPMN\Runtime\Command\SignalEventReceivedCommand;
+use KoolKode\BPMN\Runtime\Command\SignalVirtualExecutionCommand;
 use KoolKode\BPMN\Runtime\Command\StartProcessInstanceCommand;
 use KoolKode\Util\UUID;
 
@@ -44,6 +45,11 @@ class RuntimeService
 		return new MessageCorrelation($this, $messageName);
 	}
 	
+	public function signal(UUID $executionId, array $variables = [])
+	{
+		$this->engine->pushCommand(new SignalVirtualExecutionCommand($executionId, NULL, $variables));
+	}
+	
 	public function messageEventReceived($messageName, UUID $executionId, array $variables = [])
 	{
 		$this->engine->pushCommand(new MessageEventReceivedCommand($messageName, $executionId, $variables));
@@ -67,11 +73,8 @@ class RuntimeService
 	{
 		$query = $this->engine->getRepositoryService()->createProcessDefinitionQuery();
 		$def = $query->processDefinitionKey($processDefinitionKey)->latestVersion()->findOne();
-		$startNode = $def->findNoneStartEvent();
 		
-		$id = $this->engine->executeCommand(new StartProcessInstanceCommand($def, $startNode, $businessKey, $variables));
-		
-		return $this->createProcessInstanceQuery()->processInstanceId($id)->findOne();
+		return $this->startProcessInstance($def, $businessKey, $variables);
 	}
 	
 	public function startProcessInstanceByMessage($messageName, $businessKey = NULL, array $variables = [])

@@ -160,7 +160,7 @@ class ExecutionQuery extends AbstractQuery
 			$row['process_id'],
 			$row['pid'],
 			$row['node'],
-			(int)$row['state'] & \KoolKode\Process\Execution::STATE_TERMINATE,
+			$row['state'],
 			$row['business_key']
 		);
 	}

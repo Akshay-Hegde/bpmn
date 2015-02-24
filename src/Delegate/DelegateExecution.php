@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Delegate;
 
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\Util\UUID;
 
 class DelegateExecution implements DelegateExecutionInterface
 {
@@ -46,6 +47,14 @@ class DelegateExecution implements DelegateExecutionInterface
 	public function getProcessInstanceId()
 	{
 		return $this->execution->getRootExecution()->getId();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getProcessDefinitionId()
+	{
+		return new UUID($this->execution->getProcessModel()->getId());
 	}
 	
 	/**

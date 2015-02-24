@@ -45,6 +45,13 @@ interface DelegateExecutionInterface
 	public function getProcessInstanceId();
 	
 	/**
+	 * Get the ID of the process definition that defined the process being executed.
+	 * 
+	 * @return UUID
+	 */
+	public function getProcessDefinitionId();
+	
+	/**
 	 * Get the business key of the underlying process instance.
 	 * 
 	 * @return string or NULL when no business key is set.

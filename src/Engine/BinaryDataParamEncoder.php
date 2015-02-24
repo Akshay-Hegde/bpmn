@@ -14,7 +14,6 @@ namespace KoolKode\BPMN\Engine;
 use KoolKode\Database\ConnectionInterface;
 use KoolKode\Database\ParamEncoderInterface;
 use KoolKode\Stream\StringStream;
-use KoolKode\Database\DB;
 
 /**
  * Encodes binary values with optional comporession.
@@ -28,11 +27,6 @@ class BinaryDataParamEncoder implements ParamEncoderInterface
 		if($param instanceof BinaryData)
 		{
 			$isEncoded = true;
-			
-			if($conn->getDriverName() == DB::DRIVER_POSTGRESQL)
-			{
-				return new StringStream(str_replace('\\', '\\\\', $param->encode()));
-			}
 			
 			return new StringStream($param->encode());
 		}

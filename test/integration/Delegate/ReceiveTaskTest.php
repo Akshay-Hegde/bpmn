@@ -37,14 +37,16 @@ class ReceiveTaskTest extends BusinessProcessTestCase
 		{
 			if(!$execution->isScope() && $execution->isWaiting())
 			{
-				$this->runtimeService->signal($execution->getId(), ['test' => __CLASS__]);
+				// FIXME: PostgreSQL breaks when storing value of __CLASS__ directly, investigate and fix error in DB package.
+				
+				$this->runtimeService->signal($execution->getId(), ['test' => str_replace('\\', '.', __CLASS__)]);
 			}
 		}
 		
 		$this->assertTrue($this->verifiedEvent);
 		$this->assertEquals(['start', 'receive1'], $this->findCompletedActivityDefinitionKeys());
 		$this->assertEquals([
-			'test' => __CLASS__
+			'test' => str_replace('\\', '.', __CLASS__)
 		], $this->runtimeService->getExecutionVariables($process->getId()));
 	}
 }

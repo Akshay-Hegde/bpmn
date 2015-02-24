@@ -85,6 +85,7 @@ class HistoryService
 			'id' => $event->execution->getId(),
 			'process_id' => $event->execution->getRootExecution()->getId(),
 			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
+			'start_activity' => $event->execution->getNode()->getId(),
 			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
 		]);
 	}
@@ -94,10 +95,12 @@ class HistoryService
 		$stmt = $this->engine->prepareQuery("
 			UPDATE `#__bpmn_history_execution`
 			SET `ended_at` = :timestamp,
-				`duration` = :timestamp - `started_at`
+				`duration` = :timestamp - `started_at`,
+				`end_activity` = :activity
 			WHERE `id` = :execution
 		");
 		$stmt->bindValue('timestamp', DateTimeMillisTransformer::encode($event->timestamp));
+		$stmt->bindValue('activity', $event->execution->getNode()->getId());
 		$stmt->bindValue('execution', $event->execution->getId());
 		$stmt->execute();
 		

@@ -48,10 +48,13 @@ class HistoricActivityInstance implements \JsonSerializable
 		return [
 			'id' => $this->id,
 			'executionId' => $this->executionId,
+			'processDefinitionId' => $this->processDefinitionId,
+			'processDefinitionKey' => $this->processDefinitionKey,
 			'definitionKey' => $this->definitionKey,
 			'startedAt' => $this->startedAt->format(\DateTime::ISO8601),
 			'endetAt' => ($this->endedAt === NULL) ? NULL : $this->endedAt->format(\DateTime::ISO8601),
-			'duration' => $this->duration
+			'duration' => $this->duration,
+			'completed' => $this->completed
 		];
 	}
 	

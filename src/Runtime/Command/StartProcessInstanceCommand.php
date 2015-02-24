@@ -67,8 +67,11 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 		$def = $engine->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionId($this->definitionId)->findOne();
 		$definition = $def->getModel();
 
+		$startNode = $definition->findNode($this->startNodeId);
+		
 		$process = new VirtualExecution(UUID::createRandom(), $engine, $definition);
 		$process->setBusinessKey($this->businessKey);
+		$process->setNode($startNode);
 		
 		foreach(unserialize($this->variables) as $k => $v)
 		{
@@ -83,7 +86,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
 			'id' => (string)$def->getId()
 		]);
 		
-		$process->execute($definition->findNode($this->startNodeId));
+		$process->execute($startNode);
 			
 		return $process->getId();
 	}

@@ -27,6 +27,8 @@ class Version20150222100628 extends AbstractMigration
     	$exec->addColumn('id', 'uuid', ['primary_key' => true]);
     	$exec->addColumn('process_id', 'uuid');
     	$exec->addColumn('definition_id', 'uuid');
+    	$exec->addColumn('start_activity', 'varchar');
+    	$exec->addColumn('end_activity', 'varchar', ['default' => NULL]);
     	$exec->addColumn('started_at', 'bigint');
     	$exec->addColumn('ended_at', 'bigint', ['default' => NULL]);
     	$exec->addColumn('duration', 'bigint', ['default' => NULL, 'unsigned' => true]);

@@ -49,8 +49,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
 			'execution' => (string)$execution
 		]);
 		
-		$root = $execution->createNestedExecution($execution->getProcessModel(), true);
-		$root->setNode($execution->getNode());
+		$root = $execution->createNestedExecution($execution->getProcessModel(), $execution->getNode(), true);
 		$root->waitForSignal();
 		
 		$this->createEventSubscriptions($root, $this->activityId, $execution->getNode());

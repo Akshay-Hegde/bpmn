@@ -79,7 +79,9 @@ class CallActivityBehavior extends AbstractScopeActivity
 			throw new \RuntimeException(sprintf('Missing single non start event in process %s', $definition->getKey()));
 		}
 		
-		$sub = $execution->createNestedExecution($definition->getModel(), true, true);
+		$startNode = array_shift($start);
+		
+		$sub = $execution->createNestedExecution($definition->getModel(), $startNode, true, true);
 		
 		foreach($this->inputs as $target => $source)
 		{
@@ -95,7 +97,7 @@ class CallActivityBehavior extends AbstractScopeActivity
 		
 		$execution->waitForSignal();
 		
-		$sub->execute(array_shift($start));
+		$sub->execute($startNode);
 	}
 	
 	/**

@@ -61,7 +61,8 @@ class SubProcessBehavior extends AbstractScopeActivity
 		
 		$execution->waitForSignal();
 		
-		$sub = $execution->createNestedExecution($model, true, true);
+		$sub = $execution->createNestedExecution($model, $startNode, true, true);
+		
 		$sub->execute($startNode);
 	}
 	

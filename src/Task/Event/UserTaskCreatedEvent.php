@@ -31,7 +31,7 @@ class UserTaskCreatedEvent extends AbstractAuditEvent
 	
 	public function __construct(TaskInterface $task, ProcessEngine $engine)
 	{
-		parent::__construct($engine);
+		parent::__construct($engine, true);
 		
 		$this->task = $task;
 	}

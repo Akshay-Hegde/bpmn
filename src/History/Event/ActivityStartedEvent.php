@@ -37,7 +37,7 @@ class ActivityStartedEvent extends AbstractAuditEvent
 	
 	public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
 	{
-		parent::__construct($engine);
+		parent::__construct($engine, true);
 		
 		$this->name = (string)$name;
 		$this->execution = $execution;

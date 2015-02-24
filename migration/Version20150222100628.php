@@ -25,8 +25,11 @@ class Version20150222100628 extends AbstractMigration
     {
     	$exec = $this->table('#__bpmn_history_execution');
     	$exec->addColumn('id', 'uuid', ['primary_key' => true]);
+    	$exec->addColumn('parent_id', 'uuid', ['default' => NULL]);
     	$exec->addColumn('process_id', 'uuid');
     	$exec->addColumn('definition_id', 'uuid');
+    	$exec->addColumn('business_key', 'varchar', ['default' => NULL]);
+    	$exec->addColumn('state', 'int', ['unsigned' => true]);
     	$exec->addColumn('start_activity', 'varchar');
     	$exec->addColumn('end_activity', 'varchar', ['default' => NULL]);
     	$exec->addColumn('started_at', 'bigint');
@@ -36,9 +39,16 @@ class Version20150222100628 extends AbstractMigration
     	$exec->addIndex(['definition_id']);
     	$exec->addIndex(['started_at']);
     	$exec->addIndex(['ended_at']);
+    	$exec->addForeignKey(['parent_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
     	$exec->addForeignKey(['process_id'], '#__bpmn_history_execution', ['id'], ['delete' => 'RESTRICT']);
     	$exec->addForeignKey(['definition_id'], '#__bpmn_process_definition', ['id'], ['delete' => 'RESTRICT']);
     	$exec->create();
+    	
+    	$vars = $this->table('#__bpmn_history_variables');
+    	$vars->addColumn('execution_id', 'uuid', ['primary_key' => true]);
+    	$vars->addColumn('data', 'blob');
+    	$vars->addForeignKey(['execution_id'], '#__bpmn_history_execution', ['id']);
+    	$vars->create();
     	
     	$task = $this->table('#__bpmn_history_task');
     	$task->addColumn('id', 'uuid', ['primary_key' => true]);
@@ -79,6 +89,7 @@ class Version20150222100628 extends AbstractMigration
     {
     	$this->dropTable('#__bpmn_history_activity');
     	$this->dropTable('#__bpmn_history_task');
+    	$this->dropTable('#__bpmn_history_variables');
     	$this->dropTable('#__bpmn_history_execution');
     }
 }

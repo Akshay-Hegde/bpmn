@@ -11,12 +11,14 @@
 
 namespace KoolKode\BPMN\History;
 
+use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\History\Event\AbstractAuditEvent;
 use KoolKode\BPMN\History\Event\ActivityCanceledEvent;
 use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
 use KoolKode\BPMN\History\Event\ActivityStartedEvent;
 use KoolKode\BPMN\History\Event\ExecutionCreatedEvent;
+use KoolKode\BPMN\History\Event\ExecutionModifiedEvent;
 use KoolKode\BPMN\History\Event\ExecutionTerminatedEvent;
 use KoolKode\BPMN\Task\Event\UserTaskClaimedEvent;
 use KoolKode\BPMN\Task\Event\UserTaskCompletedEvent;
@@ -44,6 +46,10 @@ class HistoryService
 		if($event instanceof ExecutionCreatedEvent)
 		{
 			$this->recordExecutionCreated($event);
+		}
+		elseif($event instanceof ExecutionModifiedEvent)
+		{
+			$this->recordExecutionModified($event);
 		}
 		elseif($event instanceof ExecutionTerminatedEvent)
 		{
@@ -81,12 +87,43 @@ class HistoryService
 	
 	protected function recordExecutionCreated(ExecutionCreatedEvent $event)
 	{
+		$parent = $event->execution->getParentExecution();
+		
 		$this->engine->getConnection()->insert('#__bpmn_history_execution', [
 			'id' => $event->execution->getId(),
+			'parent_id' => ($parent === NULL) ? NULL : $parent->getId(),
 			'process_id' => $event->execution->getRootExecution()->getId(),
 			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
+			'business_key' => $event->execution->getBusinessKey(),
+			'state' => $event->state,
 			'start_activity' => $event->execution->getNode()->getId(),
 			'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
+		]);
+		
+		$this->engine->getConnection()->insert('#__bpmn_history_variables', [
+			'execution_id' => $event->execution->getId(),
+			'data' => new BinaryData(serialize($event->variables))
+		]);
+	}
+	
+	protected function recordExecutionModified(ExecutionModifiedEvent $event)
+	{
+		$parent = $event->execution->getParentExecution();
+		
+		$this->engine->getConnection()->update('#__bpmn_history_execution', [
+			'id' => $event->execution->getId()
+		], [
+			'process_id' => $event->execution->getRootExecution()->getId(),
+			'parent_id' => ($parent === NULL) ? NULL : $parent->getId(),
+			'definition_id' => new UUID($event->execution->getProcessModel()->getId()),
+			'business_key' => $event->execution->getBusinessKey(),
+			'state' => $event->state
+		]);
+		
+		$this->engine->getConnection()->update('#__bpmn_history_variables', [
+			'execution_id' => $event->execution->getId()
+		], [
+			'data' => new BinaryData(serialize($event->variables))
 		]);
 	}
 	

@@ -15,11 +15,11 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 
 /**
- * Is triggered whenever an execution has been created. 
+ * Is triggered during sync whenever an execution has been modified.
  * 
  * @author Martin Schröder
  */
-class ExecutionCreatedEvent extends AbstractAuditEvent
+class ExecutionModifiedEvent extends AbstractAuditEvent
 {
 	/**
 	 * The created execution.
@@ -37,7 +37,7 @@ class ExecutionCreatedEvent extends AbstractAuditEvent
 	
 	/**
 	 * Execution variables to be recorded.
-	 *
+	 * 
 	 * @var array
 	 */
 	public $variables;

@@ -60,15 +60,31 @@ class RuntimeService
 		$this->engine->pushCommand(new SignalEventReceivedCommand($signalName, $executionId, $variables));
 	}
 	
+	/**
+	 * Start a process from the given definition using a singular 
+	 * 
+	 * @param ProcessDefinition $def
+	 * @param string $businessKey
+	 * @param array<string, mixed> $variables
+	 * @return HistoricProcessInstance
+	 */
 	public function startProcessInstance(ProcessDefinition $def, $businessKey = NULL, array $variables = [])
 	{
 		$startNode = $def->findNoneStartEvent();
 		
 		$id = $this->engine->executeCommand(new StartProcessInstanceCommand($def, $startNode, $businessKey, $variables));
 		
-		return $this->createProcessInstanceQuery()->processInstanceId($id)->findOne();
+		return $this->engine->getHistoryService()->createHistoricProcessInstanceQuery()->processInstanceId($id)->findOne();
 	}
 	
+	/**
+	 * Start a process using the latest version of the given process definition.
+	 * 
+	 * @param string $processDefinitionKey
+	 * @param string $businessKey
+	 * @param array<string, mixed> $variables
+	 * @return HistoricProcessInstance
+	 */
 	public function startProcessInstanceByKey($processDefinitionKey, $businessKey = NULL, array $variables = [])
 	{
 		$query = $this->engine->getRepositoryService()->createProcessDefinitionQuery();
@@ -77,6 +93,14 @@ class RuntimeService
 		return $this->startProcessInstance($def, $businessKey, $variables);
 	}
 	
+	/**
+	 * Start a process instance by message start event.
+	 * 
+	 * @param string $messageName
+	 * @param string $businessKey
+	 * @param array<string, mixed> $variables
+	 * @return HistoricProcessInstance
+	 */
 	public function startProcessInstanceByMessage($messageName, $businessKey = NULL, array $variables = [])
 	{
 		$query = $this->engine->getRepositoryService()->createProcessDefinitionQuery();
@@ -85,7 +109,7 @@ class RuntimeService
 		
 		$id = $this->engine->executeCommand(new StartProcessInstanceCommand($def, $startNode, $businessKey, $variables));
 		
-		return $this->createProcessInstanceQuery()->processInstanceId($id)->findOne();
+		return $this->engine->getHistoryService()->createHistoricProcessInstanceQuery()->processInstanceId($id)->findOne();
 	}
 	
 	public function getExecutionVariables(UUID $executionId, $local = false)

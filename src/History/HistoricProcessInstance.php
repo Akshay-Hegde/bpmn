@@ -17,8 +17,6 @@ class HistoricProcessInstance implements \JsonSerializable
 {
 	protected $id;
 	
-	protected $processInstanceId;
-	
 	protected $processDefinitionId;
 	
 	protected $processDefinitionKey;
@@ -35,10 +33,9 @@ class HistoricProcessInstance implements \JsonSerializable
 	
 	protected $duration;
 	
-	public function __construct(UUID $id, UUID $processInstanceId, UUID $processDefinitionId, $processDefinitionKey, $startActivityId, \DateTimeInterface $startedAt)
+	public function __construct(UUID $id, UUID $processDefinitionId, $processDefinitionKey, $startActivityId, \DateTimeInterface $startedAt)
 	{
 		$this->id = $id;
-		$this->processInstanceId = $processInstanceId;
 		$this->processDefinitionId = $processDefinitionId;
 		$this->processDefinitionKey = (string)$processDefinitionKey;
 		$this->startActivityId = (string)$startActivityId;
@@ -49,7 +46,6 @@ class HistoricProcessInstance implements \JsonSerializable
 	{
 		return [
 			'id' => $this->id,
-			'processInstanceId' => $this->processInstanceId,
 			'processDefinitionId' => $this->processDefinitionId,
 			'processDefinitionKey' => $this->processDefinitionKey,
 			'startActivityId' => $this->startActivityId,
@@ -64,11 +60,6 @@ class HistoricProcessInstance implements \JsonSerializable
 	public function getId()
 	{
 		return $this->id;
-	}
-	
-	public function getProcessInstanceId()
-	{
-		return $this->processInstanceId;
 	}
 	
 	public function getProcessDefinitionId()

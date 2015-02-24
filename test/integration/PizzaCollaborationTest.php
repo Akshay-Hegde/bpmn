@@ -11,11 +11,11 @@
 
 namespace KoolKode\BPMN;
 
-use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
-use KoolKode\BPMN\Runtime\ExecutionInterface;
+use KoolKode\BPMN\History\HistoricProcessInstance;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
 use KoolKode\BPMN\Repository\DeployedResource;
 use KoolKode\BPMN\Repository\Deployment;
+use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 use KoolKode\BPMN\Test\MessageHandler;
 
@@ -36,10 +36,8 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 		$this->assertEquals(file_get_contents(__DIR__ . '/PizzaCollaborationTest.bpmn'), $diagram->getContents());
 		
 		$process = $this->runtimeService->startProcessInstanceByKey('CustomerOrdersPizza', 'Pizza Funghi');
-		$this->assertTrue($process instanceof ExecutionInterface);
-		$this->assertTrue($process->isProcessInstance());
-		$this->assertEquals('choosePizzaTask', $process->getActivityId());
-		$this->assertFalse($process->isEnded());
+		$this->assertTrue($process instanceof HistoricProcessInstance);
+		$this->assertFalse($process->isFinished());
 		
 		$task = $this->taskService->createTaskQuery()->findOne();
 		$this->assertEquals('choosePizzaTask', $task->getDefinitionKey());
@@ -81,9 +79,8 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 	public function sendPizzaOrder(MessageThrownEvent $event)
 	{
 		$process = $this->runtimeService->startProcessInstanceByMessage('pizzaOrderReceived', $event->execution->getBusinessKey());
-		$this->assertTrue($process instanceof ExecutionInterface);
-		$this->assertTrue($process->isProcessInstance());
-		$this->assertEquals('PizzaServiceDeliversPizza', $process->getProcessDefinition()->getKey());
+		$this->assertTrue($process instanceof HistoricProcessInstance);
+		$this->assertEquals('PizzaServiceDeliversPizza', $process->getProcessDefinitionKey());
 	}
 	
 	/**

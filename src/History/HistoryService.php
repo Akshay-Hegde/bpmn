@@ -36,6 +36,11 @@ class HistoryService
 		$this->engine = $engine;
 	}
 	
+	public function createHistoricProcessInstanceQuery()
+	{
+		return new HistoricProcessInstanceQuery($this->engine);
+	}
+	
 	public function createHistoricActivityInstanceQuery()
 	{
 		return new HistoricActivityInstanceQuery($this->engine);

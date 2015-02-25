@@ -207,19 +207,35 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	/**
 	 * Schedule a job for execution.
 	 * 
+	 * This method will not cause an error in case of a missing job executor!
+	 * 
 	 * @param VirtualExecution $execution Target execution being used by the job.
 	 * @param string $handlerType The name of the job handler.
 	 * @param mixed $data Arbitrary data to be passed to the job handler.
 	 * @param \DateTimeInterface $runAt Scheduled execution time, a value of NULL schedules the job for immediate execution.
-	 * @return Job The persisted job instance.
-	 * 
-	 * @throws \RuntimeException When no job executor has been configured.
+	 * @return Job The persisted job instance or NULL when no job executor has been configured.
 	 */
 	public function scheduleJob(VirtualExecution $execution, $handlerType, $data, \DateTimeInterface $runAt = NULL)
 	{
 		if($this->jobExecutor === NULL)
 		{
-			throw new \RuntimeException('Cannot schedule jobs without a job executor');
+			if($runAt === NULL)
+			{
+				$this->warning('Cannot schedule job of type "{handler}" within {execution} to run immediately', [
+					'handler' => $handlerType,
+					'execution' => (string)$execution
+				]);
+			}
+			else
+			{
+				$this->warning('Cannot schedule job of type "{handler}" within {execution} to run at {scheduled}', [
+					'handler' => $handlerType,
+					'execution' => (string)$execution,
+					'scheduled' => $runAt->format(\DateTime::ISO8601)
+				]);
+			}
+			
+			return NULL;
 		}
 		
 		return $this->jobExecutor->scheduleJob($execution->getId(), $handlerType, $data, $runAt);

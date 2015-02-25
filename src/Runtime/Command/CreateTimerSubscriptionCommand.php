@@ -66,7 +66,7 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
 		
 		$engine->debug('{execution} subscribed to timer job <{job}>', [
 			'execution' => (string)$execution,
-			'job' => (string)$job->getId()
+			'job' => ($job === NULL) ? 'NULL' : (string)$job->getId()
 		]);
 		
 		return $id;

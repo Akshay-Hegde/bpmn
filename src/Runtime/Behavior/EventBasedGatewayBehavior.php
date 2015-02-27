@@ -28,7 +28,6 @@ class EventBasedGatewayBehavior extends AbstractActivity
 	 */
 	public function enter(VirtualExecution $execution)
 	{
-		$engine = $execution->getEngine();
 		$model = $execution->getProcessModel();
 		$gateway = $execution->getNode();
 		$transitions = $model->findOutgoingTransitions($gateway->getId());
@@ -54,8 +53,6 @@ class EventBasedGatewayBehavior extends AbstractActivity
 			
 			$behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $eventNode);
 		}
-		
-		$engine->notify(new ActivityStartedEvent($gateway->getId(), $execution, $engine));
 		
 		$execution->waitForSignal();
 	}

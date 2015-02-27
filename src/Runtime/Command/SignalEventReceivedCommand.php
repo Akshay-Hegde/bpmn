@@ -107,7 +107,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 		
 		if(!empty($ids))
 		{
-			$sql = "SELECT `job_id` FROM `#__bpmn_event_subscription` WHERE `flags` = :flags AND (";
+			$sql = "SELECT `job_id` FROM `#__bpmn_event_subscription` WHERE `flags` = :flags AND `job_id` IS NOT NULL AND (";
 			$where = [];
 			$params = [
 				'flags' => ProcessEngine::SUB_FLAG_TIMER

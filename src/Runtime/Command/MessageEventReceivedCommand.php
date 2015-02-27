@@ -97,6 +97,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 			WHERE `execution_id` = :eid
 			AND `activity_id` = :aid
 			AND `flags` = :flags
+			AND `job_id` IS NOT NULL
 		");
 		$stmt->bindValue('eid', $execution->getId());
 		$stmt->bindValue('aid', $row['activity_id']);

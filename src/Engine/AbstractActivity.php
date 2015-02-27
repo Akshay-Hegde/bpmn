@@ -60,6 +60,7 @@ abstract class AbstractActivity implements ActivityInterface
 			WHERE `execution_id` = :eid
 			AND `activity_id` = :aid
 			AND `flags` = :flags
+			AND `job_id` IS NOT NULL
 		");
 		$stmt->bindValue('eid', $execution->getId());
 		$stmt->bindValue('aid', $activityId);

@@ -24,6 +24,8 @@ class DeploymentQuery extends AbstractQuery
 	
 	protected $processDefinitionKey;
 	
+	protected $containsResource;
+	
 	protected $deployedBefore;
 	
 	protected $deployedAfter;
@@ -55,6 +57,15 @@ class DeploymentQuery extends AbstractQuery
 	{
 		$this->populateMultiProperty($this->processDefinitionKey, $key);
 		
+		return $this;
+	}
+	
+	public function containsResource($id)
+	{
+		$this->populateMultiProperty($this->containsResource, $id, function($id) {
+			return new UUID($id);
+		});
+	
 		return $this;
 	}
 	
@@ -160,6 +171,15 @@ class DeploymentQuery extends AbstractQuery
 			
 			$this->buildPredicate("p$alias.`process_key`", $this->processDefinitionKey, $where, $params);
 			
+			$alias++;
+		}
+		
+		if($this->containsResource !== NULL && !empty($this->containsResource))
+		{
+			$joins[] = "INNER JOIN `#__bpmn_resource` AS r$alias ON (r$alias.`deployment_id` = d.`id`)";
+				
+			$this->buildPredicate("r$alias.`id`", $this->containsResource, $where, $params);
+				
 			$alias++;
 		}
 		

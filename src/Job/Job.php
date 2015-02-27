@@ -13,7 +13,7 @@ namespace KoolKode\BPMN\Job;
 
 use KoolKode\Util\UUID;
 
-class Job implements JobInterface
+class Job implements JobInterface, \JsonSerializable
 {
 	protected $id;
 	
@@ -41,6 +41,19 @@ class Job implements JobInterface
 		$this->handlerData = $handlerData;
 		$this->retries = (int)$retries;
 		$this->lockOwner = ($lockOwner === NULL) ? NULL : (string)$lockOwner;
+	}
+	
+	public function jsonSerialize()
+	{
+		return [
+			'id' => $this->id,
+			'execution_id' => $this->executionId,
+			'externalId' => $this->executionId,
+			'handlerType' => $this->handlerType,
+			'retries' => $this->retries,
+			'scheduledAt' => ($this->scheduledAt === NULL) ? NULL : $this->scheduledAt->format(\DateTime::ISO8601),
+			'runAt' => ($this->runAt === NULL) ? NULL : $this->runAt->format(\DateTime::ISO8601)
+		];
 	}
 	
 	/**

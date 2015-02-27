@@ -53,6 +53,8 @@ class EventBasedGatewayBehavior extends AbstractActivity
 			}
 			
 			$behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $eventNode);
+			
+			$engine->notify(new ActivityStartedEvent($eventNode->getId(), $execution, $engine));
 		}
 		
 		$engine->notify(new ActivityCompletedEvent($gateway->getId(), $execution, $engine));
@@ -65,11 +67,9 @@ class EventBasedGatewayBehavior extends AbstractActivity
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
-		$engine = $execution->getEngine();
-		$node = $execution->getProcessModel()->findNode($delegation['nodeId']);
-		
-		$engine->notify(new ActivityStartedEvent($node->getId(), $execution, $engine));
-		
-		$this->delegateSignal($execution, $signal, $variables, $delegation);
+		if(!$this->delegateSignal($execution, $signal, $variables, $delegation))
+		{
+			throw new \RuntimeException(sprintf('Event based gateway must not be signaled directly, delegation expected'));
+		}
 	}
 }

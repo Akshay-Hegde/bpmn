@@ -157,7 +157,7 @@ class JobExecutor implements JobExecutorInterface
 		$stmt->bindValue('time', $time);
 		$stmt->execute();
 		
-		$this->engine->info('Scheduled job <{job}> of type "{handler}" relate to execution <{execution}>', [
+		$this->engine->info('Created job <{job}> of type "{handler}" targeting execution <{execution}>', [
 			'job' => (string)$job->getId(),
 			'handler' => $handlerType,
 			'execution' => (string)$executionId

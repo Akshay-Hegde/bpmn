@@ -52,7 +52,7 @@ class JobExecutor implements JobExecutorInterface
 	 * @param ProcessEngine $engine
 	 * @param JobSchedulerInterface $scheduler
 	 */
-	public function __construct(ProcessEngine $engine, JobSchedulerInterface $scheduler)
+	public function __construct(ProcessEngine $engine, JobSchedulerInterface $scheduler = NULL)
 	{
 		$this->engine = $engine;
 		$this->scheduler = $scheduler;
@@ -65,12 +65,40 @@ class JobExecutor implements JobExecutorInterface
 	{
 		while(!empty($this->removedJobs))
 		{
-			$this->scheduler->removeJob(array_shift($this->removedJobs));
+			$job = array_shift($this->removedJobs);
+			
+			if($this->scheduler !== NULL)
+			{
+				$this->scheduler->removeJob($job);
+			}
 		}
 		
 		while(!empty($this->scheduledJobs))
 		{
-			$this->scheduler->scheduleJob(array_shift($this->scheduledJobs));
+			$job = array_shift($this->scheduledJobs);
+			
+			if($this->scheduler !== NULL)
+			{
+				$this->scheduler->scheduleJob($job);
+				
+				continue;
+			}
+			
+			if($job->getRunAt() === NULL)
+			{
+				$this->engine->warning('Cannot schedule job of type "{handler}" within {execution} to run immediately', [
+					'handler' => $job->getHandlerType(),
+					'execution' => (string)$job->getExecutionId()
+				]);
+			}
+			else
+			{
+				$this->engine->warning('Cannot schedule job of type "{handler}" within {execution} to run at {scheduled}', [
+					'handler' => $job->getHandlerType(),
+					'execution' => (string)$job->getExecutionId(),
+					'scheduled' => $job->getRunAt()->format(\DateTime::ISO8601)
+				]);
+			}
 		}
 	}
 	
@@ -88,6 +116,14 @@ class JobExecutor implements JobExecutorInterface
 	public function hasJobHandler($type)
 	{
 		return isset($this->handlers[(string)$type]);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function hasJobScheduler()
+	{
+		return $this->scheduler !== NULL;
 	}
 	
 	/**

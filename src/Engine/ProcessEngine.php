@@ -217,28 +217,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	 */
 	public function scheduleJob(VirtualExecution $execution, $handlerType, $data, \DateTimeInterface $runAt = NULL)
 	{
-		if($this->jobExecutor === NULL)
+		if($this->jobExecutor !== NULL)
 		{
-			if($runAt === NULL)
-			{
-				$this->warning('Cannot schedule job of type "{handler}" within {execution} to run immediately', [
-					'handler' => $handlerType,
-					'execution' => (string)$execution
-				]);
-			}
-			else
-			{
-				$this->warning('Cannot schedule job of type "{handler}" within {execution} to run at {scheduled}', [
-					'handler' => $handlerType,
-					'execution' => (string)$execution,
-					'scheduled' => $runAt->format(\DateTime::ISO8601)
-				]);
-			}
-			
-			return NULL;
+			return $this->jobExecutor->scheduleJob($execution->getId(), $handlerType, $data, $runAt);
 		}
-		
-		return $this->jobExecutor->scheduleJob($execution->getId(), $handlerType, $data, $runAt);
 	}
 	
 	/**
@@ -320,7 +302,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		if($behavior instanceof AbstractActivity && $behavior->isAsyncBefore())
 		{
-			if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
+			if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobScheduler() && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
 			{
 				$this->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
 					AsyncCommandHandler::PARAM_COMMAND => $command,
@@ -358,7 +340,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			
 			if($behavior instanceof AbstractActivity && $behavior->isAsyncAfter())
 			{
-				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
+				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobScheduler() && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
 				{
 					$this->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
 						AsyncCommandHandler::PARAM_COMMAND => $command,

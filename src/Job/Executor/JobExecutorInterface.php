@@ -43,6 +43,13 @@ interface JobExecutorInterface
 	public function registerJobHandler(JobHandlerInterface $handler);
 	
 	/**
+	 * Check if the job executor has a scheduler set.
+	 * 
+	 * @return boolean
+	 */
+	public function hasJobScheduler();
+	
+	/**
 	 * Schedule a job for execution.
 	 *
 	 * @param Job $job

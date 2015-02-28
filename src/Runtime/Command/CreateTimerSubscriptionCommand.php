@@ -55,11 +55,18 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
 	{
 		$id = UUID::createRandom();
 		$execution = $engine->findExecution($this->executionId);
-		$nodeId = ($this->nodeId === NULL) ? NULL : $execution->getProcessModel()->findNode($this->nodeId)->getId();
+		
+		$delegation = [];
+		
+		if($this->nodeId !== NULL)
+		{
+			$delegation['nodeId'] = $this->nodeId;
+		}
+		
+		$command = new SignalExecutionCommand($execution, NULL, [], $delegation);
 		
 		$job = $engine->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
-			AsyncCommandHandler::PARAM_COMMAND => new SignalExecutionCommand($execution),
-			AsyncCommandHandler::PARAM_NODE_ID => $nodeId
+			AsyncCommandHandler::PARAM_COMMAND => $command
 		], new \DateTimeImmutable('@' . $this->time, new \DateTimeZone('UTC')));
 		
 		$this->createSubscription($engine, $job);

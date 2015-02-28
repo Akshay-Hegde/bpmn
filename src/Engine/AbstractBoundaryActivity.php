@@ -11,6 +11,9 @@
 
 namespace KoolKode\BPMN\Engine;
 
+use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
+use KoolKode\BPMN\History\Event\ActivityStartedEvent;
+
 /**
  * Base class for BPMN boundary events.
  * 
@@ -70,6 +73,12 @@ abstract class AbstractBoundaryActivity extends AbstractActivity
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		$engine = $execution->getEngine();
+		
+		// Log activity, boundary events do not have a duration > 0.
+		$engine->notify(new ActivityStartedEvent($this->activityId, $execution, $engine));
+		$engine->notify(new ActivityCompletedEvent($this->activityId, $execution, $engine));
+		
 		if($this->isInterrupting())
 		{
 			$this->findScopeActivity($execution)->interrupt($execution);

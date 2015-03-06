@@ -18,6 +18,7 @@ class Task implements TaskInterface, \JsonSerializable
 	protected $id;
 	protected $executionId;
 	protected $processInstanceId;
+	protected $processBusinessKey;
 	protected $name;
 	protected $definitionKey;
 	protected $created;
@@ -44,6 +45,8 @@ class Task implements TaskInterface, \JsonSerializable
 		return [
 			'id' => (string)$this->id,
 			'executionId' => (string)$this->executionId,
+			'processInstanceId' => $this->processInstanceId,
+			'processBusinessKey' => $this->processBusinessKey,
 			'name' => $this->name,
 			'definitionKey' => $this->definitionKey,
 			'assignee' => $this->assignee,
@@ -86,6 +89,19 @@ class Task implements TaskInterface, \JsonSerializable
 	public function setProcessInstanceId(UUID $processInstanceId = NULL)
 	{
 		$this->processInstanceId = $processInstanceId;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getProcessBusinessKey()
+	{
+		return $this->processBusinessKey;
+	}
+	
+	public function setProcessBusinessKey($processBusinessKey)
+	{
+		$this->processBusinessKey = ($processBusinessKey === NULL) ? NULL : (string)$processBusinessKey;
 	}
 	
 	/**

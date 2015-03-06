@@ -231,6 +231,7 @@ class TaskQuery extends AbstractQuery
 		$task->setDocumentation($row['documentation']);
 		$task->setExecutionId($row['execution_id']);
 		$task->setProcessInstanceId($row['process_id']);
+		$task->setProcessBusinessKey($row['business_key']);
 		
 		return $task;
 	}
@@ -243,7 +244,7 @@ class TaskQuery extends AbstractQuery
 		}
 		else
 		{
-			$fields = 't.*, e.`process_id`';
+			$fields = 't.*, e.`process_id`, e.`business_key`';
 		}
 		
 		$sql = "	SELECT $fields

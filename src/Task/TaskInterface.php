@@ -42,6 +42,13 @@ interface TaskInterface
 	public function getProcessInstanceId();
 	
 	/**
+	 * Get the business key of the process that spawned the task.
+	 * 
+	 * @return string Business key or NULL when no such key exists.
+	 */
+	public function getProcessBusinessKey();
+	
+	/**
 	 * Get the name (as defined in a BPMN 2.0 process diagram) of the activity to be performed.
 	 * 
 	 * @return string

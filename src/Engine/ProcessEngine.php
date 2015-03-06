@@ -74,8 +74,12 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	{
 		parent::__construct($dispatcher, $factory);
 		
-		$conn = new ParamEncoderDecorator($conn);
-		$conn->registerParamEncoder(new BinaryDataParamEncoder());
+		$decorator = new ParamEncoderDecorator();
+		$decorator->registerParamEncoder(new BinaryDataParamEncoder());
+		
+		// Clone DB connection as it is being modified.
+		$conn = clone $conn;
+		$conn->addDecorator($decorator);
 		
 		$this->conn = $conn;
 		$this->handleTransactions = $handleTransactions ? true : false;

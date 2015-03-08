@@ -328,7 +328,10 @@ class JobQuery extends AbstractQuery
 			$sql .= ' WHERE ' . implode(' AND ', $where);
 		}
 		
-		$sql .= $this->buildOrderings();
+		if(!$count)
+		{
+			$sql .= $this->buildOrderings();
+		}
 		
 		$stmt = $this->engine->prepareQuery($sql);
 		$stmt->bindAll($params);

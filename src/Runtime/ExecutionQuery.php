@@ -228,6 +228,11 @@ class ExecutionQuery extends AbstractQuery
 		);
 	}
 	
+	protected function getDefaultOrderBy()
+	{
+		return ['e.`id`', 'ASC'];
+	}
+	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
 	{
 		if($count)

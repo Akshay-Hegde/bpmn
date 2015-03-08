@@ -261,6 +261,11 @@ class JobQuery extends AbstractQuery
 		return $job;
 	}
 	
+	protected function getDefaultOrderBy()
+	{
+		return ['j.`id`', 'ASC'];
+	}
+	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
 	{
 		$fields = [];

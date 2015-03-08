@@ -182,6 +182,11 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 		return $activity;
 	}
 	
+	protected function getDefaultOrderBy()
+	{
+		return ['a.`id`', 'ASC'];
+	}
+	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
 	{
 		$fields = [];

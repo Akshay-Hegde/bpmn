@@ -306,6 +306,11 @@ class TaskQuery extends AbstractQuery
 		return $task;
 	}
 	
+	protected function getDefaultOrderBy()
+	{
+		return ['t.`id`', 'ASC'];
+	}
+	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
 	{
 		if($count)

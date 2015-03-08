@@ -207,6 +207,11 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 		return $process;
 	}
 	
+	protected function getDefaultOrderBy()
+	{
+		return ['p.`id`', 'ASC'];
+	}
+	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
 	{
 		$fields = [];

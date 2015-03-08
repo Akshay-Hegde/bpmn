@@ -147,6 +147,11 @@ class DeploymentQuery extends AbstractQuery
 		);
 	}
 	
+	protected function getDefaultOrderBy()
+	{
+		return ['d.`id`', 'ASC'];
+	}
+	
 	protected function executeSql($count = false, $limit = 0, $offset = 0)
 	{
 		if($count)

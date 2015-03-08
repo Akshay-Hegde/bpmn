@@ -96,23 +96,23 @@ abstract class AbstractQuery
 		$where[] = sprintf('%s IN (%s)', $name, implode(', ', $ph));
 	}
 	
+	protected abstract function getDefaultOrderBy();
+	
 	protected function buildOrderings()
 	{
 		$sql = '';
 		
-		if(!empty($this->orderings))
+		$orderings = empty($this->orderings) ? [$this->getDefaultOrderBy()] : $this->orderings;
+		$sql .= ' ORDER BY ';
+		
+		foreach($orderings as $i => $order)
 		{
-			$sql .= ' ORDER BY ';
-			
-			foreach($this->orderings as $i => $order)
+			if($i != 0)
 			{
-				if($i != 0)
-				{
-					$sql .= ', ';
-				}
-				
-				$sql .= vsprintf('%s %s', $order);
+				$sql .= ', ';
 			}
+			
+			$sql .= vsprintf('%s %s', $order);
 		}
 		
 		return $sql;

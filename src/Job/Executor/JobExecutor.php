@@ -144,18 +144,14 @@ class JobExecutor implements JobExecutorInterface
 			$time = $time->getTimestamp();
 		}
 		
-		$stmt = $this->engine->prepareQuery("
-			INSERT INTO `#__bpmn_job`
-				(`id`, `execution_id`, `handler_type`, `handler_data`, `run_at`)
-			VALUES
-				(:id, :eid, :type, :data, :time)
-		");
-		$stmt->bindValue('id', $job->getId());
-		$stmt->bindValue('eid', $job->getExecutionId());
-		$stmt->bindValue('type', $job->getHandlerType());
-		$stmt->bindValue('data', new BinaryData(serialize($job->getHandlerData())));
-		$stmt->bindValue('time', $time);
-		$stmt->execute();
+		$this->engine->getConnection()->insert('#__bpmn_job', [
+			'id' => $job->getId(),
+			'execution_id' => $job->getExecutionId(),
+			'handler_type' => $job->getHandlerType(),
+			'handler_data' => new BinaryData(serialize($job->getHandlerData())),
+			'created_at' => time(),
+			'run_at' => $time
+		]);
 		
 		$this->engine->info('Created job <{job}> of type "{handler}" targeting execution <{execution}>', [
 			'job' => (string)$job->getId(),

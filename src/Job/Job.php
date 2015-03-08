@@ -29,16 +29,19 @@ class Job implements JobInterface, \JsonSerializable
 	
 	protected $lockOwner;
 	
+	protected $createdAt;
+	
 	protected $scheduledAt;
 	
 	protected $runAt;
 	
-	public function __construct(UUID $id, UUID $executionId, $handlerType, $handlerData, $retries = 0, $lockOwner = NULL)
+	public function __construct(UUID $id, UUID $executionId, $handlerType, $handlerData, \DateTimeInterface $createdAt = NULL, $retries = 0, $lockOwner = NULL)
 	{
 		$this->id = $id;
 		$this->executionId = $executionId;
 		$this->handlerType = (string)$handlerType;
 		$this->handlerData = $handlerData;
+		$this->createdAt = ($createdAt === NULL) ? new \DateTimeImmutable('now') : new \DateTimeImmutable('@' . $createdAt->getTimestamp());
 		$this->retries = (int)$retries;
 		$this->lockOwner = ($lockOwner === NULL) ? NULL : (string)$lockOwner;
 	}
@@ -120,6 +123,14 @@ class Job implements JobInterface, \JsonSerializable
 	public function getLockOwner()
 	{
 		return $this->lockOwner;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getCreatedAt()
+	{
+		return $this->createdAt;
 	}
 	
 	/**

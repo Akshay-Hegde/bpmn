@@ -40,6 +40,8 @@ interface JobInterface
 	
 	public function getLockOwner();
 	
+	public function getCreatedAt();
+	
 	public function getScheduledAt();
 	
 	public function getRunAt();

@@ -160,6 +160,13 @@ class JobQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByCreated($ascending = true)
+	{
+		$this->orderings[] = ['j.`created_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
 	public function orderByScheduled($ascending = true)
 	{
 		$this->orderings[] = ['j.`scheduled_at`', $ascending ? 'ASC' : 'DESC'];
@@ -242,6 +249,7 @@ class JobQuery extends AbstractQuery
 			$row['execution_id'],
 			$row['handler_type'],
 			unserialize(BinaryData::decode($row['handler_data'])),
+			new \DateTimeImmutable('@' . $row['created_at']),
 			$row['retries'],
 			$row['lock_owner']
 		);

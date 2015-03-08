@@ -83,6 +83,27 @@ class DeploymentQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByDeploymentId($ascending = true)
+	{
+		$this->orderings[] = ['d.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByDeploymentName($ascending = true)
+	{
+		$this->orderings[] = ['d.`name`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByDeployed($ascending = true)
+	{
+		$this->orderings[] = ['d.`deployed_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
 	public function count()
 	{
 		$stmt = $this->executeSql(true);
@@ -105,7 +126,7 @@ class DeploymentQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 	
 		while($row = $stmt->fetchNextRow())

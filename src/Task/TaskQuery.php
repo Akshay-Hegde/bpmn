@@ -182,6 +182,76 @@ class TaskQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByProcessBusinessKey($ascending = true)
+	{
+		$this->orderings[] = ['e.`business_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['d.`process_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessInstanceId($ascending = true)
+	{
+		$this->orderings[] = ['e.`process_id`', $ascending ? 'ASC' : 'DESC'];
+		
+		return $this;
+	}
+	
+	public function orderByTaskAssignee($ascending = true)
+	{
+		$this->orderings[] = ['t.`claimed_by`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTaskDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['t.`activity`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTaskName($ascending = true)
+	{
+		$this->orderings[] = ['t.`name`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTaskPriority($ascending = true)
+	{
+		$this->orderings[] = ['t.`priority`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTaskCreated($ascending = true)
+	{
+		$this->orderings[] = ['t.`created_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTaskDue($ascending = true)
+	{
+		$this->orderings[] = ['t.`due_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTaskClaimed($ascending = true)
+	{
+		$this->orderings[] = ['t.`claimed_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
 	public function count()
 	{
 		$stmt = $this->executeSql(true);
@@ -204,7 +274,7 @@ class TaskQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 		
 		while($row = $stmt->fetchNextRow())

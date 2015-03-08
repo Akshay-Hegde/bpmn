@@ -34,6 +34,8 @@ class ProcessDefinitionQuery extends AbstractQuery
 	
 	protected $resourceId;
 	
+	protected $resourceName;
+	
 	protected $latestVersion;
 	
 	protected $messageEventSubscriptionNames;
@@ -90,6 +92,15 @@ class ProcessDefinitionQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function resourceName($name)
+	{
+		$this->populateMultiProperty($this->resourceName, $name, function($name) {
+			return (string)$name;
+		});
+		
+		return $this;
+	}
+	
 	public function latestVersion()
 	{
 		$this->latestVersion = true;
@@ -110,6 +121,69 @@ class ProcessDefinitionQuery extends AbstractQuery
 		$this->signalEventSubscriptionNames[] = [];
 		$this->populateMultiProperty($this->signalEventSubscriptionNames[count($this->signalEventSubscriptionNames) - 1], $name);
 		
+		return $this;
+	}
+	
+	public function orderByDeploymentId($ascending = true)
+	{
+		$this->orderings[] = ['d.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByDeploymentName($ascending = true)
+	{
+		$this->orderings[] = ['d.`name`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByDeployed($ascending = true)
+	{
+		$this->orderings[] = ['d.`deployed_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessName($ascending = true)
+	{
+		$this->orderings[] = ['p.`name`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessRevision($ascending = true)
+	{
+		$this->orderings[] = ['p.`revision`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionId($ascending = true)
+	{
+		$this->orderings[] = ['p.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['p.`process_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByResourceId($ascending = true)
+	{
+		$this->orderings[] = ['r.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByResourceName($ascending = true)
+	{
+		$this->orderings[] = ['r.`name`', $ascending ? 'ASC' : 'DESC'];
+	
 		return $this;
 	}
 	
@@ -135,7 +209,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 	
 		while($row = $stmt->fetchNextRow())
@@ -174,6 +248,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		$sql = "	SELECT $fields
 					FROM `#__bpmn_process_definition` AS p
 					LEFT JOIN `#__bpmn_deployment` AS d ON (d.`id` = p.`deployment_id`)
+					LEFT JOIN `#__bpmn_resource` AS r ON (r.`id` = p.`resource_id`)
 		";
 	
 		$alias = 1;
@@ -186,6 +261,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 		$this->buildPredicate("p.`revision`", $this->processDefinitionVersion, $where, $params);
 		$this->buildPredicate("d.`id`", $this->deploymentId, $where, $params);
 		$this->buildPredicate('p.`resource_id`', $this->resourceId, $where, $params);
+		$this->buildPredicate('r.`name`', $this->resourceName, $where, $params);
 		
 		foreach((array)$this->messageEventSubscriptionNames as $name)
 		{

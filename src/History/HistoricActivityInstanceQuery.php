@@ -148,7 +148,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 	
 		while($row = $stmt->fetchNextRow())

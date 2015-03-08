@@ -95,6 +95,62 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByProcessBusinessKey($ascending = true)
+	{
+		$this->orderings[] = ['p.`business_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionId($ascending = true)
+	{
+		$this->orderings[] = ['d.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['d.`process_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByStartActivityId($ascending = true)
+	{
+		$this->orderings[] = ['p.`start_activity`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByStarted($ascending = true)
+	{
+		$this->orderings[] = ['p.`started_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByEndActivityId($ascending = true)
+	{
+		$this->orderings[] = ['p.`end_activity`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByEnded($ascending = true)
+	{
+		$this->orderings[] = ['p.`ended_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByDuration($ascending = true)
+	{
+		$this->orderings[] = ['p.`duration`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
 	public function count()
 	{
 		$stmt = $this->executeSql(true);
@@ -117,7 +173,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 	
 		while($row = $stmt->fetchNextRow())

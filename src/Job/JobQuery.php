@@ -125,6 +125,83 @@ class JobQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByProcessInstanceId($ascending = true)
+	{
+		$this->orderings[] = ['e.`process_id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessBusinessKey($ascending = true)
+	{
+		$this->orderings[] = ['e.`business_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionId($ascending = true)
+	{
+		$this->orderings[] = ['d.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['d.`process_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByExternalId($ascending = true)
+	{
+		$this->orderings[] = ['j.`external_id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByScheduled($ascending = true)
+	{
+		$this->orderings[] = ['j.`scheduled_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByRun($ascending = true)
+	{
+		$this->orderings[] = ['j.`run_at`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByHandlerType($ascending = true)
+	{
+		$this->orderings[] = ['j.`handler_type`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByJobId($ascending = true)
+	{
+		$this->orderings[] = ['j.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByRetries($ascending = true)
+	{
+		$this->orderings[] = ['j.`retries`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByLockOwner($ascending = true)
+	{
+		$this->orderings[] = ['j.`lock_owner`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
 	public function count()
 	{
 		$stmt = $this->executeSql(true);
@@ -147,7 +224,7 @@ class JobQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 		
 		while($row = $stmt->fetchNextRow())

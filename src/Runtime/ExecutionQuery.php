@@ -109,6 +109,69 @@ class ExecutionQuery extends AbstractQuery
 		return $this;
 	}
 	
+	public function orderByActivityId($ascending = true)
+	{
+		$this->orderings[] = ['e.`node`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByExecutionId($ascending = true)
+	{
+		$this->orderings[] = ['e.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByParentId($ascending = true)
+	{
+		$this->orderings[] = ['e.`pid`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessBusinessKey($ascending = true)
+	{
+		$this->orderings[] = ['e.`business_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionId($ascending = true)
+	{
+		$this->orderings[] = ['d.`id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessDefinitionKey($ascending = true)
+	{
+		$this->orderings[] = ['d.`process_key`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByProcessInstanceId($ascending = true)
+	{
+		$this->orderings[] = ['e.`process_id`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByTimestamp($ascending = true)
+	{
+		$this->orderings[] = ['e.`active`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
+	public function orderByDepth($ascending = true)
+	{
+		$this->orderings[] = ['e.`depth`', $ascending ? 'ASC' : 'DESC'];
+	
+		return $this;
+	}
+	
 	public function count()
 	{
 		$stmt = $this->executeSql(true);
@@ -131,7 +194,7 @@ class ExecutionQuery extends AbstractQuery
 	
 	public function findAll()
 	{
-		$stmt = $this->executeSql();
+		$stmt = $this->executeSql(false, $this->limit, $this->offset);
 		$result = [];
 		
 		while($row = $stmt->fetchNextRow())

@@ -15,6 +15,38 @@ abstract class AbstractQuery
 {
 	protected $orderings = [];
 	
+	protected $limit = 0;
+	
+	protected $offset = 0;
+	
+	public function limit($limit)
+	{
+		$limit = (int)$limit;
+		
+		if($limit < 1)
+		{
+			throw new \InvalidArgumentException(sprintf('Limit must be greater than 0, given %s', $limit));
+		}
+		
+		$this->limit = $limit;
+		
+		return $this;
+	}
+	
+	public function offset($offset)
+	{
+		$offset = (int)$offset;
+		
+		if($offset < 0)
+		{
+			throw new \InvalidArgumentException(sprintf('Offset must not be nagtive, given %s', $offset));
+		}
+		
+		$this->offset = $offset;
+		
+		return $this;
+	}
+	
 	protected function populateMultiProperty(& $prop, $value, callable $converter = NULL)
 	{
 		if(is_array($value) || $value instanceof \Traversable)

@@ -23,6 +23,20 @@ use KoolKode\Util\UUID;
 interface JobExecutorInterface
 {
 	/**
+	 * Get the lock owner / uniqure ID of this job executor.
+	 * 
+	 * @return string
+	 */
+	public function getLockOwner();
+	
+	/**
+	 * Get the DB lock timeout in seconds.
+	 * 
+	 * @return integer
+	 */
+	public function getLockTimeout();
+	
+	/**
 	 * Schedule and remove jobs according to current state.
 	 */
 	public function syncScheduledJobs();

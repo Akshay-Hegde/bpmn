@@ -36,8 +36,6 @@ class ManagementService
 	
 	public function executeJob(UUID $jobId)
 	{
-		// TODO: Job execution requires locking due to concurrency...
-		
 		$executor = $this->engine->getJobExecutor();
 		
 		if($executor === NULL)
@@ -49,20 +47,13 @@ class ManagementService
 		
 		if(!empty($jobs))
 		{
-			$executor->executeJob($jobs[0]);
+			$executor->executeJob(array_pop($jobs));
 		}
 	}
 	
 	public function removeJob(UUID $jobId)
 	{
-		$executor = $this->engine->getJobExecutor();
-		
-		if($executor === NULL)
-		{
-			throw new \RuntimeException('Cannot remove job without a job executor');
-		}
-		
-		$executor->removeJob($jobId);
+		$this->engine->getJobExecutor()->removeJob($jobId);
 	}
 	
 	public function setJobRetries(UUID $jobId, $retries)

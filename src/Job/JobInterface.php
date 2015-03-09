@@ -45,4 +45,14 @@ interface JobInterface
 	public function getScheduledAt();
 	
 	public function getRunAt();
+	
+	public function getLockedAt();
+	
+	public function isFailed();
+	
+	public function getExceptionType();
+	
+	public function getExceptionMessage();
+	
+	public function getExceptionData();
 }

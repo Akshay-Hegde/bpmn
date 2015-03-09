@@ -27,13 +27,23 @@ class Job implements JobInterface, \JsonSerializable
 	
 	protected $retries;
 	
+	protected $locked = false;
+	
 	protected $lockOwner;
 	
 	protected $createdAt;
 	
 	protected $scheduledAt;
 	
+	protected $lockedAt;
+	
 	protected $runAt;
+	
+	protected $exceptionType;
+	
+	protected $exceptionMessage;
+	
+	protected $exceptionData;
 	
 	public function __construct(UUID $id, UUID $executionId, $handlerType, $handlerData, \DateTimeInterface $createdAt = NULL, $retries = 0, $lockOwner = NULL)
 	{
@@ -114,7 +124,12 @@ class Job implements JobInterface, \JsonSerializable
 	 */
 	public function isLocked()
 	{
-		return $this->lockOwner !== NULL;
+		return $this->locked;
+	}
+	
+	public function setLocked($locked)
+	{
+		$this->locked = $locked ? true : false;
 	}
 	
 	/**
@@ -171,5 +186,72 @@ class Job implements JobInterface, \JsonSerializable
 		{
 			$this->runAt = new \DateTimeImmutable('@' . $runAt->getTimestamp(), new \DateTimeZone('UTC'));
 		}
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getLockedAt()
+	{
+		return $this->lockedAt;
+	}
+	
+	public function setLockedAt(\DateTimeInterface $lockedAt = NULL)
+	{
+		if($lockedAt === NULL)
+		{
+			$this->lockedAt = NULL;
+		}
+		else
+		{
+			$this->lockedAt = new \DateTimeImmutable('@' . $lockedAt->getTimestamp(), new \DateTimeZone('UTC'));
+		}
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isFailed()
+	{
+		return $this->exceptionType !== NULL;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getExceptionType()
+	{
+		return $this->exceptionType;
+	}
+	
+	public function setExceptionType($exceptionType = NULL)
+	{
+		$this->exceptionType = ($exceptionType === NULL) ? NULL : (string)$exceptionType;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getExceptionMessage()
+	{
+		return $this->exceptionMessage;
+	}
+	
+	public function setExceptionMessage($exceptionMessage = NULL)
+	{
+		$this->exceptionMessage = ($exceptionMessage === NULL) ? NULL : (string)$exceptionMessage;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getExceptionData()
+	{
+		return $this->exceptionData;
+	}
+	
+	public function setExceptionData($exceptionData = NULL)
+	{
+		$this->exceptionData = ($exceptionData === NULL) ? NULL : (string)$exceptionData;
 	}
 }

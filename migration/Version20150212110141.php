@@ -34,9 +34,16 @@ class Version20150212110141 extends AbstractMigration
         $job->addColumn('created_at', 'bigint');
         $job->addColumn('scheduled_at', 'bigint', ['default' => NULL]);
         $job->addColumn('run_at', 'bigint', ['default' => NULL]);
+        $job->addColumn('locked_at', 'bigint', ['default' => NULL]);
+        $job->addColumn('exception_type', 'varchar', ['default' => NULL]);
+        $job->addColumn('exception_message', 'text', ['default' => NULL]);
+        $job->addColumn('exception_data', 'blob', ['default' => NULL]);
         $job->addIndex(['execution_id']);
         $job->addIndex(['lock_owner']);
         $job->addIndex(['handler_type']);
+        $job->addIndex(['created_at']);
+        $job->addIndex(['scheduled_at']);
+        $job->addIndex(['locked_at']);
         $job->addIndex(['run_at']);
         $job->addForeignKey(['execution_id'], '#__bpmn_execution', ['id']);
         $job->create();

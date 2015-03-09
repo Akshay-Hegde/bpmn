@@ -36,6 +36,20 @@ class JobExecutor implements JobExecutorInterface
 	protected $scheduler;
 	
 	/**
+	 * Unique ID of the job executor, used when locking jobs.
+	 * 
+	 * @var string
+	 */
+	protected $lockOwner;
+	
+	/**
+	 * DB lock timeout in seconds.
+	 * 
+	 * @var integer
+	 */
+	protected $lockTimeout = 30;
+	
+	/**
 	 * Registered job handlers grouped by job type.
 	 * 
 	 * @var array<string, JobHandlerInterface>
@@ -56,6 +70,46 @@ class JobExecutor implements JobExecutorInterface
 	{
 		$this->engine = $engine;
 		$this->scheduler = $scheduler;
+		
+		$this->lockOwner = (string)UUID::createRandom();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getLockOwner()
+	{
+		return $this->getLockOwner();
+	}
+	
+	public function setLockOwner($owner)
+	{
+		$this->lockOwner = (string)$owner;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getLockTimeout()
+	{
+		return $this->lockTimeout;
+	}
+	
+	public function setLockTimeout($timeout)
+	{
+		$ttl = (int)$timeout;
+		
+		if($ttl < 5)
+		{
+			throw new \InvalidArgumentException(sprintf('Lock timout must not be less than 5 seconds, given %s', $timeout));
+		}
+		
+		if($ttl > 1800)
+		{
+			throw new \InvalidArgumentException(sprintf('Lock timout must not be more than 30 minutes, given %s', $timeout));
+		}
+		
+		$this->lockTimeout = $ttl;
 	}
 	
 	/**
@@ -167,7 +221,59 @@ class JobExecutor implements JobExecutorInterface
 	 */
 	public function executeJob(Job $job)
 	{
+		$stmt = $this->engine->prepareQuery("
+			UPDATE `#__bpmn_job`
+			SET `lock_owner` = :owner,
+				`locked_at` = :time
+			WHERE `id` = :id
+			AND (`lock_owner` IS NULL OR `locked_at` < :expires)
+		");
+		$stmt->bindValue('owner', $this->lockOwner);
+		$stmt->bindValue('time', time());
+		$stmt->bindValue('expires', time() - $this->lockTimeout);
+		$stmt->bindValue('id', $job->getId());
+		
+		$locked = $stmt->execute();
+		
+		if($locked < 1)
+		{
+			$jobs = $this->engine->getManagementService()->createJobQuery()->jobId($job->getId())->findAll();
+			
+			if(empty($jobs))
+			{
+				$this->engine->info('Unable to lock job <{job}> because it does not exist in the DB', [
+					'job' => (string)$job->getId()
+				]);
+				
+				return;
+			}
+			
+			$this->engine->info('Unable to lock job <{job}> because it is locked by job executor "{executor}"', [
+				'job' => (string)$job->getId(),
+				'executor' => $job->getLockOwner()
+			]);
+			
+			return;
+		}
+		
 		$this->engine->executeCommand(new ExecuteJobCommand($job, $this->findJobHandler($job)));
+		
+		$jobs = $this->engine->getManagementService()->createJobQuery()->jobId($job->getId())->findAll();
+		
+		if(!empty($jobs))
+		{
+			$job = array_pop($jobs);
+			
+			if($job->getRetries() > 0)
+			{
+				$this->engine->info('Re-scheduling job <{job}>, {retries} retries left', [
+					'job' => (string)$job->getId(),
+					'retries' => $job->getRetries()
+				]);
+				
+				$this->scheduledJobs[] = $job;
+			}
+		}
 	}
 	
 	/**

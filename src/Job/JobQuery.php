@@ -32,6 +32,7 @@ class JobQuery extends AbstractQuery
 	
 	protected $isScheduled;
 	protected $isTimer;
+	protected $isFailed;
 	
 	protected $engine;
 	
@@ -122,6 +123,13 @@ class JobQuery extends AbstractQuery
 	{
 		$this->isTimer = $timer ? true : false;
 		
+		return $this;
+	}
+	
+	public function failed($failed = true)
+	{
+		$this->isFailed = $failed ? true : false;
+	
 		return $this;
 	}
 	
@@ -266,6 +274,31 @@ class JobQuery extends AbstractQuery
 			$job->setRunAt(new \DateTimeImmutable('@' . $row['run_at'], new \DateTimeZone('UTC')));
 		}
 		
+		if($row['locked_at'] !== NULL)
+		{
+			$job->setLockedAt(new \DateTimeImmutable('@' . $row['locked_at'], new \DateTimeZone('UTC')));
+		}
+		
+		$job->setExceptionType($row['exception_type']);
+		$job->setExceptionMessage($row['exception_message']);
+		
+		if($row['exception_data'] !== NULL)
+		{
+			$job->setExceptionData(unserialize(BinaryData::decode($row['exception_data'])));
+		}
+		
+		$locked = false;
+		
+		if($row['lock_owner'] !== NULL && $row['locked_at'] !== NULL)
+		{
+			if($row['locked_at'] > (time() - $this->engine->getJobExecutor()->getLockTimeout()))
+			{
+				$locked = true;
+			}
+		}
+		
+		$job->setLocked($locked);
+		
 		return $job;
 	}
 	
@@ -321,6 +354,15 @@ class JobQuery extends AbstractQuery
 		elseif($this->isTimer === false)
 		{
 			$where[] = 'j.`run_at` IS NULL';
+		}
+		
+		if($this->isFailed === true)
+		{
+			$where[] = '(j.`exception_type` IS NOT NULL AND j.`retries` = 0)';
+		}
+		elseif($this->isFailed === false)
+		{
+			$where[] = '(j.`exception_type` IS NULL OR j.`retries` <> 0)';
 		}
 		
 		if(!empty($where))

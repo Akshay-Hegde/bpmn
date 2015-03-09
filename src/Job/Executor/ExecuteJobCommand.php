@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Job\Executor;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
+use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
@@ -64,13 +65,39 @@ class ExecuteJobCommand extends AbstractBusinessCommand
 			'execution' => (string)$execution
 		]);
 		
-		// TODO: Handle failed jobs (exceptions?) here...
-		
-		$this->handler->executeJob($this->job, $execution, $engine);
-		
-		// Delete job when it has been completed successfully.
-		$stmt = $engine->prepareQuery("DELETE FROM `#__bpmn_job` WHERE `id` = :id");
-		$stmt->bindValue('id', $this->job->getId());
-		$stmt->execute();
+		try
+		{
+			$this->handler->executeJob($this->job, $execution, $engine);
+			
+			// Delete job when it has been completed successfully.
+			$engine->getConnection()->delete('#__bpmn_job', [
+				'id' => $this->job->getId()
+			]);
+		}
+		catch(\Exception $e)
+		{
+			$engine->warning('Job <{job}> failed with exception {exception}: "{message}"', [
+				'job' => (string)$this->job->getId(),
+				'exception' => get_class($e),
+				'message' => $e->getMessage()
+			]);
+			
+			$stmt = $engine->prepareQuery("
+				UPDATE `#__bpmn_job`
+				SET `retries` = `retries` - 1,
+					`scheduled_at` = NULL,
+					`lock_owner` = NULL,
+					`locked_at` = NULL,
+					`exception_type` = :type,
+					`exception_message` = :message,
+					`exception_data` = :data
+				WHERE `id` = :id
+			");
+			$stmt->bindValue('id', $this->job->getId());
+			$stmt->bindValue('type', get_class($e));
+			$stmt->bindValue('message', (string)$e->getMessage());
+			$stmt->bindValue('data', new BinaryData(serialize($e->getTraceAsString())));
+			$stmt->execute();
+		}
 	}
 }

@@ -23,6 +23,8 @@ use KoolKode\BPMN\Runtime\Behavior\EventSubProcessBehavior;
 use KoolKode\BPMN\Runtime\Behavior\ExclusiveGatewayBehavior;
 use KoolKode\BPMN\Runtime\Behavior\InclusiveGatewayBehavior;
 use KoolKode\BPMN\Runtime\Behavior\ParallelGatewayBehavior;
+use KoolKode\BPMN\Runtime\Behavior\IntermediateLinkCatchBehavior;
+use KoolKode\BPMN\Runtime\Behavior\IntermediateLinkThrowBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateMessageCatchBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateMessageThrowBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateNoneEventBehavior;
@@ -46,6 +48,8 @@ use KoolKode\Expression\Parser\ExpressionParser;
 use KoolKode\Process\ExpressionTrigger;
 use KoolKode\Process\ProcessBuilder;
 use KoolKode\Process\ProcessModel;
+use KoolKode\Process\Transition;
+use KoolKode\Util\UUID;
 
 /**
  * Convenient builder that aids during creation of BPMN 2.0 process models.
@@ -83,7 +87,43 @@ class BusinessProcessBuilder
 	
 	public function build()
 	{
-		return $this->builder->build();
+		$model = $this->builder->build();
+		
+		$linkCatch = [];
+		$linkThrow = [];
+		
+		foreach($model->findNodes() as $node)
+		{
+			$behavior = $node->getBehavior();
+			
+			if($behavior instanceof IntermediateLinkCatchBehavior)
+			{
+				$linkCatch[$behavior->getLink()] = $node->getId();
+			}
+			if($behavior instanceof IntermediateLinkThrowBehavior)
+			{
+				$linkThrow[$node->getId()] = $behavior->getLink();
+			}
+		}
+		
+		if(!empty($linkCatch))
+		{
+			foreach($linkThrow as $nodeId => $link)
+			{
+				if(empty($linkCatch[$link]))
+				{
+					throw new \RuntimeException(sprintf('No link catch event defined for link "%s" thrown by node %s', $link, $nodeId));
+				}
+				
+				// This does the trick: insert a new transition directly connecting the link events.
+				$trans = new Transition('link-' . UUID::createRandom(), $nodeId);
+				$trans->to($linkCatch[$link]);
+				
+				$model->addItem($trans);
+			}
+		}
+		
+		return $model;
 	}
 	
 	public function append(BusinessProcessBuilder $builder)
@@ -389,6 +429,26 @@ class BusinessProcessBuilder
 		}
 		
 		return $startNode;
+	}
+	
+	public function intermediateLinkCatchEvent($id, $link, $name = NULL)
+	{
+		$behavior = new IntermediateLinkCatchBehavior($link);
+		$behavior->setName($this->stringExp($name));
+	
+		$this->builder->node($id)->behavior($behavior);
+	
+		return $behavior;
+	}
+	
+	public function intermediateLinkThrowEvent($id, $link, $name = NULL)
+	{
+		$behavior = new IntermediateLinkThrowBehavior($link);
+		$behavior->setName($this->stringExp($name));
+	
+		$this->builder->node($id)->behavior($behavior);
+	
+		return $behavior;
 	}
 	
 	public function intermediateNoneEvent($id, $name = NULL)

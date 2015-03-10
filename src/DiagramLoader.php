@@ -456,6 +456,13 @@ class DiagramLoader
 			}
 		}
 		
+		foreach($this->xpath->query('m:linkEventDefinition', $el) as $def)
+		{
+			$link = $def->getAttribute('name');
+				
+			return $builder->intermediateLinkCatchEvent($id, $link, $el->getAttribute('name'));
+		}
+		
 		return $builder->intermediateNoneEvent($id, $el->getAttribute('name'));
 	}
 	
@@ -471,6 +478,13 @@ class DiagramLoader
 			$signal = $this->signals[$def->getAttribute('signalRef')];
 			
 			return $builder->intermediateSignalThrowEvent($id, $signal, $el->getAttribute('name'));
+		}
+		
+		foreach($this->xpath->query('m:linkEventDefinition', $el) as $def)
+		{
+			$link = $def->getAttribute('name');
+			
+			return $builder->intermediateLinkThrowEvent($id, $link, $el->getAttribute('name'));
 		}
 		
 		return $builder->intermediateNoneEvent($id, $el->getAttribute('name'));

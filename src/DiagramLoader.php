@@ -291,21 +291,19 @@ class DiagramLoader
 	
 	protected function parseReceiveTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
 	{
-		foreach($this->xpath->query('m:messageEventDefinition', $el) as $messageElement)
+		$receiveTask = NULL;
+		
+		if($el->hasAttribute('messageRef'))
 		{
-			// TODO: Implement receive task with message...
+			$message = $this->messages[$el->getAttribute('messageRef')];
 			
-			throw new \RuntimeException(sprintf('Receive task with message not implemented yet!'));
-			
-			$message = $this->messages[$messageElement->getAttribute('messageRef')];
-			
-			$messageStart = $builder->messageStartEvent($id, $message, $this->subProcessId !== NULL, $el->getAttribute('name'));
-			$messageStart->setInterrupting('false' !== strtolower($el->getAttribute('isInterrupting')));
-			
-			return $messageStart;
+			$receiveTask = $builder->receiveMessageTask($id, $message, $el->getAttribute('name'));
+		}
+		else
+		{
+			$receiveTask = $builder->receiveTask($id, $el->getAttribute('name'));
 		}
 		
-		$receiveTask = $builder->receiveTask($id, $el->getAttribute('name'));
 		$receiveTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
 		$receiveTask->setAsyncBefore($this->getAsyncBefore($el));
 		$receiveTask->setAsyncAfter($this->getAsyncAfter($el));

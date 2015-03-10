@@ -9,24 +9,29 @@
 * file that was distributed with this source code.
 */
 
-namespace KoolKode\BPMN\Runtime\Behavior;
+namespace KoolKode\BPMN\Delegate\Behavior;
 
-use KoolKode\BPMN\Engine\AbstractActivity;
+use KoolKode\BPMN\Delegate\DelegateExecution;
+use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
+use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\Runtime\Behavior\IntermediateCatchEventInterface;
 use KoolKode\BPMN\Runtime\Command\CreateMessageSubscriptionCommand;
 use KoolKode\Process\Node;
 
 /**
- * Subscribes to a message event and waits for message arrival.
+ * Receive task that waits for arrival of a message.
  * 
  * @author Martin Schröder
  */
-class IntermediateMessageCatchBehavior extends AbstractActivity implements IntermediateCatchEventInterface
+class ReceiveMessageTaskBehavior extends AbstractScopeActivity implements IntermediateCatchEventInterface
 {
 	protected $message;
 	
-	public function __construct($message)
+	public function __construct($activityId, $message)
 	{
+		parent::__construct($activityId);
+		
 		$this->message = (string)$message;
 	}
 	
@@ -43,9 +48,22 @@ class IntermediateMessageCatchBehavior extends AbstractActivity implements Inter
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
-		// TODO: Verify acceptable signals in all cases where waiting for messages / sginals / timers.
+		if($signal !== $this->message)
+		{
+			throw new \RuntimeException(sprintf('Receive task awaits message "%s", unable to process signal "%s"', $this->message, $signal));
+		}
 		
 		$this->passVariablesToExecution($execution, $variables);
+		
+		$engine = $execution->getEngine();
+		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
+		
+		$engine->debug('Receive task "{task}" triggered by message <{message}>', [
+			'task' => $name,
+			'message' => $signal
+		]);
+		
+		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
 		
 		$this->leave($execution);
 	}

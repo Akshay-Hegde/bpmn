@@ -40,7 +40,7 @@ class ReceiveTaskBehavior extends AbstractScopeActivity
 	{
 		if($signal !== NULL)
 		{
-			throw new \RuntimeException(sprintf('Receive task only supports NULL-signal, given "%s"', $signal));
+			throw new \RuntimeException(sprintf('Receive task only supports NULL-signals, given "%s"', $signal));
 		}
 		
 		$this->passVariablesToExecution($execution, $variables);

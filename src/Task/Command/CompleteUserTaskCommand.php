@@ -71,7 +71,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
 		
 		if($executionId !== NULL)
 		{
-			$engine->findExecution($executionId)->signal(NULL, unserialize($this->variables));
+			$engine->findExecution($executionId)->signal('user-task', unserialize($this->variables));
 		}
 	}
 }

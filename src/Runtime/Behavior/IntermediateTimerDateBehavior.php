@@ -42,6 +42,11 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($signal !== 'timer')
+		{
+			throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
+		}
+		
 		$this->passVariablesToExecution($execution, $variables);
 	
 		$this->leave($execution);

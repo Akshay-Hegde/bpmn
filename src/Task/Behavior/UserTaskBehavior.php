@@ -88,6 +88,11 @@ class UserTaskBehavior extends AbstractScopeActivity
 			return;
 		}
 		
+		if($signal !== 'user-task')
+		{
+			throw new \RuntimeException(sprintf('User task cannot process signal "%s"', $signal));
+		}
+		
 		$this->passVariablesToExecution($execution, $variables);
 		
 		$this->leave($execution);

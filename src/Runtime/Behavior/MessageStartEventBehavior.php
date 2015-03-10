@@ -23,21 +23,21 @@ use KoolKode\Process\Node;
  */
 class MessageStartEventBehavior extends AbstractActivity implements StartEventBehaviorInterface
 {
-	protected $messageName;
+	protected $message;
 	
 	protected $subProcessStart;
 	
 	protected $interrupting = true;
 	
-	public function __construct($messageName, $subProcessStart = false)
+	public function __construct($message, $subProcessStart = false)
 	{
-		$this->messageName = (string)$messageName;
+		$this->message = (string)$message;
 		$this->subProcessStart = $subProcessStart ? true : false;
 	}
 	
 	public function getMessageName()
 	{
-		return $this->messageName;
+		return $this->message;
 	}
 	
 	public function isSubProcessStart()
@@ -60,6 +60,11 @@ class MessageStartEventBehavior extends AbstractActivity implements StartEventBe
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($signal !== $this->message)
+		{
+			throw new \RuntimeException(sprintf('Start event awaits message "%s", unable to process signal "%s"', $this->message, $signal));
+		}
+		
 		$this->passVariablesToExecution($execution, $variables);
 		
 		$this->leave($execution);
@@ -71,7 +76,7 @@ class MessageStartEventBehavior extends AbstractActivity implements StartEventBe
 	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateMessageSubscriptionCommand(
-			$this->messageName,
+			$this->message,
 			$execution,
 			$activityId,
 			($node === NULL) ? $execution->getNode() : $node

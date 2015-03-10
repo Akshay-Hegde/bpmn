@@ -23,21 +23,21 @@ use KoolKode\Process\Node;
  */
 class SignalStartEventBehavior extends AbstractActivity implements StartEventBehaviorInterface
 {
-	protected $signalName;
+	protected $signal;
 	
 	protected $subProcessStart;
 	
 	protected $interrupting = true;
 	
-	public function __construct($signalName, $subProcessStart = false)
+	public function __construct($signal, $subProcessStart = false)
 	{
-		$this->signalName = (string)$signalName;
+		$this->signal = (string)$signal;
 		$this->subProcessStart = $subProcessStart ? true : false;
 	}
 	
 	public function getSignalName()
 	{
-		return $this->signalName;
+		return $this->signal;
 	}
 	
 	public function isSubProcessStart()
@@ -60,6 +60,11 @@ class SignalStartEventBehavior extends AbstractActivity implements StartEventBeh
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($signal !== $this->signal)
+		{
+			throw new \RuntimeException(sprintf('Start event awaits signal "%s", unable to process signal "%s"', $this->signal, $signal));
+		}
+		
 		$this->passVariablesToExecution($execution, $variables);
 	
 		$this->leave($execution);
@@ -71,7 +76,7 @@ class SignalStartEventBehavior extends AbstractActivity implements StartEventBeh
 	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
 	{
 		$execution->getEngine()->executeCommand(new CreateSignalSubscriptionCommand(
-			$this->signalName,
+			$this->signal,
 			$execution,
 			$activityId,
 			($node === NULL) ? $execution->getNode() : $node

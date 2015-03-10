@@ -37,6 +37,11 @@ class MessageBoundaryEventBehavior extends AbstractBoundaryActivity
 	 */
 	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
 	{
+		if($signal !== $this->message)
+		{
+			throw new \RuntimeException(sprintf('Boundary event awaits message "%s", unable to process signal "%s"', $this->message, $signal));
+		}
+		
 		$this->passVariablesToExecution($execution, $variables);
 		
 		parent::processSignal($execution, $signal, $variables);

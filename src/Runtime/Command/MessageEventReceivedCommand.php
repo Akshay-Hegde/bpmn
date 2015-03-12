@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Runtime\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -69,7 +70,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 		";
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('message', $this->messageName);
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_MESSAGE);
+		$stmt->bindValue('flags', EventSubscription::TYPE_MESSAGE);
 		$stmt->bindValue('eid', $this->executionId);
 		$stmt->setLimit(1);
 		$stmt->execute();
@@ -101,7 +102,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 		");
 		$stmt->bindValue('eid', $execution->getId());
 		$stmt->bindValue('aid', $row['activity_id']);
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
+		$stmt->bindValue('flags', EventSubscription::TYPE_TIMER);
 		$stmt->transform('job_id', new UUIDTransformer());
 		$stmt->execute();
 		

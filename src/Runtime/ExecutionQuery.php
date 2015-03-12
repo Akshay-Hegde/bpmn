@@ -321,7 +321,7 @@ class ExecutionQuery extends AbstractQuery
 			$p2 = 'p' . (count($params) + 1);
 			
 			$where[] = "s$alias.`flags` = :$p1";
-			$params[$p1] = ProcessEngine::SUB_FLAG_SIGNAL;
+			$params[$p1] = EventSubscription::TYPE_SIGNAL;
 			
 			$where[] = "s$alias.`name` = :$p2";
 			$params[$p2] = $name;
@@ -337,7 +337,7 @@ class ExecutionQuery extends AbstractQuery
 			$p2 = 'p' . (count($params) + 1);
 			
 			$where[] = "s$alias.`flags` = :$p1";
-			$params[$p1] = ProcessEngine::SUB_FLAG_MESSAGE;
+			$params[$p1] = EventSubscription::TYPE_MESSAGE;
 				
 			$where[] = "s$alias.`name` = :$p2";
 			$params[$p2] = $name;

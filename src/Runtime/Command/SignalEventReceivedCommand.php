@@ -16,6 +16,7 @@ use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Repository\ProcessDefinition;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -80,7 +81,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			
 		$stmt = $engine->prepareQuery($sql);
 		$stmt->bindValue('signal', $this->signal);
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_SIGNAL);
+		$stmt->bindValue('flags', EventSubscription::TYPE_SIGNAL);
 			
 		if($this->executionId !== NULL)
 		{
@@ -110,7 +111,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 			$sql = "SELECT `job_id` FROM `#__bpmn_event_subscription` WHERE `flags` = :flags AND `job_id` IS NOT NULL AND (";
 			$where = [];
 			$params = [
-				'flags' => ProcessEngine::SUB_FLAG_TIMER
+				'flags' => EventSubscription::TYPE_TIMER
 			];
 			
 			foreach(array_values($ids) as $i => $tmp)
@@ -164,7 +165,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 					AND s.`name` = :name
 		";
 		$stmt = $engine->prepareQuery($sql);
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_SIGNAL);
+		$stmt->bindValue('flags', EventSubscription::TYPE_SIGNAL);
 		$stmt->bindValue('name', $this->signal);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('deployment_id', new UUIDTransformer());

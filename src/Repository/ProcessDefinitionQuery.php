@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Repository;
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -275,7 +276,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 			$p1 = 'p' . count($params);
 			
 			$where[] = "s$alias.`flags` = :$p1";
-			$params[$p1] = ProcessEngine::SUB_FLAG_MESSAGE;
+			$params[$p1] = EventSubscription::TYPE_MESSAGE;
 			
 			$this->buildPredicate("s$alias.`name`", $name, $where, $params);
 			
@@ -289,7 +290,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 			$p1 = 'p' . count($params);
 				
 			$where[] = "s$alias.`flags` = :$p1";
-			$params[$p1] = ProcessEngine::SUB_FLAG_SIGNAL;
+			$params[$p1] = EventSubscription::TYPE_SIGNAL;
 				
 			$this->buildPredicate("s$alias.`name`", $name, $where, $params);
 				

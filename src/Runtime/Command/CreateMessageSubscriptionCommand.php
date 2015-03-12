@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Runtime\Command;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Runtime\EventSubscription;
 
 /**
  * Creates a message event subscription.
@@ -38,6 +39,6 @@ class CreateMessageSubscriptionCommand extends AbstractCreateSubscriptionCommand
 	 */
 	protected function getSubscriptionFlag()
 	{
-		return ProcessEngine::SUB_FLAG_MESSAGE;
+		return EventSubscription::TYPE_MESSAGE;
 	}
 }

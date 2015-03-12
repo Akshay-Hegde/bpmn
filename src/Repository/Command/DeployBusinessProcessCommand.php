@@ -18,6 +18,7 @@ use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Repository\ProcessDefinition;
 use KoolKode\BPMN\Runtime\Behavior\MessageStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalStartEventBehavior;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Util\UUID;
 
 /**
@@ -109,7 +110,7 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
 				$stmt = $engine->prepareQuery($sql);
 				$stmt->bindValue('id', UUID::createRandom());
 				$stmt->bindValue('def', $id);
-				$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_MESSAGE);
+				$stmt->bindValue('flags', EventSubscription::TYPE_MESSAGE);
 				$stmt->bindValue('message', $behavior->getMessageName());
 				$stmt->execute();
 				
@@ -129,7 +130,7 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
 				$stmt = $engine->prepareQuery($sql);
 				$stmt->bindValue('id', UUID::createRandom());
 				$stmt->bindValue('def', $id);
-				$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_SIGNAL);
+				$stmt->bindValue('flags', EventSubscription::TYPE_SIGNAL);
 				$stmt->bindValue('message', $behavior->getSignalName());
 				$stmt->execute();
 				

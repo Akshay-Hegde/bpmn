@@ -40,6 +40,11 @@ class RuntimeService
 		return new ExecutionQuery($this->engine);
 	}
 	
+	public function createEventSubscriptionQuery()
+	{
+		return new EventSubscriptionQuery($this->engine);
+	}
+	
 	public function createMessageCorrelation($messageName)
 	{
 		return new MessageCorrelation($this, $messageName);

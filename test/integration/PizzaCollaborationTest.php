@@ -48,6 +48,8 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
 		$jobs = $this->managementService->createJobQuery()->timer(false)->findAll();
 		$this->assertCount(1, $jobs);
 		
+		$this->assertEquals(2, $this->runtimeService->createEventSubscriptionQuery()->processInstanceId($process->getId())->count());
+		
 		$this->managementService->executeJob($jobs[0]->getId());
 		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
 		$task = $this->taskService->createTaskQuery()->findOne();

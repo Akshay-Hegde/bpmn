@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Engine;
 
 use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
 use KoolKode\BPMN\History\Event\ActivityStartedEvent;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
@@ -64,7 +65,7 @@ abstract class AbstractActivity implements ActivityInterface
 		");
 		$stmt->bindValue('eid', $execution->getId());
 		$stmt->bindValue('aid', $activityId);
-		$stmt->bindValue('flags', ProcessEngine::SUB_FLAG_TIMER);
+		$stmt->bindValue('flags', EventSubscription::TYPE_TIMER);
 		$stmt->transform('job_id', new UUIDTransformer());
 		$stmt->execute();
 		

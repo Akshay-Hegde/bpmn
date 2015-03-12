@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Runtime\Command;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Process\Command\SignalExecutionCommand;
 use KoolKode\Process\Node;
 use KoolKode\Util\UUID;
@@ -84,6 +85,6 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
 	 */
 	protected function getSubscriptionFlag()
 	{
-		return ProcessEngine::SUB_FLAG_TIMER;
+		return EventSubscription::TYPE_TIMER;
 	}
 }

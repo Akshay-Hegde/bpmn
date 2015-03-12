@@ -50,9 +50,9 @@ class MessageCorrelation
 		return $this;
 	}
 	
-	public function parentId($id)
+	public function parentExecutionId($id)
 	{
-		$this->query->parentId($id);
+		$this->query->parentExecutionId($id);
 		
 		return $this;
 	}

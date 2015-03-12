@@ -30,7 +30,7 @@ class ExecutionQuery extends AbstractQuery
 	
 	protected $processInstanceId;
 	protected $executionId;
-	protected $parentId;
+	protected $parentExecutionId;
 	protected $activityId;
 	protected $processBusinessKey;
 	protected $processDefinitionKey;
@@ -65,9 +65,9 @@ class ExecutionQuery extends AbstractQuery
 		return $this;
 	}
 	
-	public function parentId($id)
+	public function parentExecutionId($id)
 	{
-		$this->populateMultiProperty($this->parentId, $id, function($value) {
+		$this->populateMultiProperty($this->parentExecutionId, $id, function($value) {
 			return new UUID($value);
 		});
 		
@@ -123,7 +123,7 @@ class ExecutionQuery extends AbstractQuery
 		return $this;
 	}
 	
-	public function orderByParentId($ascending = true)
+	public function orderByParentExecutionId($ascending = true)
 	{
 		$this->orderings[] = ['e.`pid`', $ascending ? 'ASC' : 'DESC'];
 	
@@ -269,7 +269,7 @@ class ExecutionQuery extends AbstractQuery
 		
 		$this->buildPredicate("e.`id`", $this->executionId, $where, $params);
 		$this->buildPredicate("e.`process_id`", $this->processInstanceId, $where, $params);
-		$this->buildPredicate("e.`pid`", $this->parentId, $where, $params);
+		$this->buildPredicate("e.`pid`", $this->parentExecutionId, $where, $params);
 		$this->buildPredicate("e.`node`", $this->activityId, $where, $params);
 		$this->buildPredicate("e.`business_key`", $this->processBusinessKey, $where, $params);
 		$this->buildPredicate("d.`process_key`", $this->processDefinitionKey, $where, $params);

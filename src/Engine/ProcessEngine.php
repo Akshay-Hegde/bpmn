@@ -44,12 +44,6 @@ use KoolKode\Util\UUID;
  */
 class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 {
-	const SUB_FLAG_SIGNAL = 1;
-	
-	const SUB_FLAG_MESSAGE = 2;
-	
-	const SUB_FLAG_TIMER = 3;
-	
 	protected $conn;
 	
 	protected $handleTransactions;

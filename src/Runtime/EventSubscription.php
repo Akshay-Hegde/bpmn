@@ -40,6 +40,10 @@ class EventSubscription implements \JsonSerializable
 	
 	protected $created;
 	
+	protected $jobId;
+	
+	protected $boundaryEvent;
+	
 	public function __construct(UUID $id, UUID $executionId, UUID $processInstanceId, $activityId, $eventType, $eventName, \DateTimeImmutable $created)
 	{
 		$this->id = $id;
@@ -162,5 +166,35 @@ class EventSubscription implements \JsonSerializable
 	public function getCreated()
 	{
 		return $this->created;
+	}
+	
+	public function hasJob()
+	{
+		return $this->jobId !== NULL;
+	}
+	
+	/**
+	 * Get the ID of the job associated with the event (only relevant when the event is a timer event).
+	 * 
+	 * @return UUID
+	 */
+	public function getJobId()
+	{
+		return $this->jobId;
+	}
+	
+	public function setJobId(UUID $jobId = NULL)
+	{
+		$this->jobId = $jobId;
+	}
+	
+	public function isBoundaryEvent()
+	{
+		return $this->boundaryEvent;
+	}
+	
+	public function setBoundaryEvent($boundaryEvent)
+	{
+		$this->boundaryEvent = $boundaryEvent ? true : false;
 	}
 }

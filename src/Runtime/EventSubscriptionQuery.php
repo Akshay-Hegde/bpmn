@@ -30,6 +30,10 @@ class EventSubscriptionQuery extends AbstractQuery
 	
 	protected $processInstanceId;
 	
+	protected $jobId;
+	
+	protected $boundaryEvent;
+	
 	public function __construct(ProcessEngine $engine)
 	{
 		$this->engine = $engine;
@@ -82,6 +86,22 @@ class EventSubscriptionQuery extends AbstractQuery
 			return new UUID($value);
 		});
 	
+		return $this;
+	}
+	
+	public function jobId($id)
+	{
+		$this->populateMultiProperty($this->jobId, $id, function($value) {
+			return new UUID($value);
+		});
+	
+		return $this;
+	}
+	
+	public function boundaryEvent($boundaryEvent)
+	{
+		$this->boundaryEvent = $boundaryEvent ? true : false;
+		
 		return $this;
 	}
 	
@@ -141,7 +161,7 @@ class EventSubscriptionQuery extends AbstractQuery
 	
 	protected function unserializeSubscription(array $row)
 	{
-		return new EventSubscription(
+		$subscription = new EventSubscription(
 			$row['id'],
 			$row['execution_id'],
 			$row['process_instance_id'],
@@ -150,6 +170,11 @@ class EventSubscriptionQuery extends AbstractQuery
 			$row['name'],
 			new \DateTimeImmutable('@' . $row['created_at'])
 		);
+		
+		$subscription->setJobId($row['job_id']);
+		$subscription->setBoundaryEvent($row['boundary']);
+		
+		return $subscription;
 	}
 	
 	protected function getDefaultOrderBy()
@@ -180,8 +205,18 @@ class EventSubscriptionQuery extends AbstractQuery
 		$this->buildPredicate("s.`activity_id`", $this->activityId, $where, $params);
 		$this->buildPredicate("s.`name`", $this->eventName, $where, $params);
 		$this->buildPredicate("s.`flags`", $this->eventType, $where, $params);
+		$this->buildPredicate("s.`job_id`", $this->jobId, $where, $params);
 		$this->buildPredicate("e.`id`", $this->executionId, $where, $params);
 		$this->buildPredicate('e.`process_id`', $this->processInstanceId, $where, $params);
+		
+		if($this->boundaryEvent === true)
+		{
+			$where[] = 's.`boundary` = 1';
+		}
+		elseif($this->boundaryEvent === false)
+		{
+			$where[] = 's.`boundary` = 0';
+		}
 		
 		if(!empty($where))
 		{
@@ -198,6 +233,7 @@ class EventSubscriptionQuery extends AbstractQuery
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('execution_id', new UUIDTransformer());
 		$stmt->transform('process_instance_id', new UUIDTransformer());
+		$stmt->transform('job_id', new UUIDTransformer());
 		$stmt->setLimit($limit);
 		$stmt->setOffset($offset);
 		$stmt->execute();

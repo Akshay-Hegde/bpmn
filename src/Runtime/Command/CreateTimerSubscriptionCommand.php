@@ -66,7 +66,7 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
 		
 		$command = new SignalExecutionCommand($execution, NULL, [], $delegation);
 		
-		$job = $engine->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
+		$job = $engine->scheduleJob($execution->getId(), AsyncCommandHandler::HANDLER_TYPE, [
 			AsyncCommandHandler::PARAM_COMMAND => $command
 		], new \DateTimeImmutable('@' . $this->time, new \DateTimeZone('UTC')));
 		

@@ -207,17 +207,17 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	 * 
 	 * This method will not cause an error in case of a missing job executor!
 	 * 
-	 * @param VirtualExecution $execution Target execution being used by the job.
+	 * @param UUID $executionId Target execution being used by the job.
 	 * @param string $handlerType The name of the job handler.
 	 * @param mixed $data Arbitrary data to be passed to the job handler.
 	 * @param \DateTimeInterface $runAt Scheduled execution time, a value of NULL schedules the job for immediate execution.
 	 * @return Job The persisted job instance or NULL when no job executor has been configured.
 	 */
-	public function scheduleJob(VirtualExecution $execution, $handlerType, $data, \DateTimeInterface $runAt = NULL)
+	public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = NULL)
 	{
 		if($this->jobExecutor !== NULL)
 		{
-			return $this->jobExecutor->scheduleJob($execution->getId(), $handlerType, $data, $runAt);
+			return $this->jobExecutor->scheduleJob($executionId, $handlerType, $data, $runAt);
 		}
 	}
 	
@@ -302,7 +302,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		{
 			if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobScheduler() && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
 			{
-				$this->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
+				$this->scheduleJob($execution->getId(), AsyncCommandHandler::HANDLER_TYPE, [
 					AsyncCommandHandler::PARAM_COMMAND => $command,
 					AsyncCommandHandler::PARAM_NODE_ID => $node->getId()
 				]);
@@ -340,7 +340,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			{
 				if($this->jobExecutor !== NULL && $this->jobExecutor->hasJobScheduler() && $this->jobExecutor->hasJobHandler(AsyncCommandHandler::HANDLER_TYPE))
 				{
-					$this->scheduleJob($execution, AsyncCommandHandler::HANDLER_TYPE, [
+					$this->scheduleJob($execution->getId(), AsyncCommandHandler::HANDLER_TYPE, [
 						AsyncCommandHandler::PARAM_COMMAND => $command,
 						AsyncCommandHandler::PARAM_NODE_ID => $node->getId()
 					]);

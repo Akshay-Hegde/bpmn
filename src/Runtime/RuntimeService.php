@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Runtime;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
 use KoolKode\BPMN\Repository\ProcessDefinition;
 use KoolKode\BPMN\Runtime\Command\GetExecutionVariablesCommand;
 use KoolKode\BPMN\Runtime\Command\MessageEventReceivedCommand;
@@ -55,14 +56,41 @@ class RuntimeService
 		$this->engine->pushCommand(new SignalVirtualExecutionCommand($executionId, NULL, $variables));
 	}
 	
+	public function signalAsync(UUID $executionId, array $variables = [])
+	{
+		$command = new SignalVirtualExecutionCommand($executionId, NULL, $variables);
+		
+		$this->engine->scheduleJob($executionId, AsyncCommandHandler::class, [
+			AsyncCommandHandler::PARAM_COMMAND => $command
+		]);
+	}
+	
 	public function messageEventReceived($messageName, UUID $executionId, array $variables = [])
 	{
 		$this->engine->pushCommand(new MessageEventReceivedCommand($messageName, $executionId, $variables));
 	}
 	
+	public function messageEventReceivedAsync($messageName, UUID $executionId, array $variables = [])
+	{
+		$command = new MessageEventReceivedCommand($messageName, $executionId, $variables);
+		
+		$this->engine->scheduleJob($executionId, AsyncCommandHandler::class, [
+			AsyncCommandHandler::PARAM_COMMAND => $command
+		]);
+	}
+	
 	public function signalEventReceived($signalName, UUID $executionId = NULL, array $variables = [])
 	{
 		$this->engine->pushCommand(new SignalEventReceivedCommand($signalName, $executionId, $variables));
+	}
+	
+	public function signalEventReceivedAsync($signalName, UUID $executionId = NULL, array $variables = [])
+	{
+		$command = new SignalEventReceivedCommand($signalName, $executionId, $variables);
+		
+		$this->engine->scheduleJob($executionId, AsyncCommandHandler::class, [
+			AsyncCommandHandler::PARAM_COMMAND => $command
+		]);
 	}
 	
 	/**

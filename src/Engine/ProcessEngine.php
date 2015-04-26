@@ -24,6 +24,7 @@ use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
 use KoolKode\Database\ConnectionInterface;
+use KoolKode\Database\DB;
 use KoolKode\Database\ParamEncoderDecorator;
 use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
@@ -383,17 +384,50 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			return $this->executions[$ref];
 		}
 		
-		$sql = "	SELECT e.*, d.`definition`
+		// Need to select multiple rows as one process instance may span over different process definitions (using CallActivity)
+		$sql = "	SELECT e.`process_id`, d.`id` as definition_id, MAX(d.`definition`) AS definition
 					FROM `#__bpmn_execution` AS e
 					INNER JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
-					WHERE e.`process_id` IN (
-						SELECT `process_id`
-						FROM `#__bpmn_execution`
-						WHERE `id` = :eid
-					)
+					WHERE e.`process_id` = (
+						SELECT `process_id` FROM `#__bpmn_execution` WHERE `id` = :eid
+					) GROUP BY e.`process_id`, d.`id`
 		";
 		$stmt = $this->conn->prepare($sql);
-		$stmt->bindAll(['eid' => $id]);
+		$stmt->bindValue('eid', $id);
+		$stmt->transform('process_id', new UUIDTransformer());
+		$stmt->transform('definition_id', new UUIDTransformer());
+		$stmt->execute();
+		
+		$rows = $stmt->fetchRows();
+		
+		if(empty($rows))
+		{
+			throw new \OutOfBoundsException(sprintf('Execution not found: "%s"', $ref));
+		}
+		
+		$processId = $rows[0]['process_id'];
+		$definitions = [];
+		
+		foreach($rows as $row)
+		{
+			$definitions[(string)$row['definition_id']] = unserialize(BinaryData::decode($row['definition']));
+		}
+		
+		// Select (and lock) all execution rows of the process instance using a pessimistic lock.
+		$sql = "	SELECT e.*
+					FROM `#__bpmn_execution` AS e
+					WHERE e.`process_id` = :pid
+		";
+		
+		switch($this->conn->getDriverName())
+		{
+			case DB::DRIVER_MYSQL:
+			case DB::DRIVER_POSTGRESQL:
+				$sql .= " FOR UPDATE";
+		}
+		
+		$stmt = $this->conn->prepare($sql);
+		$stmt->bindAll(['pid' => $processId]);
 		$stmt->transform('id', new UUIDTransformer());
 		$stmt->transform('pid', new UUIDTransformer());
 		$stmt->transform('process_id', new UUIDTransformer());
@@ -403,7 +437,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		$variables = [];
 		$executions = [];
 		$parents = [];
-		$defs = [];
 		
 		while($row = $stmt->fetchNextRow())
 		{
@@ -411,18 +444,16 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			$pid = $row['pid'];
 			$defId = (string)$row['definition_id'];
 			
+			if(empty($definitions[$defId]))
+			{
+				throw new \OutOfBoundsException(sprintf('Missing process definition "%s" referenced from execution "%s"', $defId, $id));
+			}
+			
+			$definition = $definitions[$defId];
+			
 			if($pid !== NULL)
 			{
 				$parents[(string)$id] = (string)$pid;
-			}
-			
-			if(isset($defs[$defId]))
-			{
-				$definition = $defs[$defId];
-			}
-			else
-			{
-				$definition = $defs[$defId] = unserialize(BinaryData::decode($row['definition']));
 			}
 			
 			$state = (int)$row['state'];

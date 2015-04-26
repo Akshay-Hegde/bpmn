@@ -14,6 +14,12 @@ no need for a graphical editor, but it turns creating process definitions into a
 with a class called `BusinessProcessBuilder` that can be used to create a process without loading it from a BPMN 2.0
 XML file.
 
+## Concurrency and Locking
+
+The engine uses pessimistic locking of process instances within the DB to prevent concurrent access to process instances.
+This locking strategy may create deadlocks. Try switching to async continuations / service methods when you are in
+danger of running into a deadlock (keep in mind that async processing requires a job scheduler).
+
 ## Supported BPMN 2.0 Elements
 
 As of now KoolKode BPMN supports only a limited sub-set of BPMN elements.

@@ -30,13 +30,44 @@ danger of running into a deadlock (keep in mind that async processing requires a
 
 4) Have the tool generate the `.kkdb.php` config file for you (supported DBs are Sqlite, MySQL / MariaDB and PostgreSQL).
 
-5) Edit `.kkdb.php` and add the path to the `migration` directory of the `koolkode/bpmn` package. Avery simple
+5) Edit `.kkdb.php` and add the path to the `migration` directory of the `koolkode/bpmn` package. A very simple
 way to achieve this is to add this line to the `directories` array:
 ```php
 __DIR__ . '/vendor/koolkode/bpmn/migration'
 ```
 
 6) Run `./vendor/bin/kkdb migration:up` again to apply DB migrations.
+
+### Sample config file using Sqlite
+
+Copy the code shown into a file called `.kkdb.php` next to your `composer.json`. It configures a
+Sqlite connection that stores a DB file in your project directory.
+```php
+<?php
+
+return [
+	'ConnectionManager' => [
+		'adapter' => [
+			'default' => [
+				'dsn' => 'sqlite:' . __DIR__ . '/bpmn.db
+			]
+		],
+		'connection' => [
+			'default' => [
+				'adapter' => 'default'
+			]
+		]
+	],
+	'Migration' => [
+		'MigrationManager' => [
+			'directories' => [
+				__DIR__ . '/vendor/koolkode/bpmn/migration'
+			]
+		]
+	]
+];
+```
+Run `./vendor/bin/kkdb migration:up` and proceed with creating a process engine instance.
 
 ## Creating a Process Engine
 

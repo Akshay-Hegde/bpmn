@@ -385,12 +385,12 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		}
 		
 		// Need to select multiple rows as one process instance may span over different process definitions (using CallActivity)
-		$sql = "	SELECT e.`process_id`, d.`id` as definition_id, MAX(d.`definition`) AS definition
+		$sql = "	SELECT DISTINCT e.`process_id`, d.`id` as definition_id, d.`definition`
 					FROM `#__bpmn_execution` AS e
 					INNER JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)
 					WHERE e.`process_id` = (
 						SELECT `process_id` FROM `#__bpmn_execution` WHERE `id` = :eid
-					) GROUP BY e.`process_id`, d.`id`
+					)
 		";
 		$stmt = $this->conn->prepare($sql);
 		$stmt->bindValue('eid', $id);

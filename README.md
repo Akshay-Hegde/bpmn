@@ -30,11 +30,7 @@ danger of running into a deadlock (keep in mind that async processing requires a
 
 4) Have the tool generate the `.kkdb.php` config file for you (supported DBs are Sqlite, MySQL / MariaDB and PostgreSQL).
 
-5) Edit `.kkdb.php` and add the path to the `migration` directory of the `koolkode/bpmn` package. A very simple
-way to achieve this is to add this line to the `directories` array:
-```php
-__DIR__ . '/vendor/koolkode/bpmn/migration'
-```
+5) Edit `.kkdb.php` and add the path to the `migration` directory of the `koolkode/bpmn` package.
 
 6) Run `./vendor/bin/kkdb migration:up` again to apply DB migrations.
 

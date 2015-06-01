@@ -45,6 +45,11 @@ use KoolKode\Util\UUID;
  */
 class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 {
+	/**
+	 * Database connection.
+	 * 
+	 * @var ConnectionInterface
+	 */
 	protected $conn;
 	
 	protected $handleTransactions;
@@ -530,27 +535,18 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	 */
 	protected function syncNewExecution(Execution $execution, array $syncData)
 	{
-		$sql = "	INSERT INTO `#__bpmn_execution` (
-						`id`, `pid`, `process_id`, `definition_id`, `state`, `active`,
-						`node`, `transition`, `depth`, `business_key`
-					) VALUES (
-						:id, :parentId, :processId, :modelId, :state, :timestamp,
-						:node, :transition, :depth, :businessKey
-					)
-		";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bindValue('id', $syncData['id']);
-		$stmt->bindValue('parentId', $syncData['parentId']);
-		$stmt->bindValue('processId', $syncData['processId']);
-		$stmt->bindValue('modelId', $syncData['modelId']);
-		$stmt->bindValue('state', $syncData['state']);
-		$stmt->bindValue('timestamp', $syncData['timestamp']);
-		$stmt->bindValue('node', $syncData['node']);
-		$stmt->bindValue('transition', $syncData['transition']);
-		$stmt->bindValue('depth', $syncData['depth']);
-		$stmt->bindValue('businessKey', $syncData['businessKey']);
-		
-		$stmt->execute();
+		$this->conn->insert('#__bpmn_execution', [
+			'id' => $syncData['id'],
+			'pid' => $syncData['parentId'],
+			'process_id' => $syncData['processId'],
+			'definition_id' => $syncData['modelId'],
+			'state' => $syncData['state'],
+			'active' => $syncData['timestamp'],
+			'node' => $syncData['node'],
+			'transition' => $syncData['transition'],
+			'depth' => $syncData['depth'],
+			'business_key' => $syncData['businessKey']
+		]);
 		
 		$this->syncVariables($execution, $syncData);
 		
@@ -566,28 +562,16 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 	 */
 	protected function syncModifiedExecution(Execution $execution, array $syncData)
 	{
-		$sql = "	UPDATE `#__bpmn_execution`
-					SET `pid` = :pid,
-						`process_id` = :process,
-						`state` = :state,
-						`active` = :timestamp,
-						`node` = :node,
-						`depth` = :depth,
-						`transition` = :transition,
-						`business_key` = :bkey
-					WHERE `id` = :id
-		";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bindValue('id', $syncData['id']);
-		$stmt->bindValue('pid', $syncData['parentId']);
-		$stmt->bindValue('process', $syncData['processId']);
-		$stmt->bindValue('state', $syncData['state']);
-		$stmt->bindValue('timestamp', $syncData['timestamp']);
-		$stmt->bindValue('node', $syncData['node']);
-		$stmt->bindValue('transition', $syncData['transition']);
-		$stmt->bindValue('depth', $syncData['depth']);
-		$stmt->bindValue('bkey', $syncData['businessKey']);
-		$stmt->execute();
+		$this->conn->update('#__bpmn_execution', ['id' => $syncData['id']], [
+			'pid' => $syncData['parentId'],
+			'process_id' => $syncData['processId'],
+			'state' => $syncData['state'],
+			'active' => $syncData['timestamp'],
+			'node' => $syncData['node'],
+			'depth' => $syncData['depth'],
+			'transition' => $syncData['transition'],
+			'business_key' => $syncData['businessKey']
+		]);
 		
 		$this->syncVariables($execution, $syncData);
 		
@@ -608,12 +592,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			$this->syncRemovedExecution($child);
 		}
 		
-		$sql = "	DELETE FROM `#__bpmn_execution`
-					WHERE `id` = :id
-		";
-		$stmt = $this->conn->prepare($sql);
-		$stmt->bindValue('id', $execution->getId());
-		$stmt->execute();
+		$this->conn->delete('#__bpmn_execution', ['id' => $execution->getId()]);
 		
 		$this->notify(new ExecutionTerminatedEvent($execution, $this));
 		
@@ -649,14 +628,6 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 			
 		if(!empty($delta[Execution::SYNC_STATE_MODIFIED]))
 		{
-			$sql = "	INSERT INTO `#__bpmn_execution_variables`
-							(`execution_id`, `name`, `value`, `value_blob`)
-						VALUES
-							(:eid, :name, :value, :blob)
-			";
-			$stmt = $this->conn->prepare($sql);
-			$stmt->bindValue('eid', $execution->getId());
-		
 			foreach($delta[Execution::SYNC_STATE_MODIFIED] as $k)
 			{
 				$value = NULL;
@@ -679,11 +650,13 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 					$value = $value->toLowerCase();
 				}
-								
-				$stmt->bindValue('name', $k);
-				$stmt->bindValue('value', $value);
-				$stmt->bindValue('blob', new BinaryData(serialize($syncData['variables'][$k])));
-				$stmt->execute();
+				
+				$this->conn->insert('#__bpmn_execution_variables', [
+					'execution_id' => $execution->getId(),
+					'name' => $k,
+					'value' => $value,
+					'value_blob' => new BinaryData(serialize($syncData['variables'][$k]))
+				]);
 			}
 		}
 	}

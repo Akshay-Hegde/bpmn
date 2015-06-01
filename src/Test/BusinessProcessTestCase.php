@@ -100,7 +100,9 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 	{
 		parent::setUp();
 		
-		$this->conn = static::createConnection('bpm_');
+		$this->eventDispatcher = new EventDispatcher();
+		
+		$this->conn = static::createConnection('bpm_', $this->eventDispatcher);
 		
 		static::migrateDirectoryUp($this->conn, __DIR__ . '/../../migration');
 		
@@ -125,8 +127,6 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 		
 		$this->messageHandlers = [];
 		$this->serviceTaskHandlers = [];
-		
-		$this->eventDispatcher = new EventDispatcher();
 		
 		// Provide message handler subscriptions.
 		$this->eventDispatcher->connect(function(MessageThrownEvent $event) {

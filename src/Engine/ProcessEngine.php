@@ -605,25 +605,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 		
 		if(!empty($delta[Execution::SYNC_STATE_REMOVED]))
 		{
-			$params = [];
-		
-			foreach($delta[Execution::SYNC_STATE_REMOVED] as $k)
-			{
-				$params['n' . count($params)] = $k;
-			}
-		
-			$placeholders = implode(', ', array_map(function($p) {
-				return ':' . $p;
-			}, array_keys($params)));
-		
-			$sql = "	DELETE FROM `#__bpmn_execution_variables`
-						WHERE `execution_id` = :eid
-						AND `name` IN ($placeholders)
-			";
-			$stmt = $this->conn->prepare($sql);
-			$stmt->bindValue('eid', $execution->getId());
-			$stmt->bindAll($params);
-			$stmt->execute();
+			$this->conn->delete('#__bpmn_execution_variables', [
+				'execution_id' => $execution->getId(),
+				'name' => (array)$delta[Execution::SYNC_STATE_REMOVED]
+			]);
 		}
 			
 		if(!empty($delta[Execution::SYNC_STATE_MODIFIED]))

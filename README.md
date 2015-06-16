@@ -45,7 +45,7 @@ return [
 	'ConnectionManager' => [
 		'adapter' => [
 			'default' => [
-				'dsn' => 'sqlite:' . __DIR__ . '/bpmn.db
+				'dsn' => sprintf('sqlite:%s/bpmn.db', __DIR__)
 			]
 		],
 		'connection' => [
@@ -57,7 +57,7 @@ return [
 	'Migration' => [
 		'MigrationManager' => [
 			'directories' => [
-				__DIR__ . '/vendor/koolkode/bpmn/migration'
+				sprintf('%s/vendor/koolkode/bpmn/migration', __DIR__)
 			]
 		]
 	]

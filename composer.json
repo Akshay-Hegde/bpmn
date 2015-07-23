@@ -40,6 +40,8 @@
 	},
 	"minimum-stability" : "stable",
 	"extra" : {
+		"preferred-install" : "dist",
+		"optimize-autoloader" : true,
 		"branch-alias" : {
 			"dev-master" : "0.2.x-dev"
 		}

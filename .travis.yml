@@ -1,4 +1,11 @@
+sudo: false
+
 language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - vendor
 
 php:
   - 5.5
@@ -10,15 +17,16 @@ env:
   - 'DB=sqlite DEPS=""'
   - 'DB=mysql DEPS=""'
   - 'DB=pgsql DEPS=""'
-  - 'DB=sqlite DEPS="--prefer-stable --prefer-lowest"'
-  - 'DB=mysql DEPS="--prefer-stable --prefer-lowest"'
-  - 'DB=pgsql DEPS="--prefer-stable --prefer-lowest"'
+  - 'DB=sqlite DEPS="--prefer-lowest"'
+  - 'DB=mysql DEPS="--prefer-lowest"'
+  - 'DB=pgsql DEPS="--prefer-lowest"'
   
 before_install:
   - 'composer selfupdate --no-interaction'
 
 install:
-  - 'composer update --no-interaction --prefer-source $DEPS'
+  - 'travis_retry composer update --no-interaction $DEPS'
+  - 'composer info -i'
   
 before_script:
   - 'if [[ "$DB" == "sqlite" ]]; then export DB_DSN="sqlite::memory:"; fi'
@@ -33,7 +41,6 @@ notifications:
 
 matrix:
   allow_failures:
-    - php: 7.0
     - php: hhvm
   exclude:
     - php: hhvm

@@ -46,4 +46,4 @@ matrix:
     - php: hhvm
       env: 'DB=pgsql DEPS=""'
     - php: hhvm
-      env: 'DB=pgsql DEPS="--prefer-stable --prefer-lowest"'
+      env: 'DB=pgsql DEPS="--prefer-lowest"'

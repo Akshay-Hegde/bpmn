@@ -11,11 +11,11 @@
 
 namespace KoolKode\BPMN\Repository;
 
-use KoolKode\Stream\ResourceStream;
-use KoolKode\Stream\StreamInterface;
-use KoolKode\Stream\StringStream;
-use KoolKode\Stream\UrlStream;
 
+
+use Psr\Http\Message\StreamInterface;
+use KoolKode\Stream\ResourceInputStream;
+use KoolKode\Stream\StringStream;
 /**
  * Builds a deployment from any number of resources.
  * 
@@ -90,11 +90,11 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 		}
 		elseif(is_resource($resource))
 		{
-			$in = new ResourceStream($resource);
+			$in = new ResourceInputStream($resource);
 		}
 		elseif(preg_match("'^/|(?:[^:\\\\/]+://)|(?:[a-z]:[\\\\/])'i", $resource))
 		{
-			$in = new UrlStream((string)$resource, 'rb');
+			$in = ResourceInputStream::fromUrl($resource);
 		}
 		else
 		{
@@ -174,8 +174,7 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 	}
 	
 	/**
-	 * (Recursively) add a all files from the given directory to the deployment, paths will be relative
-	 * to the root directory.
+	 * (Recursively) add a all files from the given directory to the deployment, paths will be relative to the root directory.
 	 * 
 	 * @param string $dir
 	 * @return DeploymentBuilder
@@ -199,7 +198,7 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 		
 		foreach($this->collectFiles($base, '') as $name => $file)
 		{
-			$this->resources[trim(str_replace('\\', '/', $name), '/')] = new UrlStream($file, 'rb');
+			$this->resources[trim(str_replace('\\', '/', $name), '/')] = ResourceInputStream::fromUrl($file);
 		}
 		
 		return $this;

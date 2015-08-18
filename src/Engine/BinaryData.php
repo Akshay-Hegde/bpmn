@@ -11,7 +11,7 @@
 
 namespace KoolKode\BPMN\Engine;
 
-use KoolKode\Stream\StreamInterface;
+use Psr\Http\Message\StreamInterface;
 
 class BinaryData
 {

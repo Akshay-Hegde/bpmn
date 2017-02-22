@@ -42,7 +42,6 @@ use KoolKode\BPMN\Runtime\Behavior\StartEventBehaviorInterface;
 use KoolKode\BPMN\Runtime\Behavior\SubProcessBehavior;
 use KoolKode\BPMN\Runtime\Behavior\TerminateEndEventBehavior;
 use KoolKode\BPMN\Task\Behavior\UserTaskBehavior;
-use KoolKode\Expression\ExpressionInterface;
 use KoolKode\Expression\Parser\ExpressionLexer;
 use KoolKode\Expression\Parser\ExpressionParser;
 use KoolKode\Process\ExpressionTrigger;

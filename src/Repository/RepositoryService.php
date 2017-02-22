@@ -12,7 +12,6 @@
 namespace KoolKode\BPMN\Repository;
 
 use KoolKode\BPMN\BusinessProcessBuilder;
-use KoolKode\BPMN\DiagramLoader;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Repository\Command\CreateDeploymentCommand;
 use KoolKode\BPMN\Repository\Command\DeployBusinessProcessCommand;

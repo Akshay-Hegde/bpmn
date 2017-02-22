@@ -11,7 +11,6 @@
 
 namespace KoolKode\BPMN\Job\Scheduler;
 
-use KoolKode\BPMN\Job\Handler\JobHandlerInterface;
 use KoolKode\BPMN\Job\Job;
 use KoolKode\Util\UUID;
 

@@ -11,8 +11,6 @@
 
 namespace KoolKode\BPMN\Gateway;
 
-use KoolKode\BPMN\History\HistoricProcessInstance;
-use KoolKode\BPMN\Task\TaskInterface;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class LinkEventTest extends BusinessProcessTestCase

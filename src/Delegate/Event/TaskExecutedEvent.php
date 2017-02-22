@@ -14,7 +14,6 @@ namespace KoolKode\BPMN\Delegate\Event;
 use KoolKode\BPMN\Delegate\DelegateExecutionInterface;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\ProcessEngineEvent;
-use KoolKode\Util\UUID;
 
 /**
  * Is triggered whenever any kind of task has been executed (even manual or generic tasks).

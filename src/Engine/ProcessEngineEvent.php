@@ -18,10 +18,10 @@ namespace KoolKode\BPMN\Engine;
  */
 abstract class ProcessEngineEvent
 {
-	/**
-	 * Provides access to the process engine.
-	 *
-	 * @var ProcessEngineInterface
-	 */
-	public $engine;
+    /**
+     * Provides access to the process engine.
+     *
+     * @var ProcessEngineInterface
+     */
+    public $engine;
 }

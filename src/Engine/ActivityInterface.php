@@ -21,20 +21,20 @@ use KoolKode\Process\Node;
  */
 interface ActivityInterface extends SignalableBehaviorInterface
 {
-	/**
-	 * Clears all event subscriptions (and related jobs) for the given execution / activity combination.
-	 * 
-	 * @param VirtualExecution $execution
-	 * @param string $activityId
-	 */
-	public function clearEventSubscriptions(VirtualExecution $execution, $activityId);
-	
-	/**
-	 * Create event subscriptions.
-	 * 
-	 * @param VirtualExecution $execution
-	 * @param string $activityId
-	 * @param Node $node
-	 */
-	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL);
+    /**
+     * Clears all event subscriptions (and related jobs) for the given execution / activity combination.
+     * 
+     * @param VirtualExecution $execution
+     * @param string $activityId
+     */
+    public function clearEventSubscriptions(VirtualExecution $execution, $activityId);
+
+    /**
+     * Create event subscriptions.
+     * 
+     * @param VirtualExecution $execution
+     * @param string $activityId
+     * @param Node $node
+     */
+    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null);
 }

@@ -21,19 +21,19 @@ use KoolKode\Util\UUID;
  */
 class TestJobScheduler extends AbstractJobScheduler
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function scheduleJob(Job $job)
-	{
-		$this->markJobAsScheduled($job);
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function removeJob(UUID $jobId)
-	{
-		// Nothing to do here...
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function scheduleJob(Job $job)
+    {
+        $this->markJobAsScheduled($job);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeJob(UUID $jobId)
+    {
+        // Nothing to do here...
+    }
 }

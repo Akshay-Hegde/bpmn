@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
@@ -24,27 +24,27 @@ use KoolKode\Process\Execution;
  */
 class InclusiveGatewayBehavior extends InclusiveChoiceBehavior
 {
-	use BasicAttributesTrait;
-	
-	public function setDefaultFlow($flow = NULL)
-	{
-		$this->defaultTransition = ($flow === NULL) ? NULL : (string)$flow;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function execute(Execution $execution)
-	{
-		$engine = $execution->getEngine();
-		$activityId = $execution->getNode()->getId();
-	
-		$engine->notify(new ActivityStartedEvent($activityId, $execution, $engine));
-	
-		$result = parent::execute($execution);
-	
-		$engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
-	
-		return $result;
-	}
+    use BasicAttributesTrait;
+
+    public function setDefaultFlow($flow = null)
+    {
+        $this->defaultTransition = ($flow === null) ? null : (string) $flow;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function execute(Execution $execution)
+    {
+        $engine = $execution->getEngine();
+        $activityId = $execution->getNode()->getId();
+        
+        $engine->notify(new ActivityStartedEvent($activityId, $execution, $engine));
+        
+        $result = parent::execute($execution);
+        
+        $engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
+        
+        return $result;
+    }
 }

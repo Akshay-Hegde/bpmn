@@ -16,52 +16,52 @@ use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class SignalBoundaryEventTest extends BusinessProcessTestCase
 {
-	public function testWithoutSignal()
-	{
-		$this->deployFile('SignalBoundaryEventTest.bpmn');
-		
-		$this->runtimeService->startProcessInstanceByKey('main');
-		
-		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('dataTask', $task->getDefinitionKey());
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
-		
-		$this->taskService->complete($task->getId());
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
-		
-		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('submitTask', $task->getDefinitionKey());
-		
-		$this->taskService->complete($task->getId());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
-	}
-	
-	public function testWithSignal()
-	{
-		$this->deployFile('SignalBoundaryEventTest.bpmn');
-	
-		$this->runtimeService->startProcessInstanceByKey('main');
-	
-		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('dataTask', $task->getDefinitionKey());
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
-	
-		$this->runtimeService->signalEventReceived('TimeoutSignal');
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
-		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		
-		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		$this->assertEquals('delayTask', $task->getDefinitionKey());
-		
-		$this->taskService->complete($task->getId());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
-	}
+    public function testWithoutSignal()
+    {
+        $this->deployFile('SignalBoundaryEventTest.bpmn');
+        
+        $this->runtimeService->startProcessInstanceByKey('main');
+        
+        $task = $this->taskService->createTaskQuery()->findOne();
+        $this->assertTrue($task instanceof TaskInterface);
+        $this->assertEquals('dataTask', $task->getDefinitionKey());
+        $this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
+        
+        $this->taskService->complete($task->getId());
+        $this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
+        
+        $task = $this->taskService->createTaskQuery()->findOne();
+        $this->assertTrue($task instanceof TaskInterface);
+        $this->assertEquals('submitTask', $task->getDefinitionKey());
+        
+        $this->taskService->complete($task->getId());
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
+    }
+
+    public function testWithSignal()
+    {
+        $this->deployFile('SignalBoundaryEventTest.bpmn');
+        
+        $this->runtimeService->startProcessInstanceByKey('main');
+        
+        $task = $this->taskService->createTaskQuery()->findOne();
+        $this->assertTrue($task instanceof TaskInterface);
+        $this->assertEquals('dataTask', $task->getDefinitionKey());
+        $this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
+        
+        $this->runtimeService->signalEventReceived('TimeoutSignal');
+        $this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('TimeoutSignal')->count());
+        $this->assertEquals(1, $this->taskService->createTaskQuery()->count());
+        
+        $task = $this->taskService->createTaskQuery()->findOne();
+        $this->assertTrue($task instanceof TaskInterface);
+        $this->assertEquals('delayTask', $task->getDefinitionKey());
+        
+        $this->taskService->complete($task->getId());
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
+    }
 }

@@ -22,65 +22,65 @@ use KoolKode\Util\UUID;
  */
 interface JobExecutorInterface
 {
-	/**
-	 * Get the lock owner / uniqure ID of this job executor.
-	 * 
-	 * @return string
-	 */
-	public function getLockOwner();
-	
-	/**
-	 * Get the DB lock timeout in seconds.
-	 * 
-	 * @return integer
-	 */
-	public function getLockTimeout();
-	
-	/**
-	 * Schedule and remove jobs according to current state.
-	 */
-	public function syncScheduledJobs();
-	
-	/**
-	 * Check if a job handler of the given type is registered.
-	 * 
-	 * @param string $type
-	 * @return boolean
-	 */
-	public function hasJobHandler($type);
-	
-	/**
-	 * Register a job handler with the executor.
-	 * 
-	 * @param JobHandlerInterface $handler
-	 */
-	public function registerJobHandler(JobHandlerInterface $handler);
-	
-	/**
-	 * Check if the job executor has a scheduler set.
-	 * 
-	 * @return boolean
-	 */
-	public function hasJobScheduler();
-	
-	/**
-	 * Schedule a job for execution.
-	 *
-	 * @param Job $job
-	 */
-	public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = NULL);
-	
-	/**
-	 * Execute the given job using the process engine.
-	 * 
-	 * @param Job $job
-	 */
-	public function executeJob(Job $job);
-	
-	/**
-	 * Remove a job by ID.
-	 * 
-	 * @param UUID $jobId
-	 */
-	public function removeJob(UUID $jobId);
+    /**
+     * Get the lock owner / uniqure ID of this job executor.
+     * 
+     * @return string
+     */
+    public function getLockOwner();
+
+    /**
+     * Get the DB lock timeout in seconds.
+     * 
+     * @return integer
+     */
+    public function getLockTimeout();
+
+    /**
+     * Schedule and remove jobs according to current state.
+     */
+    public function syncScheduledJobs();
+
+    /**
+     * Check if a job handler of the given type is registered.
+     * 
+     * @param string $type
+     * @return boolean
+     */
+    public function hasJobHandler($type);
+
+    /**
+     * Register a job handler with the executor.
+     * 
+     * @param JobHandlerInterface $handler
+     */
+    public function registerJobHandler(JobHandlerInterface $handler);
+
+    /**
+     * Check if the job executor has a scheduler set.
+     * 
+     * @return boolean
+     */
+    public function hasJobScheduler();
+
+    /**
+     * Schedule a job for execution.
+     *
+     * @param Job $job
+     */
+    public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = null);
+
+    /**
+     * Execute the given job using the process engine.
+     * 
+     * @param Job $job
+     */
+    public function executeJob(Job $job);
+
+    /**
+     * Remove a job by ID.
+     * 
+     * @param UUID $jobId
+     */
+    public function removeJob(UUID $jobId);
 }

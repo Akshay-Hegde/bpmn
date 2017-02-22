@@ -17,7 +17,7 @@ use KoolKode\BPMN\Job\Job;
 
 interface JobHandlerInterface
 {
-	public function getType();
-	
-	public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine);
+    public function getType();
+
+    public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine);
 }

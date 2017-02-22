@@ -21,17 +21,17 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  */
 class ExecutionTerminatedEvent extends AbstractAuditEvent
 {
-	/**
-	 * The terminated execution.
-	 * 
-	 * @var VirtualExecution
-	 */
-	public $execution;
-	
-	public function __construct(VirtualExecution $execution, ProcessEngine $engine)
-	{
-		parent::__construct($engine);
-		
-		$this->execution = $execution;
-	}
+    /**
+     * The terminated execution.
+     * 
+     * @var VirtualExecution
+     */
+    public $execution;
+
+    public function __construct(VirtualExecution $execution, ProcessEngine $engine)
+    {
+        parent::__construct($engine);
+        
+        $this->execution = $execution;
+    }
 }

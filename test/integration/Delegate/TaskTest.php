@@ -16,39 +16,39 @@ use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class TaskTest extends BusinessProcessTestCase
 {
-	protected $verifiedEvent = false;
-		
-	/**
-	 * Test event is being triggered for manual tasks.
-	 */
-	public function test1()
-	{
-		$this->deployFile('Task1.bpmn');
-		
-		$this->eventDispatcher->connect(function(TaskExecutedEvent $event) {
-			$this->assertEquals('test', $event->execution->getActivityId());
-			$this->verifiedEvent = true;
-		});
-		
-		$this->runtimeService->startProcessInstanceByKey('Task1');
-		
-		$this->assertTrue($this->verifiedEvent);
-	}
-	
-	/**
-	 * Test event is being triggered for tasks.
-	 */
-	public function test2()
-	{
-		$this->deployFile('Task2.bpmn');
-	
-		$this->eventDispatcher->connect(function(TaskExecutedEvent $event) {
-			$this->assertEquals('test', $event->execution->getActivityId());
-			$this->verifiedEvent = true;
-		});
-	
-		$this->runtimeService->startProcessInstanceByKey('Task2');
+    protected $verifiedEvent = false;
 
-		$this->assertTrue($this->verifiedEvent);
-	}
+    /**
+     * Test event is being triggered for manual tasks.
+     */
+    public function test1()
+    {
+        $this->deployFile('Task1.bpmn');
+        
+        $this->eventDispatcher->connect(function (TaskExecutedEvent $event) {
+            $this->assertEquals('test', $event->execution->getActivityId());
+            $this->verifiedEvent = true;
+        });
+        
+        $this->runtimeService->startProcessInstanceByKey('Task1');
+        
+        $this->assertTrue($this->verifiedEvent);
+    }
+
+    /**
+     * Test event is being triggered for tasks.
+     */
+    public function test2()
+    {
+        $this->deployFile('Task2.bpmn');
+        
+        $this->eventDispatcher->connect(function (TaskExecutedEvent $event) {
+            $this->assertEquals('test', $event->execution->getActivityId());
+            $this->verifiedEvent = true;
+        });
+        
+        $this->runtimeService->startProcessInstanceByKey('Task2');
+        
+        $this->assertTrue($this->verifiedEvent);
+    }
 }

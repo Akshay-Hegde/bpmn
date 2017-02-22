@@ -42,25 +42,25 @@ Sqlite connection that stores a DB file in your project directory.
 <?php
 
 return [
-	'ConnectionManager' => [
-		'adapter' => [
-			'default' => [
-				'dsn' => sprintf('sqlite:%s/bpmn.db', __DIR__)
-			]
-		],
-		'connection' => [
-			'default' => [
-				'adapter' => 'default'
-			]
-		]
-	],
-	'Migration' => [
-		'MigrationManager' => [
-			'directories' => [
-				sprintf('%s/vendor/koolkode/bpmn/migration', __DIR__)
-			]
-		]
-	]
+    'ConnectionManager' => [
+        'adapter' => [
+            'default' => [
+                'dsn' => sprintf('sqlite:%s/bpmn.db', __DIR__)
+            ]
+        ],
+        'connection' => [
+            'default' => [
+                'adapter' => 'default'
+            ]
+        ]
+    ],
+    'Migration' => [
+        'MigrationManager' => [
+            'directories' => [
+                sprintf('%s/vendor/koolkode/bpmn/migration', __DIR__)
+            ]
+        ]
+    ]
 ];
 ```
 Run `./vendor/bin/kkdb migration:up` and proceed with creating a process engine instance.

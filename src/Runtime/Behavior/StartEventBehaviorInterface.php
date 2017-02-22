@@ -20,17 +20,17 @@ use KoolKode\BPMN\Engine\ActivityInterface;
  */
 interface StartEventBehaviorInterface extends ActivityInterface
 {
-	/**
-	 * Check if this start event is used to start a sub process.
-	 * 
-	 * @return boolean
-	 */
-	public function isSubProcessStart();
-	
-	/**
-	 * Check if the start event is interrupting (only related to sub process).
-	 * 
-	 * @return boolean
-	 */
-	public function isInterrupting();
+    /**
+     * Check if this start event is used to start a sub process.
+     * 
+     * @return boolean
+     */
+    public function isSubProcessStart();
+
+    /**
+     * Check if the start event is interrupting (only related to sub process).
+     * 
+     * @return boolean
+     */
+    public function isInterrupting();
 }

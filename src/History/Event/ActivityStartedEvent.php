@@ -21,25 +21,25 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  */
 class ActivityStartedEvent extends AbstractAuditEvent
 {
-	/**
-	 * ID of the activity / scope being started.
-	 * 
-	 * @var string
-	 */
-	public $name;
-	
-	/**
-	 * The related execution.
-	 * 
-	 * @var VirtualExecution
-	 */
-	public $execution;
-	
-	public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
-	{
-		parent::__construct($engine, true);
-		
-		$this->name = (string)$name;
-		$this->execution = $execution;
-	}
+    /**
+     * ID of the activity / scope being started.
+     * 
+     * @var string
+     */
+    public $name;
+
+    /**
+     * The related execution.
+     * 
+     * @var VirtualExecution
+     */
+    public $execution;
+
+    public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
+    {
+        parent::__construct($engine, true);
+        
+        $this->name = (string) $name;
+        $this->execution = $execution;
+    }
 }

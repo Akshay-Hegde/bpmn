@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Delegate\Behavior;
 
@@ -25,40 +25,39 @@ use KoolKode\Expression\ExpressionInterface;
  */
 class DelegateTaskBehavior extends AbstractScopeActivity
 {
-	protected $typeName;
-	
-	public function __construct($activityId, ExpressionInterface $typeName)
-	{
-		parent::__construct($activityId);
-		
-		$this->typeName = $typeName;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function enter(VirtualExecution $execution)
-	{
-		$engine = $execution->getEngine();
-		$typeName = $this->getStringValue($this->typeName, $execution->getExpressionContext());
-		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
-		
-		$task = $engine->createDelegateTask($typeName);
-		
-		if(!$task instanceof DelegateTaskInterface)
-		{
-			throw new \RuntimeException('Invalid service task implementation: ' . get_class($task));
-		}
-		
-		$engine->debug('Execute delegate task "{task}" implemented by <{class}>', [
-			'task' => $name,
-			'class' => get_class($task)
-		]);
-		
-		$task->execute(new DelegateExecution($execution));
-		
-		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
-		
-		$this->leave($execution);
-	}
+    protected $typeName;
+
+    public function __construct($activityId, ExpressionInterface $typeName)
+    {
+        parent::__construct($activityId);
+        
+        $this->typeName = $typeName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enter(VirtualExecution $execution)
+    {
+        $engine = $execution->getEngine();
+        $typeName = $this->getStringValue($this->typeName, $execution->getExpressionContext());
+        $name = $this->getStringValue($this->name, $execution->getExpressionContext());
+        
+        $task = $engine->createDelegateTask($typeName);
+        
+        if (!$task instanceof DelegateTaskInterface) {
+            throw new \RuntimeException('Invalid service task implementation: ' . get_class($task));
+        }
+        
+        $engine->debug('Execute delegate task "{task}" implemented by <{class}>', [
+            'task' => $name,
+            'class' => get_class($task)
+        ]);
+        
+        $task->execute(new DelegateExecution($execution));
+        
+        $engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
+        
+        $this->leave($execution);
+    }
 }

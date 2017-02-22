@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
@@ -22,53 +22,46 @@ use KoolKode\Process\Node;
  */
 class IntermediateTimerDateBehavior extends AbstractActivity implements IntermediateCatchEventInterface
 {
-	protected $date;
-	
-	public function setDate(ExpressionInterface $date)
-	{
-		$this->date = $date;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function enter(VirtualExecution $execution)
-	{
-		$execution->waitForSignal();
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
-	{
-		if($signal !== 'timer')
-		{
-			throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
-		}
-		
-		$this->passVariablesToExecution($execution, $variables);
-	
-		$this->leave($execution);
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
-	{
-		$date = $this->getDateValue($this->date, $execution->getExpressionContext());
-		
-		if(!$date instanceof \DateTimeInterface)
-		{
-			throw new \RuntimeException(sprintf('Expecting DateTimeInterface, given %s', is_object($date) ? get_class($date) : gettype($date)));
-		}
-		
-		$execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand(
-			$date,
-			$execution,
-			$activityId,
-			($node === NULL) ? $execution->getNode() : $node
-		));
-	}
+    protected $date;
+
+    public function setDate(ExpressionInterface $date)
+    {
+        $this->date = $date;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enter(VirtualExecution $execution)
+    {
+        $execution->waitForSignal();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    {
+        if ($signal !== 'timer') {
+            throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
+        }
+        
+        $this->passVariablesToExecution($execution, $variables);
+        
+        $this->leave($execution);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    {
+        $date = $this->getDateValue($this->date, $execution->getExpressionContext());
+        
+        if (!$date instanceof \DateTimeInterface) {
+            throw new \RuntimeException(sprintf('Expecting DateTimeInterface, given %s', is_object($date) ? get_class($date) : gettype($date)));
+        }
+        
+        $execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand($date, $execution, $activityId, ($node === null) ? $execution->getNode() : $node));
+    }
 }

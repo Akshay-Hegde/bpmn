@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Task\Event;
 
@@ -22,17 +22,17 @@ use KoolKode\BPMN\Task\TaskInterface;
  */
 class UserTaskCreatedEvent extends AbstractAuditEvent
 {
-	/**
-	 * The user task that has been created.
-	 * 
-	 * @var TaskInterface
-	 */
-	public $task;
-	
-	public function __construct(TaskInterface $task, ProcessEngine $engine)
-	{
-		parent::__construct($engine, true);
-		
-		$this->task = $task;
-	}
+    /**
+     * The user task that has been created.
+     * 
+     * @var TaskInterface
+     */
+    public $task;
+
+    public function __construct(TaskInterface $task, ProcessEngine $engine)
+    {
+        parent::__construct($engine, true);
+        
+        $this->task = $task;
+    }
 }

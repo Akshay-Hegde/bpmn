@@ -18,18 +18,17 @@ namespace KoolKode\BPMN\History;
  */
 class DateTimeMillisTransformer
 {
-	public function __invoke($value)
-	{
-		if($value === NULL)
-		{
-			return NULL;
-		}
-		
-		return \DateTimeImmutable::createFromFormat('U.u', sprintf('%.03f', (float)$value / 1000));
-	}
-	
-	public static function encode(\DateTimeInterface $date)
-	{
-		return $date->format('U') . sprintf('%03u', ceil((int)$date->format('u') / 1000));
-	}
+    public function __invoke($value)
+    {
+        if ($value === null) {
+            return null;
+        }
+        
+        return \DateTimeImmutable::createFromFormat('U.u', sprintf('%.03f', (float) $value / 1000));
+    }
+
+    public static function encode(\DateTimeInterface $date)
+    {
+        return $date->format('U') . sprintf('%03u', ceil((int) $date->format('u') / 1000));
+    }
 }

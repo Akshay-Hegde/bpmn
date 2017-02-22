@@ -21,17 +21,17 @@ use KoolKode\Util\UUID;
  */
 interface JobSchedulerInterface
 {
-	/**
-	 * Schedule a job for execution.
-	 * 
-	 * @param Job $job
-	 */
-	public function scheduleJob(Job $job);
-	
-	/**
-	 * Remove a job from the schedule.
-	 * 
-	 * @param UUID $jobId
-	 */
-	public function removeJob(UUID $jobId);
+    /**
+     * Schedule a job for execution.
+     * 
+     * @param Job $job
+     */
+    public function scheduleJob(Job $job);
+
+    /**
+     * Remove a job from the schedule.
+     * 
+     * @param UUID $jobId
+     */
+    public function removeJob(UUID $jobId);
 }

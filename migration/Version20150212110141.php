@@ -25,19 +25,19 @@ class Version20150212110141 extends AbstractMigration
     {
         $job = $this->table('#__bpmn_job');
         $job->addColumn('id', 'uuid', ['primary_key' => true]);
-        $job->addColumn('external_id', 'varchar', ['default' => NULL]);
-        $job->addColumn('lock_owner', 'varchar', ['default' => NULL]);
+        $job->addColumn('external_id', 'varchar', ['default' => null]);
+        $job->addColumn('lock_owner', 'varchar', ['default' => null]);
         $job->addColumn('execution_id', 'uuid');
         $job->addColumn('retries', 'int', ['unsigned' => true, 'default' => 0]);
         $job->addColumn('handler_type', 'varchar');
-        $job->addColumn('handler_data', 'blob', ['default' => NULL]);
+        $job->addColumn('handler_data', 'blob', ['default' => null]);
         $job->addColumn('created_at', 'bigint');
-        $job->addColumn('scheduled_at', 'bigint', ['default' => NULL]);
-        $job->addColumn('run_at', 'bigint', ['default' => NULL]);
-        $job->addColumn('locked_at', 'bigint', ['default' => NULL]);
-        $job->addColumn('exception_type', 'varchar', ['default' => NULL]);
-        $job->addColumn('exception_message', 'text', ['default' => NULL]);
-        $job->addColumn('exception_data', 'blob', ['default' => NULL]);
+        $job->addColumn('scheduled_at', 'bigint', ['default' => null]);
+        $job->addColumn('run_at', 'bigint', ['default' => null]);
+        $job->addColumn('locked_at', 'bigint', ['default' => null]);
+        $job->addColumn('exception_type', 'varchar', ['default' => null]);
+        $job->addColumn('exception_message', 'text', ['default' => null]);
+        $job->addColumn('exception_data', 'blob', ['default' => null]);
         $job->addIndex(['execution_id']);
         $job->addIndex(['lock_owner']);
         $job->addIndex(['handler_type']);
@@ -49,12 +49,12 @@ class Version20150212110141 extends AbstractMigration
         $job->create();
         
         $def = $this->table('#__bpmn_process_definition');
-        $def->addColumn('resource_id', 'uuid', ['default' => NULL]);
+        $def->addColumn('resource_id', 'uuid', ['default' => null]);
         $def->update();
         
         $subscription = $this->table('#__bpmn_event_subscription');
         $subscription->addColumn('boundary', 'int', ['unsigned' => true, 'default' => 0]);
-        $subscription->addColumn('job_id', 'uuid', ['default' => NULL]);
+        $subscription->addColumn('job_id', 'uuid', ['default' => null]);
         $subscription->update();
     }
     
@@ -63,15 +63,15 @@ class Version20150212110141 extends AbstractMigration
      */
     public function down()
     {
-    	$def = $this->table('#__bpmn_process_definition');
-    	$def->removeColumn('resource_id');
-    	$def->update();
-    	
-    	$subscription = $this->table('#__bpmn_event_subscription');
-    	$subscription->removeColumn('job_id');
-    	$subscription->removeColumn('boundary');
-    	$subscription->update();
-    	
-    	$this->dropTable('#__bpmn_job');
+        $def = $this->table('#__bpmn_process_definition');
+        $def->removeColumn('resource_id');
+        $def->update();
+        
+        $subscription = $this->table('#__bpmn_event_subscription');
+        $subscription->removeColumn('job_id');
+        $subscription->removeColumn('boundary');
+        $subscription->update();
+        
+        $this->dropTable('#__bpmn_job');
     }
 }

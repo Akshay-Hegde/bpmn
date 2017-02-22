@@ -16,14 +16,14 @@ use KoolKode\BPMN\Delegate\DelegateTaskInterface;
 
 class ComputePriceTask implements DelegateTaskInterface
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function execute(DelegateExecutionInterface $execution)
-	{
-		$amount = (int)$execution->getVariable('amount');
-		$discount = (int)$execution->getVariable('discount', 0);
-		
-		$execution->setVariable('result', $amount - $discount);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function execute(DelegateExecutionInterface $execution)
+    {
+        $amount = (int) $execution->getVariable('amount');
+        $discount = (int) $execution->getVariable('discount', 0);
+        
+        $execution->setVariable('result', $amount - $discount);
+    }
 }

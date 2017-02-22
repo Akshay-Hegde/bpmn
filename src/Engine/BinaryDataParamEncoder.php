@@ -22,13 +22,12 @@ use KoolKode\Stream\StringStream;
  */
 class BinaryDataParamEncoder implements ParamEncoderInterface
 {
-	public function encodeParam(ConnectionInterface $conn, $param, & $isEncoded)
-	{
-		if($param instanceof BinaryData)
-		{
-			$isEncoded = true;
-			
-			return new StringStream($param->encode());
-		}
-	}
+    public function encodeParam(ConnectionInterface $conn, $param, & $isEncoded)
+    {
+        if ($param instanceof BinaryData) {
+            $isEncoded = true;
+            
+            return new StringStream($param->encode());
+        }
+    }
 }

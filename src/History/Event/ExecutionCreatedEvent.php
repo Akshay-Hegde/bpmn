@@ -21,25 +21,25 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  */
 class ExecutionCreatedEvent extends AbstractAuditEvent
 {
-	/**
-	 * The created execution.
-	 * 
-	 * @var VirtualExecution
-	 */
-	public $execution;
-	
-	/**
-	 * Execution variables to be recorded.
-	 *
-	 * @var array
-	 */
-	public $variables;
-	
-	public function __construct(VirtualExecution $execution, array $variables, ProcessEngine $engine)
-	{
-		parent::__construct($engine);
-		
-		$this->execution = $execution;
-		$this->variables = $variables;
-	}
+    /**
+     * The created execution.
+     * 
+     * @var VirtualExecution
+     */
+    public $execution;
+
+    /**
+     * Execution variables to be recorded.
+     *
+     * @var array
+     */
+    public $variables;
+
+    public function __construct(VirtualExecution $execution, array $variables, ProcessEngine $engine)
+    {
+        parent::__construct($engine);
+        
+        $this->execution = $execution;
+        $this->variables = $variables;
+    }
 }

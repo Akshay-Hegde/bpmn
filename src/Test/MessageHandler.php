@@ -20,13 +20,13 @@ namespace KoolKode\BPMN\Test;
  */
 final class MessageHandler
 {
-	public $value;
-	
-	public $processKey;
-	
-	public function __construct($messageName, $processKey = NULL)
-	{
-		$this->value = (string)$messageName;
-		$this->processKey = ($processKey === NULL) ? NULL : (string)$processKey;
-	}
+    public $value;
+
+    public $processKey;
+
+    public function __construct($messageName, $processKey = null)
+    {
+        $this->value = (string) $messageName;
+        $this->processKey = ($processKey === null) ? null : (string) $processKey;
+    }
 }

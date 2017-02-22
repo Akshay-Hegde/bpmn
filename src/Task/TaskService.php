@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Task;
 
@@ -21,40 +21,40 @@ use KoolKode\Util\UUID;
 
 class TaskService
 {
-	protected $engine;
-	
-	public function __construct(ProcessEngine $engine)
-	{
-		$this->engine = $engine;
-	}
-	
-	public function createTaskQuery()
-	{
-		return new TaskQuery($this->engine);
-	}
-	
-	public function createTask($name, $priority = 0, $documentation = NULL)
-	{
-		return $this->engine->executeCommand(new CreateUserTaskCommand($name, $priority, NULL, $documentation));
-	}
-	
-	public function claim(UUID $taskId, $userId)
-	{
-		$this->engine->pushCommand(new ClaimUserTaskCommand($taskId, $userId));
-	}
-	
-	public function unclaim(UUID $taskId)
-	{
-		$this->engine->pushCommand(new UnclaimUserTaskCommand($taskId));
-	}
-	
-	public function complete(UUID $taskId, array $variables = [])
-	{
-		$this->engine->pushCommand(new CompleteUserTaskCommand($taskId, $variables));
-	}
-	
-	public function removeTask(UUID $taskId)
-	{
-		$this->engine->pushCommand(new RemoveUserTaskCommand($taskId));
-	}
+    protected $engine;
+
+    public function __construct(ProcessEngine $engine)
+    {
+        $this->engine = $engine;
+    }
+
+    public function createTaskQuery()
+    {
+        return new TaskQuery($this->engine);
+    }
+
+    public function createTask($name, $priority = 0, $documentation = null)
+    {
+        return $this->engine->executeCommand(new CreateUserTaskCommand($name, $priority, null, $documentation));
+    }
+
+    public function claim(UUID $taskId, $userId)
+    {
+        $this->engine->pushCommand(new ClaimUserTaskCommand($taskId, $userId));
+    }
+
+    public function unclaim(UUID $taskId)
+    {
+        $this->engine->pushCommand(new UnclaimUserTaskCommand($taskId));
+    }
+
+    public function complete(UUID $taskId, array $variables = [])
+    {
+        $this->engine->pushCommand(new CompleteUserTaskCommand($taskId, $variables));
+    }
+
+    public function removeTask(UUID $taskId)
+    {
+        $this->engine->pushCommand(new RemoveUserTaskCommand($taskId));
+    }
 }

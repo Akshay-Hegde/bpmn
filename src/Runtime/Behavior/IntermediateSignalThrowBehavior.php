@@ -22,35 +22,30 @@ use KoolKode\BPMN\Runtime\Command\SignalEventReceivedCommand;
  */
 class IntermediateSignalThrowBehavior extends AbstractActivity
 {
-	protected $signalName;
-	
-	public function __construct($signalName)
-	{
-		$this->signalName = (string)$signalName;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function enter(VirtualExecution $execution)
-	{
-		$execution->getEngine()->pushCommand(new SignalEventReceivedCommand(
-			$this->signalName,
-			NULL,
-			[],
-			$execution
-		));
-		
-		$execution->waitForSignal();
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
-	{
-		$this->passVariablesToExecution($execution, $variables);
-	
-		return $this->leave($execution);
-	}
+    protected $signalName;
+
+    public function __construct($signalName)
+    {
+        $this->signalName = (string) $signalName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enter(VirtualExecution $execution)
+    {
+        $execution->getEngine()->pushCommand(new SignalEventReceivedCommand($this->signalName, null, [], $execution));
+        
+        $execution->waitForSignal();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    {
+        $this->passVariablesToExecution($execution, $variables);
+        
+        return $this->leave($execution);
+    }
 }

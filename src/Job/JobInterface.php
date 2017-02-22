@@ -15,44 +15,44 @@ use KoolKode\Util\UUID;
 
 interface JobInterface
 {
-	/**
-	 * @return UUID
-	 */
-	public function getId();
-	
-	/**
-	 * @return UUID
-	 */
-	public function getExecutionId();
-	
-	/**
-	 * Get external ID, that is an ID used by a system like a queue to trace messages.
-	 * 
-	 * @return string Or NULL when no such ID exists.
-	 */
-	public function getExternalId();
-	
-	public function getHandlerType();
-	
-	public function getRetries();
-	
-	public function isLocked();
-	
-	public function getLockOwner();
-	
-	public function getCreatedAt();
-	
-	public function getScheduledAt();
-	
-	public function getRunAt();
-	
-	public function getLockedAt();
-	
-	public function isFailed();
-	
-	public function getExceptionType();
-	
-	public function getExceptionMessage();
-	
-	public function getExceptionData();
+    /**
+     * @return UUID
+     */
+    public function getId();
+
+    /**
+     * @return UUID
+     */
+    public function getExecutionId();
+
+    /**
+     * Get external ID, that is an ID used by a system like a queue to trace messages.
+     * 
+     * @return string Or null when no such ID exists.
+     */
+    public function getExternalId();
+
+    public function getHandlerType();
+
+    public function getRetries();
+
+    public function isLocked();
+
+    public function getLockOwner();
+
+    public function getCreatedAt();
+
+    public function getScheduledAt();
+
+    public function getRunAt();
+
+    public function getLockedAt();
+
+    public function isFailed();
+
+    public function getExceptionType();
+
+    public function getExceptionMessage();
+
+    public function getExceptionData();
 }

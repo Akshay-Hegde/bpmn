@@ -22,23 +22,23 @@ use KoolKode\BPMN\Runtime\Command\ThrowMessageCommand;
  */
 class IntermediateMessageThrowBehavior extends AbstractActivity
 {
-	/**
-	 * {@inheritdoc}
-	 */
-	public function enter(VirtualExecution $execution)
-	{
-		$execution->getEngine()->pushCommand(new ThrowMessageCommand($execution));
-		
-		$execution->waitForSignal();
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
-	{
-		$this->passVariablesToExecution($execution, $variables);
-		
-		return $this->leave($execution);
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function enter(VirtualExecution $execution)
+    {
+        $execution->getEngine()->pushCommand(new ThrowMessageCommand($execution));
+        
+        $execution->waitForSignal();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    {
+        $this->passVariablesToExecution($execution, $variables);
+        
+        return $this->leave($execution);
+    }
 }

@@ -18,19 +18,19 @@ namespace KoolKode\BPMN\Engine;
  */
 interface ExecutionInterceptorInterface
 {
-	/**
-	 * Get the priority of this interceptor.
-	 * 
-	 * @return integer
-	 */
-	public function getPriority();
-	
-	/**
-	 * Apply interceptor code and delegate to the actual execution (or the next interceptor).
-	 * 
-	 * @param ExecutionInterceptorChain $chain
-	 * @param integer $executionDepth
-	 * @return mixed
-	 */
-	public function interceptExecution(ExecutionInterceptorChain $chain, $executionDepth);
+    /**
+     * Get the priority of this interceptor.
+     * 
+     * @return integer
+     */
+    public function getPriority();
+
+    /**
+     * Apply interceptor code and delegate to the actual execution (or the next interceptor).
+     * 
+     * @param ExecutionInterceptorChain $chain
+     * @param integer $executionDepth
+     * @return mixed
+     */
+    public function interceptExecution(ExecutionInterceptorChain $chain, $executionDepth);
 }

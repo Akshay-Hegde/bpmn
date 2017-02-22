@@ -18,41 +18,41 @@ use KoolKode\BPMN\Test\ServiceTaskHandler;
 
 class SignalThrowingTest extends BusinessProcessTestCase
 {
-	public function testIntermediateSignalThrow()
-	{
-		$this->deployFile('SignalThrowingTest.bpmn');
-		
-		$this->runtimeService->startProcessInstanceByKey('SignalThrowingTest');
-		$this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(2, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('notifyBranchSignal')->count());
-		$this->assertEquals(1, $this->taskService->createTaskQuery()->count());
-		
-		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		
-		$this->taskService->complete($task->getId(), [
-			'counter' => 1
-		]);
-		$this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('notifyBranchSignal')->count());
-		
-		$task = $this->taskService->createTaskQuery()->findOne();
-		$this->assertTrue($task instanceof TaskInterface);
-		
-		$this->taskService->complete($task->getId(), [
-			'verified' => true
-		]);
-		
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
-	}
-	
-	/**
-	 * @ServiceTaskHandler("ServiceTask_1", processKey = "SignalThrowingTest")
-	 * 
-	 * @param DelegateExecutionInterface $execution
-	 */
-	public function verifyCounter(DelegateExecutionInterface $execution)
-	{
-		$this->assertEquals(9, $execution->getVariable('counter'));
-	}
+    public function testIntermediateSignalThrow()
+    {
+        $this->deployFile('SignalThrowingTest.bpmn');
+        
+        $this->runtimeService->startProcessInstanceByKey('SignalThrowingTest');
+        $this->assertEquals(6, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(2, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('notifyBranchSignal')->count());
+        $this->assertEquals(1, $this->taskService->createTaskQuery()->count());
+        
+        $task = $this->taskService->createTaskQuery()->findOne();
+        $this->assertTrue($task instanceof TaskInterface);
+        
+        $this->taskService->complete($task->getId(), [
+            'counter' => 1
+        ]);
+        $this->assertEquals(3, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('notifyBranchSignal')->count());
+        
+        $task = $this->taskService->createTaskQuery()->findOne();
+        $this->assertTrue($task instanceof TaskInterface);
+        
+        $this->taskService->complete($task->getId(), [
+            'verified' => true
+        ]);
+        
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
+    }
+
+    /**
+     * @ServiceTaskHandler("ServiceTask_1", processKey = "SignalThrowingTest")
+     * 
+     * @param DelegateExecutionInterface $execution
+     */
+    public function verifyCounter(DelegateExecutionInterface $execution)
+    {
+        $this->assertEquals(9, $execution->getVariable('counter'));
+    }
 }

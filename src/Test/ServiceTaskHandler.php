@@ -20,13 +20,13 @@ namespace KoolKode\BPMN\Test;
  */
 final class ServiceTaskHandler
 {
-	public $value;
-	
-	public $processKey;
-	
-	public function __construct($serviceTask, $processKey = NULL)
-	{
-		$this->value = (string)$serviceTask;
-		$this->processKey = ($processKey === NULL) ? NULL : (string)$processKey;
-	}
+    public $value;
+
+    public $processKey;
+
+    public function __construct($serviceTask, $processKey = null)
+    {
+        $this->value = (string) $serviceTask;
+        $this->processKey = ($processKey === null) ? null : (string) $processKey;
+    }
 }

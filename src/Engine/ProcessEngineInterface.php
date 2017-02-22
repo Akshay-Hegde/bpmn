@@ -24,28 +24,28 @@ use KoolKode\BPMN\Task\TaskService;
  */
 interface ProcessEngineInterface
 {
-	/**
-	 * @return RepositoryService
-	 */
-	public function getRepositoryService();
-	
-	/**
-	 * @return RuntimeService
-	 */
-	public function getRuntimeService();
-	
-	/**
-	 * @return TaskService
-	 */
-	public function getTaskService();
-	
-	/**
-	 * @return HistoryService
-	 */
-	public function getHistoryService();
-	
-	/**
-	 * @return ManagementService
-	 */
-	public function getManagementService();
+    /**
+     * @return RepositoryService
+     */
+    public function getRepositoryService();
+
+    /**
+     * @return RuntimeService
+     */
+    public function getRuntimeService();
+
+    /**
+     * @return TaskService
+     */
+    public function getTaskService();
+
+    /**
+     * @return HistoryService
+     */
+    public function getHistoryService();
+
+    /**
+     * @return ManagementService
+     */
+    public function getManagementService();
 }

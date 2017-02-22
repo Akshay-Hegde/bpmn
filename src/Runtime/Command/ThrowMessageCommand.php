@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Runtime\Command;
 
@@ -26,40 +26,40 @@ use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
  */
 class ThrowMessageCommand extends AbstractBusinessCommand
 {
-	protected $executionId;
-	
-	public function __construct(VirtualExecution $execution)
-	{
-		$this->executionId = $execution->getId();
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 *
-	 * @codeCoverageIgnore
-	 */
-	public function isSerializable()
-	{
-		return true;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getPriority()
-	{
-		return self::PRIORITY_DEFAULT - 500;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function executeCommand(ProcessEngine $engine)
-	{
-		$execution = $engine->findExecution($this->executionId);
-		
-		$engine->notify(new MessageThrownEvent(new DelegateExecution($execution), $engine));
-		
-		$execution->signal();
-	}
+    protected $executionId;
+
+    public function __construct(VirtualExecution $execution)
+    {
+        $this->executionId = $execution->getId();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @codeCoverageIgnore
+     */
+    public function isSerializable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPriority()
+    {
+        return self::PRIORITY_DEFAULT - 500;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeCommand(ProcessEngine $engine)
+    {
+        $execution = $engine->findExecution($this->executionId);
+        
+        $engine->notify(new MessageThrownEvent(new DelegateExecution($execution), $engine));
+        
+        $execution->signal();
+    }
 }

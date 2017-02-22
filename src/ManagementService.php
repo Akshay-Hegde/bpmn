@@ -17,57 +17,54 @@ use KoolKode\Util\UUID;
 
 class ManagementService
 {
-	protected $engine;
-	
-	public function __construct(ProcessEngine $engine)
-	{
-		$this->engine = $engine;
-	}
-	
-	/**
-	 * Create a new job query.
-	 * 
-	 * @return JobQuery
-	 */
-	public function createJobQuery()
-	{
-		return new JobQuery($this->engine);
-	}
-	
-	public function executeJob(UUID $jobId)
-	{
-		$executor = $this->engine->getJobExecutor();
-		
-		if($executor === NULL)
-		{
-			throw new \RuntimeException('Cannot remove job without a job executor');
-		}
-		
-		$jobs = $this->createJobQuery()->jobId($jobId)->findAll();
-		
-		if(!empty($jobs))
-		{
-			$executor->executeJob(array_pop($jobs));
-		}
-	}
-	
-	public function removeJob(UUID $jobId)
-	{
-		$this->engine->getJobExecutor()->removeJob($jobId);
-	}
-	
-	public function setJobRetries(UUID $jobId, $retries)
-	{
-		$retries = (int)$retries;
-		
-		if($retries < 0)
-		{
-			throw new \InvalidArgumentException(sprintf('Job retry count must not be negative'));
-		}
-		
-		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `retries` = :retries WHERE `id` = :id");
-		$stmt->bindValue('retries', $retries);
-		$stmt->bindValue('id', $jobId);
-		$stmt->execute();
-	}
+    protected $engine;
+
+    public function __construct(ProcessEngine $engine)
+    {
+        $this->engine = $engine;
+    }
+
+    /**
+     * Create a new job query.
+     * 
+     * @return JobQuery
+     */
+    public function createJobQuery()
+    {
+        return new JobQuery($this->engine);
+    }
+
+    public function executeJob(UUID $jobId)
+    {
+        $executor = $this->engine->getJobExecutor();
+        
+        if ($executor === null) {
+            throw new \RuntimeException('Cannot remove job without a job executor');
+        }
+        
+        $jobs = $this->createJobQuery()->jobId($jobId)->findAll();
+        
+        if (!empty($jobs)) {
+            $executor->executeJob(array_pop($jobs));
+        }
+    }
+
+    public function removeJob(UUID $jobId)
+    {
+        $this->engine->getJobExecutor()->removeJob($jobId);
+    }
+
+    public function setJobRetries(UUID $jobId, $retries)
+    {
+        $retries = (int) $retries;
+        
+        if ($retries < 0) {
+            throw new \InvalidArgumentException(sprintf('Job retry count must not be negative'));
+        }
+        
+        $stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `retries` = :retries WHERE `id` = :id");
+        $stmt->bindValue('retries', $retries);
+        $stmt->bindValue('id', $jobId);
+        $stmt->execute();
+    }
 }

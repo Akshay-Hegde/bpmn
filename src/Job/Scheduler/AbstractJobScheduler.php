@@ -21,27 +21,27 @@ use KoolKode\BPMN\Job\Job;
  */
 abstract class AbstractJobScheduler implements JobSchedulerInterface
 {
-	/**
-	 * @var ProcessEngine
-	 */
-	protected $engine;
-	
-	public function __construct(ProcessEngine $engine)
-	{
-		$this->engine = $engine;
-	}
-	
-	/**
-	 * Marks the job is being scheduled by writing a timestamp to the DB.
-	 * 
-	 * @param Job $job
-	 */
-	protected function markJobAsScheduled(Job $job, $externalId = NULL)
-	{
-		$stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `scheduled_at` = :scheduled, `external_id` = :ex WHERE `id` = :id");
-		$stmt->bindValue('scheduled', time());
-		$stmt->bindValue('ex', ($externalId === NULL) ? NULL : (string)$externalId);
-		$stmt->bindValue('id', $job->getId());
-		$stmt->execute();
-	}
+    /**
+     * @var ProcessEngine
+     */
+    protected $engine;
+
+    public function __construct(ProcessEngine $engine)
+    {
+        $this->engine = $engine;
+    }
+
+    /**
+     * Marks the job is being scheduled by writing a timestamp to the DB.
+     * 
+     * @param Job $job
+     */
+    protected function markJobAsScheduled(Job $job, $externalId = null)
+    {
+        $stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `scheduled_at` = :scheduled, `external_id` = :ex WHERE `id` = :id");
+        $stmt->bindValue('scheduled', time());
+        $stmt->bindValue('ex', ($externalId === null) ? null : (string) $externalId);
+        $stmt->bindValue('id', $job->getId());
+        $stmt->execute();
+    }
 }

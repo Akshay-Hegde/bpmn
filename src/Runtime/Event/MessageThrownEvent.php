@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Runtime\Event;
 
@@ -22,16 +22,16 @@ use KoolKode\BPMN\Engine\ProcessEngineEvent;
  */
 class MessageThrownEvent extends ProcessEngineEvent
 {
-	/**
-	 * The execution throwing the message.
-	 * 
-	 * @var DelegateExecutionInterface
-	 */
-	public $execution;
-	
-	public function __construct(DelegateExecutionInterface $execution, ProcessEngine $engine)
-	{
-		$this->execution = $execution;
-		$this->engine = $engine;
-	}
+    /**
+     * The execution throwing the message.
+     * 
+     * @var DelegateExecutionInterface
+     */
+    public $execution;
+
+    public function __construct(DelegateExecutionInterface $execution, ProcessEngine $engine)
+    {
+        $this->execution = $execution;
+        $this->engine = $engine;
+    }
 }

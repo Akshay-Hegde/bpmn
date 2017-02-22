@@ -16,40 +16,40 @@ use KoolKode\BPMN\Test\BusinessProcessTestCase;
 
 class EventBaseGatewayTest extends BusinessProcessTestCase
 {
-	public function provider1()
-	{
-		return [
-			['A', 'novice'],
-			['B', 'hard'],
-			['C', 'master']
-		];
-	}
-	
-	/**
-	 * @dataProvider provider1
-	 */
-	public function test1($signal, $mode)
-	{
-		$this->deployFile('EventBasedGateway1.bpmn');
-		
-		$process = $this->runtimeService->startProcessInstanceByKey('EventBasedGateway1');
-		$this->assertTrue($process instanceof HistoricProcessInstance);
-		$this->assertFalse($process->isFinished());
-		$this->assertEquals('start', $process->getStartActivityId());
-		
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('A')->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('B')->count());
-		$this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('C')->count());
-		$this->assertEquals(3, $this->runtimeService->createEventSubscriptionQuery()->count());
-		
-		$this->runtimeService->signalEventReceived($signal);
-		$this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
-		$this->assertEquals(0, $this->runtimeService->createEventSubscriptionQuery()->count());
-		
-		$process = $this->historyService->createHistoricProcessInstanceQuery()->processInstanceId($process->getId())->findOne();
-		$this->assertTrue($process instanceof HistoricProcessInstance);
-		$this->assertTrue($process->isFinished());
-		$this->assertEquals($mode, $process->getEndActivityId());
-	}
+    public function provider1()
+    {
+        return [
+            ['A', 'novice'],
+            ['B', 'hard'],
+            ['C', 'master']
+        ];
+    }
+    
+    /**
+     * @dataProvider provider1
+     */
+    public function test1($signal, $mode)
+    {
+        $this->deployFile('EventBasedGateway1.bpmn');
+        
+        $process = $this->runtimeService->startProcessInstanceByKey('EventBasedGateway1');
+        $this->assertTrue($process instanceof HistoricProcessInstance);
+        $this->assertFalse($process->isFinished());
+        $this->assertEquals('start', $process->getStartActivityId());
+        
+        $this->assertEquals(1, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('A')->count());
+        $this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('B')->count());
+        $this->assertEquals(1, $this->runtimeService->createExecutionQuery()->signalEventSubscriptionName('C')->count());
+        $this->assertEquals(3, $this->runtimeService->createEventSubscriptionQuery()->count());
+        
+        $this->runtimeService->signalEventReceived($signal);
+        $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
+        $this->assertEquals(0, $this->runtimeService->createEventSubscriptionQuery()->count());
+        
+        $process = $this->historyService->createHistoricProcessInstanceQuery()->processInstanceId($process->getId())->findOne();
+        $this->assertTrue($process instanceof HistoricProcessInstance);
+        $this->assertTrue($process->isFinished());
+        $this->assertEquals($mode, $process->getEndActivityId());
+    }
 }

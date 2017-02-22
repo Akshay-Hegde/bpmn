@@ -21,27 +21,26 @@ use KoolKode\BPMN\Engine\ProcessEngineEvent;
  */
 abstract class AbstractAuditEvent extends ProcessEngineEvent
 {
-	/**
-	 * Timestamp of the audit event.
-	 * 
-	 * @var \DateTimeInterface
-	 */
-	public $timestamp;
-	
-	/**
-	 * Create a new audi event (timestamp is initialized here).
-	 * 
-	 * @param ProcessEngine $engine
-	 * @param boolean $delay Delay creation of timestamp by 1 millisecond?
-	 */
-	public function __construct(ProcessEngine $engine, $delay = false)
-	{
-		if($delay)
-		{
-			usleep(1000);
-		}
-		
-		$this->engine = $engine;
-		$this->timestamp = \DateTimeImmutable::createFromFormat('U.u', sprintf('%0.3f', microtime(true)));
-	}
+    /**
+     * Timestamp of the audit event.
+     * 
+     * @var \DateTimeInterface
+     */
+    public $timestamp;
+
+    /**
+     * Create a new audi event (timestamp is initialized here).
+     * 
+     * @param ProcessEngine $engine
+     * @param boolean $delay Delay creation of timestamp by 1 millisecond?
+     */
+    public function __construct(ProcessEngine $engine, $delay = false)
+    {
+        if ($delay) {
+            usleep(1000);
+        }
+        
+        $this->engine = $engine;
+        $this->timestamp = \DateTimeImmutable::createFromFormat('U.u', sprintf('%0.3f', microtime(true)));
+    }
 }

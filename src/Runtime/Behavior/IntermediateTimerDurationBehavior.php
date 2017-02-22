@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Runtime\Behavior;
 
@@ -22,56 +22,49 @@ use KoolKode\Process\Node;
  */
 class IntermediateTimerDurationBehavior extends AbstractActivity implements IntermediateCatchEventInterface
 {
-	protected $duration;
-	
-	public function setDuration(ExpressionInterface $duration)
-	{
-		$this->duration = $duration;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function enter(VirtualExecution $execution)
-	{
-		$execution->waitForSignal();
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
-	{
-		if($signal !== 'timer')
-		{
-			throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
-		}
-		
-		$this->passVariablesToExecution($execution, $variables);
-	
-		$this->leave($execution);
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = NULL)
-	{
-		$interval = $this->getValue($this->duration, $execution->getExpressionContext());
-		
-		if(!$interval instanceof \DateInterval)
-		{
-			$interval = new \DateInterval((string)$interval);
-		}
-		
-		$now = new \DateTimeImmutable();
-		$time = $now->add($interval);
-		
-		$execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand(
-			$time,
-			$execution,
-			$activityId,
-			($node === NULL) ? $execution->getNode() : $node
-		));
-	}
+    protected $duration;
+
+    public function setDuration(ExpressionInterface $duration)
+    {
+        $this->duration = $duration;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enter(VirtualExecution $execution)
+    {
+        $execution->waitForSignal();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    {
+        if ($signal !== 'timer') {
+            throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
+        }
+        
+        $this->passVariablesToExecution($execution, $variables);
+        
+        $this->leave($execution);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    {
+        $interval = $this->getValue($this->duration, $execution->getExpressionContext());
+        
+        if (!$interval instanceof \DateInterval) {
+            $interval = new \DateInterval((string) $interval);
+        }
+        
+        $now = new \DateTimeImmutable();
+        $time = $now->add($interval);
+        
+        $execution->getEngine()->executeCommand(new CreateTimerSubscriptionCommand($time, $execution, $activityId, ($node === null) ? $execution->getNode() : $node));
+    }
 }

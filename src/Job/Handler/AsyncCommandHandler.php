@@ -23,69 +23,66 @@ use KoolKode\Process\Command\CommandInterface;
  */
 class AsyncCommandHandler implements JobHandlerInterface
 {
-	/**
-	 * Name of the job handler.
-	 * 
-	 * @var string
-	 */
-	const HANDLER_TYPE = 'async-command';
-	
-	/**
-	 * Serialized command data.
-	 * 
-	 * @var string
-	 */
-	const PARAM_COMMAND = 'command';
-	
-	/**
-	 * Optional: ID of the node that the execution will move to before executing the command.
-	 * 
-	 * @var string
-	 */
-	const PARAM_NODE_ID = 'nodeId';
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getType()
-	{
-		return self::HANDLER_TYPE;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine)
-	{
-		if($execution->isTerminated())
-		{
-			throw new \RuntimeException(sprintf('%s is terminated', $execution));
-		}
-		
-		$data = (array)$job->getHandlerData();
-		$command = $data[self::PARAM_COMMAND];
-		
-		if(!$command instanceof CommandInterface)
-		{
-			throw new \RuntimeException(sprintf('Expecting command, given %s', is_object($command) ? get_class($command) : gettype($command)));
-		}
-		
-		// Move execution to start node if param is set.
-		if(array_key_exists(self::PARAM_NODE_ID, $data))
-		{
-			$execution->setNode($execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]));
-			
-			$engine->debug('Moved {execution} to node "{node}"', [
-				'execution' => (string)$execution,
-				'node' => $execution->getNode()->getId()
-			]);
-		}
-		
-		$engine->debug('Executing async command {cmd} using {execution}', [
-			'cmd' => get_class($command),
-			'execution' => (string)$execution
-		]);
-		
-		$engine->pushCommand($command);
-	}
+    /**
+     * Name of the job handler.
+     * 
+     * @var string
+     */
+    const HANDLER_TYPE = 'async-command';
+
+    /**
+     * Serialized command data.
+     * 
+     * @var string
+     */
+    const PARAM_COMMAND = 'command';
+
+    /**
+     * Optional: ID of the node that the execution will move to before executing the command.
+     * 
+     * @var string
+     */
+    const PARAM_NODE_ID = 'nodeId';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getType()
+    {
+        return self::HANDLER_TYPE;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine)
+    {
+        if ($execution->isTerminated()) {
+            throw new \RuntimeException(sprintf('%s is terminated', $execution));
+        }
+        
+        $data = (array) $job->getHandlerData();
+        $command = $data[self::PARAM_COMMAND];
+        
+        if (!$command instanceof CommandInterface) {
+            throw new \RuntimeException(sprintf('Expecting command, given %s', is_object($command) ? get_class($command) : gettype($command)));
+        }
+        
+        // Move execution to start node if param is set.
+        if (array_key_exists(self::PARAM_NODE_ID, $data)) {
+            $execution->setNode($execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]));
+            
+            $engine->debug('Moved {execution} to node "{node}"', [
+                'execution' => (string) $execution,
+                'node' => $execution->getNode()->getId()
+            ]);
+        }
+        
+        $engine->debug('Executing async command {cmd} using {execution}', [
+            'cmd' => get_class($command),
+            'execution' => (string) $execution
+        ]);
+        
+        $engine->pushCommand($command);
+    }
 }

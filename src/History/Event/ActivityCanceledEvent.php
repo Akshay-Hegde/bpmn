@@ -21,25 +21,25 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  */
 class ActivityCanceledEvent extends AbstractAuditEvent
 {
-	/**
-	 * ID of the activity / scope being completed.
-	 * 
-	 * @var string
-	 */
-	public $name;
-	
-	/**
-	 * The related execution.
-	 * 
-	 * @var VirtualExecution
-	 */
-	public $execution;
-	
-	public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
-	{
-		parent::__construct($engine);
-		
-		$this->name = (string)$name;
-		$this->execution = $execution;
-	}
+    /**
+     * ID of the activity / scope being completed.
+     * 
+     * @var string
+     */
+    public $name;
+
+    /**
+     * The related execution.
+     * 
+     * @var VirtualExecution
+     */
+    public $execution;
+
+    public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
+    {
+        parent::__construct($engine);
+        
+        $this->name = (string) $name;
+        $this->execution = $execution;
+    }
 }

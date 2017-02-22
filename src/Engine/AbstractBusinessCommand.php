@@ -21,28 +21,28 @@ use KoolKode\Process\EngineInterface;
  */
 abstract class AbstractBusinessCommand extends AbstractCommand
 {
-	/**
-	 * {@inheritdoc}
-	 * 
-	 * @codeCoverageIgnore
-	 */
-	public function isSerializable()
-	{
-		return false;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public final function execute(EngineInterface $engine)
-	{
-		return $this->executeCommand($engine);
-	}
-	
-	/**
-	 * Execute the command logic using the given BPMN process engine.
-	 * 
-	 * @param ProcessEngine $engine
-	 */
-	protected abstract function executeCommand(ProcessEngine $engine);
+    /**
+     * {@inheritdoc}
+     * 
+     * @codeCoverageIgnore
+     */
+    public function isSerializable()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public final function execute(EngineInterface $engine)
+    {
+        return $this->executeCommand($engine);
+    }
+
+    /**
+     * Execute the command logic using the given BPMN process engine.
+     * 
+     * @param ProcessEngine $engine
+     */
+    protected abstract function executeCommand(ProcessEngine $engine);
 }

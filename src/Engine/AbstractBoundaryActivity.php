@@ -21,89 +21,86 @@ use KoolKode\BPMN\History\Event\ActivityStartedEvent;
  */
 abstract class AbstractBoundaryActivity extends AbstractActivity
 {
-	/**
-	 * ID of the boundary event or event sub process node.
-	 * 
-	 * @var string
-	 */
-	protected $activityId;
-	
-	/**
-	 * ID of the scope node that this boundary activity is attached to.
-	 * 
-	 * @var string
-	 */
-	protected $attachedTo;
-	
-	/**
-	 * Is this activity interrupting?
-	 * 
-	 * @var boolean
-	 */
-	protected $interrupting = true;
-	
-	public function __construct($activityId, $attachedTo)
-	{
-		$this->activityId = (string)$activityId;
-		$this->attachedTo = (string)$attachedTo;
-	}
-	
-	public function getActivityId()
-	{
-		return $this->activityId;
-	}
-	
-	public function getAttachedTo()
-	{
-		return $this->attachedTo;
-	}
-	
-	public function isInterrupting()
-	{
-		return $this->interrupting;
-	}
-	
-	public function setInterrupting($interrupting)
-	{
-		$this->interrupting = $interrupting ? true : false;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
-	{
-		$engine = $execution->getEngine();
-		
-		// Log activity, boundary events do not have a duration > 0.
-		$engine->notify(new ActivityStartedEvent($this->activityId, $execution, $engine));
-		$engine->notify(new ActivityCompletedEvent($this->activityId, $execution, $engine));
-		
-		if($this->isInterrupting())
-		{
-			$this->findScopeActivity($execution)->interrupt($execution);
-		}
-		else
-		{
-			$this->findScopeActivity($execution)->leaveConcurrent($execution);
-		}
-	}
-	
-	/**
-	 * @param VirtualExecution $execution
-	 * @return Node
-	 */
-	public function findScopeNode(VirtualExecution $execution)
-	{
-		return $execution->getProcessModel()->findNode($this->attachedTo);
-	}
-	
-	/**
-	 * @param VirtualExecution $execution
-	 * @return AbstractScopeActivity
-	 */
-	public function findScopeActivity(VirtualExecution $execution)
-	{
-		return $execution->getProcessModel()->findNode($this->attachedTo)->getBehavior();
-	}
+    /**
+     * ID of the boundary event or event sub process node.
+     * 
+     * @var string
+     */
+    protected $activityId;
+
+    /**
+     * ID of the scope node that this boundary activity is attached to.
+     * 
+     * @var string
+     */
+    protected $attachedTo;
+
+    /**
+     * Is this activity interrupting?
+     * 
+     * @var boolean
+     */
+    protected $interrupting = true;
+
+    public function __construct($activityId, $attachedTo)
+    {
+        $this->activityId = (string) $activityId;
+        $this->attachedTo = (string) $attachedTo;
+    }
+
+    public function getActivityId()
+    {
+        return $this->activityId;
+    }
+
+    public function getAttachedTo()
+    {
+        return $this->attachedTo;
+    }
+
+    public function isInterrupting()
+    {
+        return $this->interrupting;
+    }
+
+    public function setInterrupting($interrupting)
+    {
+        $this->interrupting = $interrupting ? true : false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    {
+        $engine = $execution->getEngine();
+        
+        // Log activity, boundary events do not have a duration > 0.
+        $engine->notify(new ActivityStartedEvent($this->activityId, $execution, $engine));
+        $engine->notify(new ActivityCompletedEvent($this->activityId, $execution, $engine));
+        
+        if ($this->isInterrupting()) {
+            $this->findScopeActivity($execution)->interrupt($execution);
+        } else {
+            $this->findScopeActivity($execution)->leaveConcurrent($execution);
+        }
+    }
+
+    /**
+     * @param VirtualExecution $execution
+     * @return Node
+     */
+    public function findScopeNode(VirtualExecution $execution)
+    {
+        return $execution->getProcessModel()->findNode($this->attachedTo);
+    }
+
+    /**
+     * @param VirtualExecution $execution
+     * @return AbstractScopeActivity
+     */
+    public function findScopeActivity(VirtualExecution $execution)
+    {
+        return $execution->getProcessModel()->findNode($this->attachedTo)->getBehavior();
+    }
 }

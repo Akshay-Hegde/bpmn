@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Delegate\Event;
 
@@ -22,24 +22,24 @@ use KoolKode\BPMN\Engine\ProcessEngineEvent;
  */
 class TaskExecutedEvent extends ProcessEngineEvent
 {
-	/**
-	 * Name of the task being executed.
-	 * 
-	 * @var string
-	 */
-	public $name;
-	
-	/**
-	 * Provides access to the execution that triggered the service task.
-	 * 
-	 * @var DelegateExecutionInterface
-	 */
-	public $execution;
-	
-	public function __construct($name, DelegateExecutionInterface $execution, ProcessEngine $engine)
-	{
-		$this->name = (string)$name;
-		$this->execution = $execution;
-		$this->engine = $engine;
-	}
+    /**
+     * Name of the task being executed.
+     * 
+     * @var string
+     */
+    public $name;
+
+    /**
+     * Provides access to the execution that triggered the service task.
+     * 
+     * @var DelegateExecutionInterface
+     */
+    public $execution;
+
+    public function __construct($name, DelegateExecutionInterface $execution, ProcessEngine $engine)
+    {
+        $this->name = (string) $name;
+        $this->execution = $execution;
+        $this->engine = $engine;
+    }
 }

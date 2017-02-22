@@ -2,12 +2,12 @@
 
 /*
  * This file is part of KoolKode BPMN.
-*
-* (c) Martin Schröder <m.schroeder2007@gmail.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ *
+ * (c) Martin Schröder <m.schroeder2007@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace KoolKode\BPMN\Delegate\Behavior;
 
@@ -22,21 +22,21 @@ use KoolKode\BPMN\Engine\VirtualExecution;
  * @author Martin Schröder
  */
 class TaskBehavior extends AbstractScopeActivity
-{	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function enter(VirtualExecution $execution)
-	{
-		$engine = $execution->getEngine();
-		$name = $this->getStringValue($this->name, $execution->getExpressionContext());
-		
-		$execution->getEngine()->debug('Executing manual task "{task}"', [
-			'task' => $name
-		]);
-		
-		$engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
-		
-		$this->leave($execution);
-	}
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function enter(VirtualExecution $execution)
+    {
+        $engine = $execution->getEngine();
+        $name = $this->getStringValue($this->name, $execution->getExpressionContext());
+        
+        $execution->getEngine()->debug('Executing manual task "{task}"', [
+            'task' => $name
+        ]);
+        
+        $engine->notify(new TaskExecutedEvent($name, new DelegateExecution($execution), $engine));
+        
+        $this->leave($execution);
+    }
 }

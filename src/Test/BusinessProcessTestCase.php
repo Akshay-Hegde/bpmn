@@ -41,276 +41,266 @@ use Monolog\Processor\PsrLogMessageProcessor;
  */
 abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 {
-	use DatabaseTestTrait;
-	
-	protected $conn;
-	
-	/**
-	 * @var EventDispatcher
-	 */
-	protected $eventDispatcher;
-	
-	/**
-	 * @var ProcessEngine
-	 */
-	protected $processEngine;
-	
-	/**
-	 * @var JobExecutor
-	 */
-	protected $jobExecutor;
-	
-	/**
-	 * @var DelegateTaskRegistry
-	 */
-	protected $delegateTasks;
-	
-	/**
-	 * @var RepositoryService
-	 */
-	protected $repositoryService;
-	
-	/**
-	 * @var RuntimeService
-	 */
-	protected $runtimeService;
-	
-	/**
-	 * @var TaskService
-	 */
-	protected $taskService;
-	
-	/**
-	 * @var HistoryService
-	 */
-	protected $historyService;
-	
-	/**
-	 * @var ManagementService
-	 */
-	protected $managementService;
-	
-	private $messageHandlers;
-	
-	private $serviceTaskHandlers;
-	
-	private $typeInfo;
-	
-	protected function setUp()
-	{
-		parent::setUp();
-		
-		$this->eventDispatcher = new EventDispatcher();
-		
-		$this->conn = static::createConnection('bpm_', $this->eventDispatcher);
-		
-		static::migrateDirectoryUp($this->conn, __DIR__ . '/../../migration');
-		
-		$logger = NULL;
-		
-		if(NULL !== ($logLevel = $this->getLogLevel()))
-		{
-			$stderr = fopen('php://stderr', 'wb');
-			
-			$levels = array_change_key_case(Logger::getLevels(), CASE_UPPER);
-			
-			$logger = new Logger('BPMN');
-			$logger->pushHandler(new StreamHandler($stderr, $levels[strtoupper($logLevel)]));
-			$logger->pushProcessor(new PsrLogMessageProcessor());
-			
-			fwrite($stderr, "\n");
-			fwrite($stderr, sprintf("TEST CASE: %s\n", $this->getName()));
-			
-// 			$this->conn$conn->setDebug(true);
-// 			$this->conn->setLogger($logger);
-		}
-		
-		$this->messageHandlers = [];
-		$this->serviceTaskHandlers = [];
-		
-		// Provide message handler subscriptions.
-		$this->eventDispatcher->connect(function(MessageThrownEvent $event) {
-			
-			$def = $this->repositoryService->createProcessDefinitionQuery()->processDefinitionId($event->execution->getProcessDefinitionId())->findOne();
-			
-			$key = $def->getKey();
-			$id = $event->execution->getActivityId();
-			
-			if(isset($this->messageHandlers[$key][$id]))
-			{
-				return $this->messageHandlers[$key][$id]($event);
-			}
-		});
-		
-		$this->eventDispatcher->connect(function(TaskExecutedEvent $event) {
-			
-			$execution = $this->runtimeService->createExecutionQuery()
-											  ->executionId($event->execution->getExecutionId())
-											  ->findOne();
-			
-			$key = $execution->getProcessDefinition()->getKey();
-			$id = $event->execution->getActivityId();
-			
-			if(isset($this->serviceTaskHandlers[$key][$id]))
-			{
-				$this->serviceTaskHandlers[$key][$id]($event->execution);
-			}
-		});
-		
-		// Allow for assertions in expressions, e.g. #{ @test.assertEquals(2, processVariable) }
-		$this->eventDispatcher->connect(function(CreateExpressionContextEvent $event) {
-			$event->access->setVariable('@test', $this);
-		});
-		
-		$this->delegateTasks = new DelegateTaskRegistry();
-		
-		$this->processEngine = new ProcessEngine($this->conn, $this->eventDispatcher, new ExpressionContextFactory());
-		$this->processEngine->setDelegateTaskFactory($this->delegateTasks);
-		$this->processEngine->setLogger($logger);
-		
-		$scheduler = new TestJobScheduler($this->processEngine);
-		$this->jobExecutor = new JobExecutor($this->processEngine, $scheduler);
-		
-		$this->processEngine->setJobExecutor($this->jobExecutor);
-		
-		$this->repositoryService = $this->processEngine->getRepositoryService();
-		$this->runtimeService = $this->processEngine->getRuntimeService();
-		$this->taskService = $this->processEngine->getTaskService();
-		$this->historyService = $this->processEngine->getHistoryService();
-		$this->managementService = $this->processEngine->getManagementService();
-		
-		if($this->typeInfo === NULL)
-		{
-			$this->typeInfo = new ReflectionTypeInfo(new \ReflectionClass(get_class($this)));
-		}
-		
-		foreach($this->typeInfo->getMethods() as $method)
-		{
-			if(!$method->isPublic() || $method->isStatic())
-			{
-				continue;
-			}
-			
-			foreach($method->getAnnotations() as $anno)
-			{
-				if($anno instanceof MessageHandler)
-				{
-					$this->messageHandlers[$anno->processKey][$anno->value] = [$this, $method->getName()];
-				}
-				
-				if($anno instanceof ServiceTaskHandler)
-				{
-					$this->serviceTaskHandlers[$anno->processKey][$anno->value] = [$this, $method->getName()];
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Get the minimum level of log messages to be displayed.
-	 * 
-	 * Logging is not enabled by default.
-	 * 
-	 * @return string
-	 */
-	public function getlogLevel()
-	{
-		return NULL;
-	}
-	
-	protected function deployFile($file)
-	{
-		if(!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file))
-		{
-			$file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
-		}
-		
-		return $this->repositoryService->deployProcess(new \SplFileInfo($file));
-	}
-	
-	protected function deployDirectory($file, array $extensions = [])
-	{
-		if(!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file))
-		{
-			$file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
-		}
-	
-		$builder = $this->repositoryService->createDeployment(pathinfo($file, PATHINFO_FILENAME));
-		$builder->addExtensions($extensions);
-		$builder->addDirectory($file);
-	
-		return $this->repositoryService->deploy($builder);
-	}
-	
-	protected function deployArchive($file, array $extensions = [])
-	{
-		if(!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file))
-		{
-			$file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
-		}
-		
-		$builder = $this->repositoryService->createDeployment(pathinfo($file, PATHINFO_FILENAME));
-		$builder->addExtensions($extensions);
-		$builder->addArchive($file);
-	
-		return $this->repositoryService->deploy($builder);
-	}
-	
-	protected function registerMessageHandler($processDefinitionKey, $nodeId, callable $handler)
-	{
-		$args = array_slice(func_get_args(), 3);
-		
-		$this->messageHandlers[(string)$processDefinitionKey][(string)$nodeId] = function($event) use($handler, $args) {
-			return call_user_func_array($handler, array_merge([$event], $args));
-		};
-	}
-	
-	protected function registerServiceTaskHandler($processDefinitionKey, $activityId, callable $handler)
-	{
-		$this->serviceTaskHandlers[(string)$processDefinitionKey][(string)$activityId] = $handler;
-	}
-	
-	protected function dumpProcessInstances(UUID $id = NULL)
-	{
-		$query = $this->runtimeService->createProcessInstanceQuery();
-		
-		if($id !== NULL)
-		{
-			$query->processInstanceId($id);
-		}
-		
-		foreach($query->findAll() as $proc)
-		{
-			echo "\n";
-			$this->dumpExecution($this->processEngine->findExecution($proc->getId()));
-			echo "\n";
-		}
-	}
-	
-	protected function dumpExecution(VirtualExecution $exec)
-	{
-		$node = $exec->getNode();
-		$nodeId = ($node === NULL) ? NULL : $node->getId();
-		
-		printf("%s%s [ %s ]\n", str_repeat('  ', $exec->getExecutionDepth()), $nodeId, $exec->getId());
-	
-		foreach($exec->findChildExecutions() as $child)
-		{
-			$this->dumpExecution($child);
-		}
-	}
-	
-	protected function findCompletedActivityDefinitionKeys(UUID $processId = NULL)
-	{
-		$query = $this->historyService->createHistoricActivityInstanceQuery()->completed(true)->orderByStartedAt();
-		
-		if($processId !== NULL)
-		{
-			$query->processInstanceId($processId);
-		}
-		
-		return array_map(function(HistoricActivityInstance $activity) {
-			return $activity->getDefinitionKey();
-		}, $query->findAll());
-	}
+    use DatabaseTestTrait;
+
+    protected $conn;
+
+    /**
+     * @var EventDispatcher
+     */
+    protected $eventDispatcher;
+
+    /**
+     * @var ProcessEngine
+     */
+    protected $processEngine;
+
+    /**
+     * @var JobExecutor
+     */
+    protected $jobExecutor;
+
+    /**
+     * @var DelegateTaskRegistry
+     */
+    protected $delegateTasks;
+
+    /**
+     * @var RepositoryService
+     */
+    protected $repositoryService;
+
+    /**
+     * @var RuntimeService
+     */
+    protected $runtimeService;
+
+    /**
+     * @var TaskService
+     */
+    protected $taskService;
+
+    /**
+     * @var HistoryService
+     */
+    protected $historyService;
+
+    /**
+     * @var ManagementService
+     */
+    protected $managementService;
+
+    private $messageHandlers;
+
+    private $serviceTaskHandlers;
+
+    private $typeInfo;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        
+        $this->eventDispatcher = new EventDispatcher();
+        
+        $this->conn = static::createConnection('bpm_', $this->eventDispatcher);
+        
+        static::migrateDirectoryUp($this->conn, __DIR__ . '/../../migration');
+        
+        $logger = null;
+        
+        if (null !== ($logLevel = $this->getLogLevel())) {
+            $stderr = fopen('php://stderr', 'wb');
+            
+            $levels = array_change_key_case(Logger::getLevels(), CASE_UPPER);
+            
+            $logger = new Logger('BPMN');
+            $logger->pushHandler(new StreamHandler($stderr, $levels[strtoupper($logLevel)]));
+            $logger->pushProcessor(new PsrLogMessageProcessor());
+            
+            fwrite($stderr, "\n");
+            fwrite($stderr, sprintf("TEST CASE: %s\n", $this->getName()));
+            
+//             $this->conn->setDebug(true);
+//             $this->conn->setLogger($logger);
+        }
+        
+        $this->messageHandlers = [];
+        $this->serviceTaskHandlers = [];
+        
+        // Provide message handler subscriptions.
+        $this->eventDispatcher->connect(function (MessageThrownEvent $event) {
+            
+            $def = $this->repositoryService->createProcessDefinitionQuery()->processDefinitionId($event->execution->getProcessDefinitionId())->findOne();
+            
+            $key = $def->getKey();
+            $id = $event->execution->getActivityId();
+            
+            if (isset($this->messageHandlers[$key][$id])) {
+                return $this->messageHandlers[$key][$id]($event);
+            }
+        });
+        
+        $this->eventDispatcher->connect(function (TaskExecutedEvent $event) {
+            
+            $execution = $this->runtimeService->createExecutionQuery()->executionId($event->execution->getExecutionId())->findOne();
+            
+            $key = $execution->getProcessDefinition()->getKey();
+            $id = $event->execution->getActivityId();
+            
+            if (isset($this->serviceTaskHandlers[$key][$id])) {
+                $this->serviceTaskHandlers[$key][$id]($event->execution);
+            }
+        });
+        
+        // Allow for assertions in expressions, e.g. #{ @test.assertEquals(2, processVariable) }
+        $this->eventDispatcher->connect(function (CreateExpressionContextEvent $event) {
+            $event->access->setVariable('@test', $this);
+        });
+        
+        $this->delegateTasks = new DelegateTaskRegistry();
+        
+        $this->processEngine = new ProcessEngine($this->conn, $this->eventDispatcher, new ExpressionContextFactory());
+        $this->processEngine->setDelegateTaskFactory($this->delegateTasks);
+        $this->processEngine->setLogger($logger);
+        
+        $scheduler = new TestJobScheduler($this->processEngine);
+        $this->jobExecutor = new JobExecutor($this->processEngine, $scheduler);
+        
+        $this->processEngine->setJobExecutor($this->jobExecutor);
+        
+        $this->repositoryService = $this->processEngine->getRepositoryService();
+        $this->runtimeService = $this->processEngine->getRuntimeService();
+        $this->taskService = $this->processEngine->getTaskService();
+        $this->historyService = $this->processEngine->getHistoryService();
+        $this->managementService = $this->processEngine->getManagementService();
+        
+        if ($this->typeInfo === null) {
+            $this->typeInfo = new ReflectionTypeInfo(new \ReflectionClass(get_class($this)));
+        }
+        
+        foreach ($this->typeInfo->getMethods() as $method) {
+            if (!$method->isPublic() || $method->isStatic()) {
+                continue;
+            }
+            
+            foreach ($method->getAnnotations() as $anno) {
+                if ($anno instanceof MessageHandler) {
+                    $this->messageHandlers[$anno->processKey][$anno->value] = [
+                        $this,
+                        $method->getName()
+                    ];
+                }
+                
+                if ($anno instanceof ServiceTaskHandler) {
+                    $this->serviceTaskHandlers[$anno->processKey][$anno->value] = [
+                        $this,
+                        $method->getName()
+                    ];
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the minimum level of log messages to be displayed.
+     * 
+     * Logging is not enabled by default.
+     * 
+     * @return string
+     */
+    public function getlogLevel()
+    {
+        return null;
+    }
+
+    protected function deployFile($file)
+    {
+        if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
+            $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
+        }
+        
+        return $this->repositoryService->deployProcess(new \SplFileInfo($file));
+    }
+
+    protected function deployDirectory($file, array $extensions = [])
+    {
+        if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
+            $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
+        }
+        
+        $builder = $this->repositoryService->createDeployment(pathinfo($file, PATHINFO_FILENAME));
+        $builder->addExtensions($extensions);
+        $builder->addDirectory($file);
+        
+        return $this->repositoryService->deploy($builder);
+    }
+
+    protected function deployArchive($file, array $extensions = [])
+    {
+        if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
+            $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
+        }
+        
+        $builder = $this->repositoryService->createDeployment(pathinfo($file, PATHINFO_FILENAME));
+        $builder->addExtensions($extensions);
+        $builder->addArchive($file);
+        
+        return $this->repositoryService->deploy($builder);
+    }
+
+    protected function registerMessageHandler($processDefinitionKey, $nodeId, callable $handler)
+    {
+        $args = array_slice(func_get_args(), 3);
+        
+        $this->messageHandlers[(string) $processDefinitionKey][(string) $nodeId] = function ($event) use ($handler, $args) {
+            return call_user_func_array($handler, array_merge([
+                $event
+            ], $args));
+        };
+    }
+
+    protected function registerServiceTaskHandler($processDefinitionKey, $activityId, callable $handler)
+    {
+        $this->serviceTaskHandlers[(string) $processDefinitionKey][(string) $activityId] = $handler;
+    }
+
+    protected function dumpProcessInstances(UUID $id = null)
+    {
+        $query = $this->runtimeService->createProcessInstanceQuery();
+        
+        if ($id !== null) {
+            $query->processInstanceId($id);
+        }
+        
+        foreach ($query->findAll() as $proc) {
+            echo "\n";
+            $this->dumpExecution($this->processEngine->findExecution($proc->getId()));
+            echo "\n";
+        }
+    }
+
+    protected function dumpExecution(VirtualExecution $exec)
+    {
+        $node = $exec->getNode();
+        $nodeId = ($node === null) ? null : $node->getId();
+        
+        printf("%s%s [ %s ]\n", str_repeat('  ', $exec->getExecutionDepth()), $nodeId, $exec->getId());
+        
+        foreach ($exec->findChildExecutions() as $child) {
+            $this->dumpExecution($child);
+        }
+    }
+
+    protected function findCompletedActivityDefinitionKeys(UUID $processId = null)
+    {
+        $query = $this->historyService->createHistoricActivityInstanceQuery()->completed(true)->orderByStartedAt();
+        
+        if ($processId !== null) {
+            $query->processInstanceId($processId);
+        }
+        
+        return array_map(function (HistoricActivityInstance $activity) {
+            return $activity->getDefinitionKey();
+        }, $query->findAll());
+    }
 }

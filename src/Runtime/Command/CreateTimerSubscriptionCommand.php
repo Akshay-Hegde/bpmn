@@ -64,7 +64,7 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
 			$delegation['nodeId'] = $this->nodeId;
 		}
 		
-		$command = new SignalExecutionCommand($execution, NULL, [], $delegation);
+		$command = new SignalExecutionCommand($execution, $this->name, [], $delegation);
 		
 		$job = $engine->scheduleJob($execution->getId(), AsyncCommandHandler::HANDLER_TYPE, [
 			AsyncCommandHandler::PARAM_COMMAND => $command

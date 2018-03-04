@@ -20,7 +20,7 @@
 		"koolkode/expression" : "^0.1.2",
 		"koolkode/util" : "^0.1.2 || ~0.2",
 		"koolkode/xml" : "^0.1.3",
-		"koolkode/database" : "^0.1.9",
+		"koolkode/database" : "^0.1.10",
 		"koolkode/stream" : "^0.2.0"
 	},
 	"require-dev" : {

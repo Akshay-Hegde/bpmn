@@ -24,7 +24,6 @@ use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
 use KoolKode\Database\ConnectionInterface;
-use KoolKode\Database\DB;
 use KoolKode\Database\ParamEncoderDecorator;
 use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
@@ -403,13 +402,8 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
             WHERE e.`process_id` = :pid
         ";
         
-        switch ($this->conn->getDriverName()) {
-            case DB::DRIVER_MYSQL:
-            case DB::DRIVER_POSTGRESQL:
-                $sql .= " FOR UPDATE";
-        }
-        
         $stmt = $this->conn->prepare($sql);
+        $stmt->setForUpdate(true);
         $stmt->bindAll([
             'pid' => $processId
         ]);

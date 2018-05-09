@@ -11,9 +11,6 @@
 
 namespace KoolKode\BPMN\Delegate;
 
-use KoolKode\BPMN\Delegate\DelegateExecutionInterface;
-use KoolKode\BPMN\Delegate\DelegateTaskInterface;
-
 class ComputePriceTask implements DelegateTaskInterface
 {
     /**

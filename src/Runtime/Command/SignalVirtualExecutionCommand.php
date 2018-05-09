@@ -24,7 +24,7 @@ class SignalVirtualExecutionCommand extends SignalExecutionCommand
     /**
      * Wake the given execution up using the given signal / variables.
      * 
-     * @param Execution $execution
+     * @param UUID $executionId
      * @param string $signal
      * @param array $variables
      * @param array $delegation

@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Runtime;
 
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\BPMN\History\HistoricProcessInstance;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
 use KoolKode\BPMN\Repository\ProcessDefinition;
 use KoolKode\BPMN\Runtime\Command\GetExecutionVariablesCommand;

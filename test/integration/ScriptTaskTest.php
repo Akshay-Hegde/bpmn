@@ -68,7 +68,7 @@ class ScriptTaskTest extends BusinessProcessTestCase
     /**
      * @ServiceTaskHandler("ServiceTask_1", processKey = "main")
      * 
-     * @param DelegateExecution $execution
+     * @param DelegateExecutionInterface $execution
      */
     public function verifyNumbersAdded(DelegateExecutionInterface $execution)
     {

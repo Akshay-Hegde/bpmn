@@ -121,8 +121,6 @@ interface DelegateExecutionInterface
      * @param string $name
      * @param mixed $default
      * @return mixed
-     * 
-     * @throws \OutOfBoundException When the variable is not found an no default value is given.
      */
     public function getVariable($name);
 

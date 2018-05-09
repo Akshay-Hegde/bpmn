@@ -13,7 +13,6 @@ namespace KoolKode\BPMN\Runtime\Behavior;
 
 use KoolKode\BPMN\Engine\AbstractScopeActivity;
 use KoolKode\BPMN\Engine\VirtualExecution;
-use KoolKode\Process\Node;
 
 /**
  * Executes an embedded sub process within a child execution with shared variable scope.

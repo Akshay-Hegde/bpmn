@@ -54,17 +54,17 @@ class DiagramLoader
             $this->xpath = $this->createXPath($xml);
             
             foreach ($this->xpath->query('/m:definitions/m:message[@id][@name]') as $messageElement) {
-                $this->messages[trim($messageElement->getAttribute('id'))] = trim($messageElement->getAttribute('name'));
+                $this->messages[\trim($messageElement->getAttribute('id'))] = \trim($messageElement->getAttribute('name'));
             }
             
             foreach ($this->xpath->query('/m:definitions/m:signal[@id][@name]') as $signalElement) {
-                $this->signals[trim($signalElement->getAttribute('id'))] = trim($signalElement->getAttribute('name'));
+                $this->signals[\trim($signalElement->getAttribute('id'))] = \trim($signalElement->getAttribute('name'));
             }
             
             $result = [];
             
             foreach ($this->xpath->query('/m:definitions/m:process[@id]') as $processElement) {
-                if ('true' === strtolower($processElement->getAttribute('isExecutable'))) {
+                if ('true' === \strtolower($processElement->getAttribute('isExecutable'))) {
                     $result[] = $this->parseProcessDefinition($processElement);
                 }
             }
@@ -84,7 +84,7 @@ class DiagramLoader
 
     protected function parseProcessDefinition(\DOMElement $process): BusinessProcessBuilder
     {
-        $title = $process->hasAttribute('name') ? trim($process->getAttribute('name')) : '';
+        $title = $process->hasAttribute('name') ? \trim($process->getAttribute('name')) : '';
         $builder = new BusinessProcessBuilder($process->getAttribute('id'), $title);
         
         foreach ($this->xpath->query('m:*[@id]', $process) as $element) {
@@ -162,13 +162,13 @@ class DiagramLoader
         
         foreach ($this->xpath->query('m:conditionExpression', $el) as $conditionElement) {
             $type = (string) $conditionElement->getAttributeNS(self::NS_XSI, 'type');
-            $type = explode(':', $type, 2);
+            $type = \explode(':', $type, 2);
             
-            if (count($type == 2)) {
+            if (\count($type) == 2) {
                 $uri = $conditionElement->lookupNamespaceURI($type[0]);
                 
                 if ($uri == self::NS_MODEL && $type[1] == 'tFormalExpression') {
-                    $condition = trim($conditionElement->textContent);
+                    $condition = \trim($conditionElement->textContent);
                 }
             }
         }
@@ -178,7 +178,7 @@ class DiagramLoader
 
     protected function parseServiceTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
-        if ($el->hasAttributeNS(self::NS_IMPL, 'class') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'class'))) {
+        if ($el->hasAttributeNS(self::NS_IMPL, 'class') && '' !== \trim($el->getAttributeNS(self::NS_IMPL, 'class'))) {
             $delegateTask = $builder->delegateTask($id, $el->getAttributeNS(self::NS_IMPL, 'class'), $el->getAttribute('name'));
             $delegateTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
             $delegateTask->setAsyncBefore($this->getAsyncBefore($el));
@@ -240,15 +240,15 @@ class DiagramLoader
         $userTask->setAsyncBefore($this->getAsyncBefore($el));
         $userTask->setAsyncAfter($this->getAsyncAfter($el));
         
-        if ($el->hasAttributeNS(self::NS_IMPL, 'assignee') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'assignee'))) {
+        if ($el->hasAttributeNS(self::NS_IMPL, 'assignee') && '' !== \trim($el->getAttributeNS(self::NS_IMPL, 'assignee'))) {
             $userTask->setAssignee($builder->stringExp($el->getAttributeNS(self::NS_IMPL, 'assignee')));
         }
         
-        if ($el->hasAttributeNS(self::NS_IMPL, 'priority') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'priority'))) {
+        if ($el->hasAttributeNS(self::NS_IMPL, 'priority') && '' !== \trim($el->getAttributeNS(self::NS_IMPL, 'priority'))) {
             $userTask->setPriority($builder->stringExp($el->getAttributeNS(self::NS_IMPL, 'priority')));
         }
         
-        if ($el->hasAttributeNS(self::NS_IMPL, 'dueDate') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'dueDate'))) {
+        if ($el->hasAttributeNS(self::NS_IMPL, 'dueDate') && '' !== \trim($el->getAttributeNS(self::NS_IMPL, 'dueDate'))) {
             $userTask->setDueDate($builder->exp($el->getAttributeNS(self::NS_IMPL, 'dueDate')));
         }
         
@@ -321,7 +321,7 @@ class DiagramLoader
         $this->subProcessId = $id;
         
         try {
-            $triggeredByEvent = ('true' === strtolower($el->getAttribute('triggeredByEvent')));
+            $triggeredByEvent = ('true' === \strtolower($el->getAttribute('triggeredByEvent')));
             $inner = $this->parseProcessDefinition($el);
             
             if ($triggeredByEvent) {
@@ -345,7 +345,7 @@ class DiagramLoader
             $message = $this->messages[$messageElement->getAttribute('messageRef')];
             
             $messageStart = $builder->messageStartEvent($id, $message, $this->subProcessId !== null, $el->getAttribute('name'));
-            $messageStart->setInterrupting('false' !== strtolower($el->getAttribute('isInterrupting')));
+            $messageStart->setInterrupting('false' !== \strtolower($el->getAttribute('isInterrupting')));
             
             return $messageStart;
         }
@@ -354,7 +354,7 @@ class DiagramLoader
             $signal = $this->signals[$signalElement->getAttribute('signalRef')];
             
             $signalStart = $builder->signalStartEvent($id, $signal, $this->subProcessId !== null, $el->getAttribute('name'));
-            $signalStart->setInterrupting('false' != strtolower($el->getAttribute('isInterrupting')));
+            $signalStart->setInterrupting('false' != \strtolower($el->getAttribute('isInterrupting')));
             
             return $signalStart;
         }
@@ -397,13 +397,13 @@ class DiagramLoader
         
         foreach ($this->xpath->query('m:timerEventDefinition', $el) as $timerElement) {
             foreach ($this->xpath->query('m:timeDate', $timerElement) as $dateElement) {
-                $date = trim($dateElement->textContent);
+                $date = \trim($dateElement->textContent);
                 
                 return $builder->intermediateTimerDateEvent($id, $date, $el->getAttribute('name'));
             }
             
             foreach ($this->xpath->query('m:timeDuration', $timerElement) as $durationElement) {
-                $duration = trim($durationElement->textContent);
+                $duration = \trim($durationElement->textContent);
                 
                 return $builder->intermediateTimerDurationEvent($id, $duration, $el->getAttribute('name'));
             }
@@ -445,7 +445,7 @@ class DiagramLoader
         $cancelActivity = true;
         
         if ($el->hasAttribute('cancelActivity')) {
-            $cancelActivity = (strtolower($el->getAttribute('cancelActivity')) == 'true');
+            $cancelActivity = (\strtolower($el->getAttribute('cancelActivity')) == 'true');
         }
         
         foreach ($this->xpath->query('m:messageEventDefinition', $el) as $messageElement) {
@@ -514,21 +514,21 @@ class DiagramLoader
             $docs[] = $doc->textContent;
         }
         
-        return empty($docs) ? null : implode(' ', $docs);
+        return empty($docs) ? null : \implode(' ', $docs);
     }
 
     protected function getAsyncBefore(\DOMElement $el): bool
     {
-        if (strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncBefore')) == 'true') {
+        if (\strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncBefore')) == 'true') {
             return true;
         }
         
-        return strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true';
+        return \strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true';
     }
 
     protected function getAsyncAfter(\DOMElement $el): bool
     {
-        return strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncAfter')) == 'true';
+        return \strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncAfter')) == 'true';
     }
 
     protected function createXPath(\DOMNode $xml): \DOMXPath

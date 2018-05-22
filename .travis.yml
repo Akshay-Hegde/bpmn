@@ -4,35 +4,34 @@ language: php
 
 cache:
   directories:
-    - $HOME/.composer/cache
-    - vendor
+  - $HOME/.composer/cache/files
 
-php:
-  - 7.1
-  - 7.2
-
-env:
-  - 'DB=sqlite DEPS=""'
-  - 'DB=mysql DEPS=""'
-  - 'DB=pgsql DEPS=""'
-  - 'DB=sqlite DEPS="--prefer-lowest"'
-  - 'DB=mysql DEPS="--prefer-lowest"'
-  - 'DB=pgsql DEPS="--prefer-lowest"'
-  
-before_install:
-  - 'composer selfupdate --no-interaction'
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+      env: DEPS=--prefer-lowest
+    - php: 7.1
+      env: DB=mysql
+    - php: 7.1
+      env: DB=pgsql
+    - php: 7.2
+      env: DEPS=--prefer-lowest
+    - php: 7.2
+      env: DB=mysql
+    - php: 7.2
+      env: DB=pgsql
 
 install:
-  - 'travis_retry composer update --no-interaction $DEPS'
-  - 'composer info -i'
+  - travis_retry composer update -n $DEPS
   
 before_script:
-  - 'if [[ "$DB" == "sqlite" ]]; then export DB_DSN="sqlite::memory:"; fi'
+  - 'if [[ "$DB" == "" ]]; then export DB_DSN="sqlite::memory:"; fi'
   - 'if [[ "$DB" == "mysql" ]]; then export DB_DSN="mysql:host=localhost;dbname=bpmn"; export DB_USERNAME="root"; mysql -e "CREATE DATABASE bpmn;" -uroot; fi'
   - 'if [[ "$DB" == "pgsql" ]]; then export DB_DSN="pgsql:host=localhost;dbname=bpmn"; export DB_USERNAME="postgres"; psql -c "CREATE DATABASE bpmn WITH ENCODING = ''UTF8'';" -U postgres; fi'
 
 script:
-  - './vendor/bin/phpunit -c "./test/phpunit.xml"'
+  - ./vendor/bin/phpunit -c "./test/phpunit.xml"
 
 notifications:
   email: false

@@ -31,19 +31,14 @@ class ScriptTaskBehavior extends AbstractScopeActivity
 
     protected $resultVariable;
 
-    public function __construct($activityId)
+    public function setScriptResource(string $resource): void
     {
-        parent::__construct($activityId);
+        $this->scriptResource = $resource;
     }
 
-    public function setScriptResource($resource)
+    public function setScript(string $script, string $language = 'php'): void
     {
-        $this->scriptResource = (string) $resource;
-    }
-
-    public function setScript($script, $language = 'php')
-    {
-        $this->script = (string) $script;
+        $this->script = $script;
         $this->language = strtolower($language);
         
         if ($this->language !== 'php') {
@@ -51,15 +46,15 @@ class ScriptTaskBehavior extends AbstractScopeActivity
         }
     }
 
-    public function setResultVariable($var = null)
+    public function setResultVariable(?string $var): void
     {
-        $this->resultVariable = ($var === null) ? null : (string) $var;
+        $this->resultVariable = $var;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $engine = $execution->getEngine();
         $name = $this->getStringValue($this->name, $execution->getExpressionContext());

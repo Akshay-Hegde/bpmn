@@ -35,11 +35,11 @@ class ActivityCompletedEvent extends AbstractAuditEvent
      */
     public $execution;
 
-    public function __construct($name, VirtualExecution $execution, ProcessEngine $engine)
+    public function __construct(string $name, VirtualExecution $execution, ProcessEngine $engine)
     {
         parent::__construct($engine);
         
-        $this->name = (string) $name;
+        $this->name = $name;
         $this->execution = $execution;
     }
 }

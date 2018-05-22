@@ -23,14 +23,14 @@ class SubProcessBehavior extends AbstractScopeActivity
 {
     protected $startNodeId;
 
-    public function __construct($activityId, $startNodeId)
+    public function __construct(string $activityId, string $startNodeId)
     {
         parent::__construct($activityId);
         
-        $this->startNodeId = (string) $startNodeId;
+        $this->startNodeId = $startNodeId;
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->activityId;
     }
@@ -38,7 +38,7 @@ class SubProcessBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $model = $execution->getProcessModel();
         
@@ -62,14 +62,16 @@ class SubProcessBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($this->delegateSignal($execution, $signal, $variables, $delegation)) {
             return;
         }
         
         if (empty($delegation['executionId'])) {
-            return $execution->terminate(false);
+            $execution->terminate(false);
+            
+            return;
         }
         
         $sub = $execution->getEngine()->findExecution($delegation['executionId']);
@@ -89,7 +91,7 @@ class SubProcessBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function interrupt(VirtualExecution $execution, array $transitions = null)
+    public function interrupt(VirtualExecution $execution, ?array $transitions = null): void
     {
         foreach ($execution->findChildExecutions() as $sub) {
             $sub->terminate(false);

@@ -24,7 +24,7 @@ class TestJobScheduler extends AbstractJobScheduler
     /**
      * {@inheritdoc}
      */
-    public function scheduleJob(Job $job)
+    public function scheduleJob(Job $job): void
     {
         $this->markJobAsScheduled($job);
     }
@@ -32,7 +32,7 @@ class TestJobScheduler extends AbstractJobScheduler
     /**
      * {@inheritdoc}
      */
-    public function removeJob(UUID $jobId)
+    public function removeJob(UUID $jobId): void
     {
         // Nothing to do here...
     }

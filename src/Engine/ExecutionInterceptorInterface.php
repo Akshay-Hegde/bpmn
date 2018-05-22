@@ -20,17 +20,11 @@ interface ExecutionInterceptorInterface
 {
     /**
      * Get the priority of this interceptor.
-     * 
-     * @return integer
      */
-    public function getPriority();
+    public function getPriority(): int;
 
     /**
      * Apply interceptor code and delegate to the actual execution (or the next interceptor).
-     * 
-     * @param ExecutionInterceptorChain $chain
-     * @param integer $executionDepth
-     * @return mixed
      */
-    public function interceptExecution(ExecutionInterceptorChain $chain, $executionDepth);
+    public function interceptExecution(ExecutionInterceptorChain $chain, int $executionDepth);
 }

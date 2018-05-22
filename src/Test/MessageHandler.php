@@ -11,22 +11,40 @@
 
 namespace KoolKode\BPMN\Test;
 
+use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
+
 /**
  * Registers a method as BPMN 2.0 message handler.
  * 
- * @Annotation
- * 
  * @author Martin Schröder
  */
-final class MessageHandler
+class MessageHandler
 {
-    public $value;
+    protected $messageName;
 
-    public $processKey;
+    protected $processKey;
+    
+    protected $callback;
 
-    public function __construct($messageName, $processKey = null)
+    public function __construct(string $messageName, ?string $processKey, callable $callback)
     {
-        $this->value = (string) $messageName;
-        $this->processKey = ($processKey === null) ? null : (string) $processKey;
+        $this->messageName = $messageName;
+        $this->processKey = $processKey;
+        $this->callback = $callback;
+    }
+
+    public function getMessageName(): string
+    {
+        return $this->messageName;
+    }
+
+    public function getProcessKey(): ?string
+    {
+        return $this->processKey;
+    }
+
+    public function execute(MessageThrownEvent $event): void
+    {
+        ($this->callback)($event);
     }
 }

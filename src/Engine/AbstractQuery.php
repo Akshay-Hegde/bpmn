@@ -19,10 +19,8 @@ abstract class AbstractQuery
 
     protected $offset = 0;
 
-    public function limit($limit)
+    public function limit(int $limit): self
     {
-        $limit = (int) $limit;
-        
         if ($limit < 1) {
             throw new \InvalidArgumentException(sprintf('Limit must be greater than 0, given %s', $limit));
         }
@@ -32,10 +30,8 @@ abstract class AbstractQuery
         return $this;
     }
 
-    public function offset($offset)
+    public function offset(int $offset): self
     {
-        $offset = (int) $offset;
-        
         if ($offset < 0) {
             throw new \InvalidArgumentException(sprintf('Offset must not be nagtive, given %s', $offset));
         }
@@ -45,7 +41,7 @@ abstract class AbstractQuery
         return $this;
     }
 
-    protected function populateMultiProperty(& $prop, $value, callable $converter = null)
+    protected function populateMultiProperty(& $prop, $value, ?callable $converter = null): self
     {
         if (is_array($value) || $value instanceof \Traversable) {
             $prop = [];
@@ -62,7 +58,7 @@ abstract class AbstractQuery
         return $this;
     }
 
-    protected function buildPredicate($name, $values, array & $where, array & $params)
+    protected function buildPredicate(string $name, $values, array & $where, array & $params): void
     {
         if ($values === null || (is_array($values) && empty($values))) {
             return;
@@ -89,9 +85,9 @@ abstract class AbstractQuery
         $where[] = sprintf('%s IN (%s)', $name, implode(', ', $ph));
     }
 
-    protected abstract function getDefaultOrderBy();
+    protected abstract function getDefaultOrderBy(): array;
 
-    protected function buildOrderings()
+    protected function buildOrderings(): string
     {
         $sql = '';
         

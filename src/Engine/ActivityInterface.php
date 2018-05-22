@@ -11,8 +11,8 @@
 
 namespace KoolKode\BPMN\Engine;
 
-use KoolKode\Process\Behavior\SignalableBehaviorInterface;
 use KoolKode\Process\Node;
+use KoolKode\Process\Behavior\SignalableBehaviorInterface;
 
 /**
  * Contract for BPMN activities.
@@ -23,18 +23,11 @@ interface ActivityInterface extends SignalableBehaviorInterface
 {
     /**
      * Clears all event subscriptions (and related jobs) for the given execution / activity combination.
-     * 
-     * @param VirtualExecution $execution
-     * @param string $activityId
      */
-    public function clearEventSubscriptions(VirtualExecution $execution, $activityId);
+    public function clearEventSubscriptions(VirtualExecution $execution, string $activityId): void;
 
     /**
      * Create event subscriptions.
-     * 
-     * @param VirtualExecution $execution
-     * @param string $activityId
-     * @param Node $node
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null);
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void;
 }

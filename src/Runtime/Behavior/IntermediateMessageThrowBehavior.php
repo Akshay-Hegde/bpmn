@@ -25,7 +25,7 @@ class IntermediateMessageThrowBehavior extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->getEngine()->pushCommand(new ThrowMessageCommand($execution));
         
@@ -35,10 +35,10 @@ class IntermediateMessageThrowBehavior extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         $this->passVariablesToExecution($execution, $variables);
         
-        return $this->leave($execution);
+        $this->leave($execution);
     }
 }

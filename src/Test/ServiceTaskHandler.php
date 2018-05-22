@@ -11,22 +11,41 @@
 
 namespace KoolKode\BPMN\Test;
 
+use KoolKode\BPMN\Delegate\DelegateExecutionInterface;
+use KoolKode\BPMN\Delegate\DelegateTaskInterface;
+
 /**
  * Registers a method as BPMN 2.0 service task handler.
  * 
- * @Annotation
- * 
  * @author Martin Schröder
  */
-final class ServiceTaskHandler
+class ServiceTaskHandler implements DelegateTaskInterface
 {
-    public $value;
+    protected $serviceTask;
 
-    public $processKey;
+    protected $processKey;
+    
+    protected $callback;
 
-    public function __construct($serviceTask, $processKey = null)
+    public function __construct(string $serviceTask, ?string $processKey, callable $callback)
     {
-        $this->value = (string) $serviceTask;
-        $this->processKey = ($processKey === null) ? null : (string) $processKey;
+        $this->serviceTask = $serviceTask;
+        $this->processKey = $processKey;
+        $this->callback = $callback;
+    }
+
+    public function getServiceTask(): string
+    {
+        return $this->serviceTask;
+    }
+
+    public function getProcessKey(): ?string
+    {
+        return $this->processKey;
+    }
+    
+    public function execute(DelegateExecutionInterface $execution): void
+    {
+        ($this->callback)($execution);
     }
 }

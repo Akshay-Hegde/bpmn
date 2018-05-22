@@ -22,15 +22,11 @@ interface StartEventBehaviorInterface extends ActivityInterface
 {
     /**
      * Check if this start event is used to start a sub process.
-     * 
-     * @return boolean
      */
-    public function isSubProcessStart();
+    public function isSubProcessStart(): bool;
 
     /**
      * Check if the start event is interrupting (only related to sub process).
-     * 
-     * @return boolean
      */
-    public function isInterrupting();
+    public function isInterrupting(): bool;
 }

@@ -16,9 +16,9 @@ use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Repository\ProcessDefinition;
+use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\BPMN\Runtime\Behavior\MessageStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalStartEventBehavior;
-use KoolKode\BPMN\Runtime\EventSubscription;
 use KoolKode\Util\UUID;
 
 /**
@@ -34,19 +34,19 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
 
     protected $resourceId;
 
-    public function __construct(BusinessProcessBuilder $builder, UUID $deploymentId = null, UUID $resourceId)
+    public function __construct(BusinessProcessBuilder $builder, ?UUID $deploymentId = null, UUID $resourceId)
     {
         $this->builder = $builder;
         $this->deploymentId = $deploymentId;
         $this->resourceId = $resourceId;
     }
 
-    public function getPriority()
+    public function getPriority(): int
     {
         return self::PRIORITY_DEFAULT * 2;
     }
 
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): ProcessDefinition
     {
         $sql = "
             SELECT `revision`

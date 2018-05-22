@@ -11,15 +11,16 @@
 
 namespace KoolKode\BPMN\Engine;
 
+use KoolKode\BPMN\ManagementService;
 use KoolKode\BPMN\Delegate\DelegateTaskFactoryInterface;
+use KoolKode\BPMN\Delegate\DelegateTaskInterface;
+use KoolKode\BPMN\History\HistoryService;
 use KoolKode\BPMN\History\Event\ExecutionCreatedEvent;
 use KoolKode\BPMN\History\Event\ExecutionModifiedEvent;
 use KoolKode\BPMN\History\Event\ExecutionTerminatedEvent;
-use KoolKode\BPMN\History\HistoryService;
+use KoolKode\BPMN\Job\JobInterface;
 use KoolKode\BPMN\Job\Executor\JobExecutorInterface;
 use KoolKode\BPMN\Job\Handler\AsyncCommandHandler;
-use KoolKode\BPMN\Job\Job;
-use KoolKode\BPMN\ManagementService;
 use KoolKode\BPMN\Repository\RepositoryService;
 use KoolKode\BPMN\Runtime\RuntimeService;
 use KoolKode\BPMN\Task\TaskService;
@@ -30,12 +31,13 @@ use KoolKode\Database\UUIDTransformer;
 use KoolKode\Event\EventDispatcherInterface;
 use KoolKode\Expression\ExpressionContextFactoryInterface;
 use KoolKode\Process\AbstractEngine;
-use KoolKode\Process\Command\VoidCommand;
 use KoolKode\Process\Execution;
 use KoolKode\Process\Node;
 use KoolKode\Process\Transition;
-use KoolKode\Util\UnicodeString;
+use KoolKode\Process\Command\CommandInterface;
+use KoolKode\Process\Command\VoidCommand;
 use KoolKode\Util\UUID;
+use KoolKode\Util\UnicodeString;
 
 /**
  * BPMN 2.0 process engine backed by a relational database.
@@ -69,7 +71,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 
     protected $historyService;
 
-    public function __construct(ConnectionInterface $conn, EventDispatcherInterface $dispatcher, ExpressionContextFactoryInterface $factory, $handleTransactions = true)
+    public function __construct(ConnectionInterface $conn, EventDispatcherInterface $dispatcher, ExpressionContextFactoryInterface $factory, bool $handleTransactions = true)
     {
         parent::__construct($dispatcher, $factory);
         
@@ -95,7 +97,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         ]);
     }
 
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return [
             'conn' => $this->conn,
@@ -109,7 +111,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getRepositoryService()
+    public function getRepositoryService(): RepositoryService
     {
         return $this->repositoryService;
     }
@@ -117,7 +119,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getRuntimeService()
+    public function getRuntimeService(): RuntimeService
     {
         return $this->runtimeService;
     }
@@ -125,7 +127,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getTaskService()
+    public function getTaskService(): TaskService
     {
         return $this->taskService;
     }
@@ -133,7 +135,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getHistoryService()
+    public function getHistoryService(): HistoryService
     {
         return $this->historyService;
     }
@@ -141,38 +143,33 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getManagementService()
+    public function getManagementService(): ManagementService
     {
         return $this->managementService;
     }
 
     /**
      * Create a prepared statement from the given SQL.
-     * 
-     * @param string $sql
-     * @return StatementInterface
      */
-    public function prepareQuery($sql)
+    public function prepareQuery(string $sql): StatementInterface
     {
         return $this->conn->prepare($sql);
     }
 
     /**
      * Get the DB connection being used by the engine.
-     * 
-     * @return ConnectionInterface
      */
-    public function getConnection()
+    public function getConnection(): ConnectionInterface
     {
         return $this->conn;
     }
 
-    public function setDelegateTaskFactory(DelegateTaskFactoryInterface $factory = null)
+    public function setDelegateTaskFactory(?DelegateTaskFactoryInterface $factory): void
     {
         $this->delegateTaskFactory = $factory;
     }
 
-    public function createDelegateTask($typeName)
+    public function createDelegateTask(string $typeName): DelegateTaskInterface
     {
         if ($this->delegateTaskFactory === null) {
             throw new \RuntimeException('Process engine cannot delegate tasks without a delegate task factory');
@@ -180,26 +177,23 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         
         return $this->delegateTaskFactory->createDelegateTask($typeName);
     }
-
-    /**
-     * @return JobExecutorInterface
-     */
-    public function getJobExecutor()
+    
+    public function getJobExecutor(): ?JobExecutorInterface
     {
         return $this->jobExecutor;
     }
 
-    public function setJobExecutor(JobExecutorInterface $executor)
+    public function setJobExecutor(?JobExecutorInterface $executor): void
     {
         $this->jobExecutor = $executor;
     }
 
-    public function registerExecutionInterceptor(ExecutionInterceptorInterface $interceptor)
+    public function registerExecutionInterceptor(ExecutionInterceptorInterface $interceptor): ExecutionInterceptorInterface
     {
         return $this->interceptors[] = $interceptor;
     }
 
-    public function unregisterExecutionInterceptor(ExecutionInterceptorInterface $interceptor)
+    public function unregisterExecutionInterceptor(ExecutionInterceptorInterface $interceptor): ExecutionInterceptorInterface
     {
         if (false !== ($index = array_search($interceptor, $this->interceptors, true))) {
             unset($this->interceptors[$index]);
@@ -216,10 +210,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
      * @param UUID $executionId Target execution being used by the job.
      * @param string $handlerType The name of the job handler.
      * @param mixed $data Arbitrary data to be passed to the job handler.
-     * @param \DateTimeInterface $runAt Scheduled execution time, a value of null schedules the job for immediate execution.
-     * @return Job The persisted job instance or null when no job executor has been configured.
+     * @param \DateTimeImmutable $runAt Scheduled execution time, a value of null schedules the job for immediate execution.
+     * @return JobInterface The persisted job instance or null when no job executor has been configured.
      */
-    public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = null)
+    public function scheduleJob(UUID $executionId, string $handlerType, $data, ?\DateTimeImmutable $runAt = null): ?JobInterface
     {
         if ($this->jobExecutor !== null) {
             return $this->jobExecutor->scheduleJob($executionId, $handlerType, $data, $runAt);
@@ -284,7 +278,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function createExecuteNodeCommand(Execution $execution, Node $node)
+    public function createExecuteNodeCommand(Execution $execution, Node $node): CommandInterface
     {
         $command = parent::createExecuteNodeCommand($execution, $node);
         $behavior = $node->getBehavior();
@@ -316,7 +310,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function createTakeTransitionCommand(Execution $execution, Transition $transition = null)
+    public function createTakeTransitionCommand(Execution $execution, Transition $transition = null): CommandInterface
     {
         $command = parent::createTakeTransitionCommand($execution, $transition);
         $node = $execution->getNode();
@@ -352,7 +346,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function findExecution(UUID $id)
+    public function findExecution(UUID $id): VirtualExecution
     {
         static $injectVars = null;
         
@@ -498,7 +492,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
     /**
      * {@inheritdoc}
      */
-    protected function syncNewExecution(Execution $execution, array $syncData)
+    protected function syncNewExecution(Execution $execution, array $syncData): void
     {
         $this->conn->insert('#__bpmn_execution', [
             'id' => $syncData['id'],
@@ -519,13 +513,13 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         
         $this->notify(new ExecutionCreatedEvent($execution, $vars, $this));
         
-        return parent::syncNewExecution($execution, $syncData);
+        parent::syncNewExecution($execution, $syncData);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function syncModifiedExecution(Execution $execution, array $syncData)
+    protected function syncModifiedExecution(Execution $execution, array $syncData): void
     {
         $this->conn->update('#__bpmn_execution', [
             'id' => $syncData['id']
@@ -546,13 +540,13 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         
         $this->notify(new ExecutionModifiedEvent($execution, $vars, $this));
         
-        return parent::syncModifiedExecution($execution, $syncData);
+        parent::syncModifiedExecution($execution, $syncData);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function syncRemovedExecution(Execution $execution)
+    protected function syncRemovedExecution(Execution $execution): void
     {
         foreach ($execution->findChildExecutions() as $child) {
             $this->syncRemovedExecution($child);
@@ -564,10 +558,10 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         
         $this->notify(new ExecutionTerminatedEvent($execution, $this));
         
-        return parent::syncRemovedExecution($execution);
+        parent::syncRemovedExecution($execution);
     }
 
-    protected function syncVariables(Execution $execution, array $syncData)
+    protected function syncVariables(Execution $execution, array $syncData): void
     {
         $delta = $this->computeVarDelta($execution, $syncData);
         
@@ -608,7 +602,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         }
     }
 
-    protected function computeVarDelta(Execution $execution, array $syncData)
+    protected function computeVarDelta(Execution $execution, array $syncData): array
     {
         $result = [
             0 => [],
@@ -641,7 +635,5 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
             Execution::SYNC_STATE_REMOVED => array_unique(array_keys(array_merge($result[0], $result[1]))),
             Execution::SYNC_STATE_MODIFIED => array_keys($result[1])
         ];
-        
-        return array_map('array_keys', $result);
     }
 }

@@ -32,7 +32,7 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->waitForSignal();
     }
@@ -40,7 +40,7 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== 'timer') {
             throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
@@ -54,11 +54,11 @@ class IntermediateTimerDateBehavior extends AbstractActivity implements Intermed
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $date = $this->getDateValue($this->date, $execution->getExpressionContext());
         
-        if (!$date instanceof \DateTimeInterface) {
+        if (!$date instanceof \DateTimeImmutable) {
             throw new \RuntimeException(sprintf('Expecting DateTimeInterface, given %s', is_object($date) ? get_class($date) : gettype($date)));
         }
         

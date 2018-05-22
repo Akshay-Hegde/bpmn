@@ -27,15 +27,15 @@ class Deployment implements \JsonSerializable
 
     protected $engine;
 
-    public function __construct(ProcessEngine $engine, UUID $id, $name, \DateTimeImmutable $deployDate)
+    public function __construct(ProcessEngine $engine, UUID $id, string $name, \DateTimeImmutable $deployDate)
     {
         $this->engine = $engine;
         $this->id = $id;
-        $this->name = (string) $name;
+        $this->name = $name;
         $this->deployDate = $deployDate;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => (string) $this->id,
@@ -44,27 +44,27 @@ class Deployment implements \JsonSerializable
         ];
     }
 
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getDeployDate()
+    public function getDeployDate(): \DateTimeImmutable
     {
         return $this->deployDate;
     }
 
-    public function getProcessEngine()
+    public function getProcessEngine(): ProcessEngine
     {
         return $this->engine;
     }
 
-    public function findResourceById(UUID $id)
+    public function findResourceById(UUID $id): DeployedResource
     {
         foreach ($this->findResources() as $resource) {
             if ($resource->getId() == $id) {
@@ -75,7 +75,7 @@ class Deployment implements \JsonSerializable
         throw new \OutOfBoundsException(sprintf('Resource %s not found in deployment %s', $id, $this->id));
     }
 
-    public function findResource($name)
+    public function findResource(string $name): DeployedResource
     {
         foreach ($this->findResources() as $n => $resource) {
             if ($n == $name) {
@@ -86,7 +86,7 @@ class Deployment implements \JsonSerializable
         throw new \OutOfBoundsException(sprintf('Resource "%s" not found in deployment %s', $name, $this->id));
     }
 
-    public function findResources()
+    public function findResources(): array
     {
         if ($this->resources === null) {
             $this->resources = [];

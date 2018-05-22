@@ -11,8 +11,8 @@
 
 namespace KoolKode\BPMN\Engine;
 
-use KoolKode\Process\Command\AbstractCommand;
 use KoolKode\Process\EngineInterface;
+use KoolKode\Process\Command\AbstractCommand;
 
 /**
  * Base class for a BPMN engine command.
@@ -26,7 +26,7 @@ abstract class AbstractBusinessCommand extends AbstractCommand
      * 
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return false;
     }
@@ -41,8 +41,6 @@ abstract class AbstractBusinessCommand extends AbstractCommand
 
     /**
      * Execute the command logic using the given BPMN process engine.
-     * 
-     * @param ProcessEngine $engine
      */
     protected abstract function executeCommand(ProcessEngine $engine);
 }

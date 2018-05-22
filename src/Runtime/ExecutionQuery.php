@@ -244,7 +244,7 @@ class ExecutionQuery extends AbstractQuery
         return new Execution($def, $row['id'], $row['process_id'], $row['pid'], $row['node'], $row['state'], $row['business_key']);
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             'e.`id`',

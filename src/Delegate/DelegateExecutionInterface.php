@@ -25,117 +25,81 @@ interface DelegateExecutionInterface
 {
     /**
      * Get the unique identifier of the underlying execution.
-     * 
-     * @return UUID
      */
-    public function getExecutionId();
+    public function getExecutionId(): UUID;
 
     /**
      * Get the ID of the activity being executed.
-     * 
-     * @return string
      */
-    public function getActivityId();
+    public function getActivityId(): ?string;
 
     /**
      * Get the unique identifier of the underlying process instance.
-     * 
-     * @return UUID
      */
-    public function getProcessInstanceId();
+    public function getProcessInstanceId(): UUID;
 
     /**
      * Get the ID of the process definition that defined the process being executed.
-     * 
-     * @return UUID
      */
-    public function getProcessDefinitionId();
+    public function getProcessDefinitionId(): UUID;
 
     /**
      * Get the business key of the underlying process instance.
-     * 
-     * @return string or null when no business key is set.
      */
-    public function getBusinessKey();
+    public function getBusinessKey(): ?string;
 
     /**
      * Check if the execution is a process instance.
-     * 
-     * @return boolean
      */
-    public function isProcessInstance();
+    public function isProcessInstance(): bool;
 
     /**
      * Check if the execution is active.
-     * 
-     * @return boolean
      */
-    public function isActive();
+    public function isActive(): bool;
 
     /**
      * Check if the execution is concurrent.
-     * 
-     * @return boolean
      */
-    public function isConcurrent();
+    public function isConcurrent(): bool;
 
     /**
      * Check if the execution is a scope.
-     *
-     * @return boolean
      */
-    public function isScope();
+    public function isScope(): bool;
 
     /**
      * Check if the execution is a scope root.
-     *
-     * @return boolean
      */
-    public function isScopeRoot();
+    public function isScopeRoot(): bool;
 
     /**
      * Check if the execution is waiting for a signal.
-     *
-     * @return boolean
      */
-    public function isWaiting();
+    public function isWaiting(): bool;
 
     /**
      * Create an expression context bound to the underlying execution.
-     * 
-     * @return ExpressionContextInterface
      */
-    public function getExpressionContext();
+    public function getExpressionContext(): ExpressionContextInterface;
 
     /**
      * Check for existance of the given variabel in the current scope.
-     * 
-     * @param string $name
-     * @return boolean
      */
-    public function hasVariable($name);
+    public function hasVariable(string $name): bool;
 
     /**
      * Get the value of the given variable from the current scope.
-     * 
-     * @param string $name
-     * @param mixed $default
-     * @return mixed
      */
-    public function getVariable($name);
+    public function getVariable(string $name);
 
     /**
      * Set the value of the given variable in the current scope.
-     * 
-     * @param string $name
-     * @param mixed $value
      */
-    public function setVariable($name, $value);
+    public function setVariable(string $name, $value): void;
 
     /**
      * Remove the given variable from the current scope.
-     * 
-     * @param string $name
      */
-    public function removeVariable($name);
+    public function removeVariable(string $name): void;
 }

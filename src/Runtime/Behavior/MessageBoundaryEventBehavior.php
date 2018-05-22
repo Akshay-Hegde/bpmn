@@ -25,17 +25,17 @@ class MessageBoundaryEventBehavior extends AbstractBoundaryActivity
 {
     protected $message;
 
-    public function __construct($activityId, $attachedTo, $message)
+    public function __construct(string $activityId, string $attachedTo, string $message)
     {
         parent::__construct($activityId, $attachedTo);
         
-        $this->message = (string) $message;
+        $this->message = $message;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== $this->message) {
             throw new \RuntimeException(sprintf('Boundary event awaits message "%s", unable to process signal "%s"', $this->message, $signal));
@@ -49,7 +49,7 @@ class MessageBoundaryEventBehavior extends AbstractBoundaryActivity
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $execution->getEngine()->executeCommand(new CreateMessageSubscriptionCommand($this->message, $execution, $activityId, $node, true));
     }

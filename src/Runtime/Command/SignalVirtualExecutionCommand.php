@@ -23,16 +23,11 @@ class SignalVirtualExecutionCommand extends SignalExecutionCommand
 {
     /**
      * Wake the given execution up using the given signal / variables.
-     * 
-     * @param UUID $executionId
-     * @param string $signal
-     * @param array $variables
-     * @param array $delegation
      */
-    public function __construct(UUID $executionId, $signal = null, array $variables = [], array $delegation = [])
+    public function __construct(UUID $executionId, ?string $signal = null, array $variables = [], array $delegation = [])
     {
         $this->executionId = $executionId;
-        $this->signal = ($signal === null) ? null : (string) $signal;
+        $this->signal = $signal;
         $this->variables = serialize($variables);
         $this->delegation = serialize($delegation);
     }

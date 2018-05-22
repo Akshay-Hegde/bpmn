@@ -33,17 +33,17 @@ class HistoricActivityInstance implements \JsonSerializable
 
     protected $completed = false;
 
-    public function __construct(UUID $id, UUID $processInstanceId, UUID $processDefinitionId, $processDefinitionKey, $definitionKey, \DateTimeInterface $startedAt)
+    public function __construct(UUID $id, UUID $processInstanceId, UUID $processDefinitionId, string $processDefinitionKey, string $definitionKey, \DateTimeImmutable $startedAt)
     {
         $this->id = $id;
         $this->processInstanceId = $processInstanceId;
         $this->processDefinitionId = $processDefinitionId;
-        $this->processDefinitionKey = (string) $processDefinitionKey;
-        $this->definitionKey = (string) $definitionKey;
-        $this->startedAt = clone $startedAt;
+        $this->processDefinitionKey = $processDefinitionKey;
+        $this->definitionKey = $definitionKey;
+        $this->startedAt = $startedAt;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,
@@ -58,63 +58,63 @@ class HistoricActivityInstance implements \JsonSerializable
         ];
     }
 
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
 
-    public function getProcessInstanceId()
+    public function getProcessInstanceId(): UUID
     {
         return $this->processInstanceId;
     }
 
-    public function getProcessDefinitionId()
+    public function getProcessDefinitionId(): UUID
     {
         return $this->processDefinitionId;
     }
 
-    public function getProcessDefinitionKey()
+    public function getProcessDefinitionKey(): string
     {
         return $this->processDefinitionKey;
     }
 
-    public function getDefinitionKey()
+    public function getDefinitionKey(): string
     {
         return $this->definitionKey;
     }
 
-    public function getStartedAt()
+    public function getStartedAt(): \DateTimeImmutable
     {
-        return clone $this->startedAt;
+        return $this->startedAt;
     }
 
-    public function getEndedAt()
+    public function getEndedAt(): ?\DateTimeImmutable
     {
-        return ($this->endedAt === null) ? null : clone $this->endedAt;
+        return $this->endedAt;
     }
 
-    public function setEndedAt(\DateTimeInterface $endedAt = null)
+    public function setEndedAt(?\DateTimeImmutable $endedAt): void
     {
-        $this->endedAt = ($endedAt === null) ? null : clone $endedAt;
+        $this->endedAt = $endedAt;
     }
 
-    public function getDuration()
+    public function getDuration(): ?float
     {
         return $this->duration;
     }
 
-    public function setDuration($duration = null)
+    public function setDuration(?float $duration): void
     {
-        $this->duration = ($duration === null) ? null : (float) $duration;
+        $this->duration = $duration;
     }
 
-    public function isCompleted()
+    public function isCompleted(): bool
     {
         return $this->completed;
     }
 
-    public function setCompleted($completed)
+    public function setCompleted(bool $completed): void
     {
-        $this->completed = $completed ? true : false;
+        $this->completed = $completed;
     }
 }

@@ -23,15 +23,11 @@ interface JobSchedulerInterface
 {
     /**
      * Schedule a job for execution.
-     * 
-     * @param Job $job
      */
-    public function scheduleJob(Job $job);
+    public function scheduleJob(Job $job): void;
 
     /**
      * Remove a job from the schedule.
-     * 
-     * @param UUID $jobId
      */
-    public function removeJob(UUID $jobId);
+    public function removeJob(UUID $jobId): void;
 }

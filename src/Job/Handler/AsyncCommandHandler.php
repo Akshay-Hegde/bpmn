@@ -47,7 +47,7 @@ class AsyncCommandHandler implements JobHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): string
     {
         return self::HANDLER_TYPE;
     }
@@ -55,7 +55,7 @@ class AsyncCommandHandler implements JobHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine)
+    public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine): void
     {
         if ($execution->isTerminated()) {
             throw new \RuntimeException(sprintf('%s is terminated', $execution));

@@ -50,7 +50,7 @@ class ScriptTaskTest extends BusinessProcessTestCase
         
         $query = $this->taskService->createTaskQuery();
         $query->taskMinPriority(1200)->taskMaxPriority(1400);
-        $query->dueAfter(new \DateTime())->dueBefore(new \DateTime('+2 days'));
+        $query->dueAfter(new \DateTimeImmutable())->dueBefore(new \DateTimeImmutable('+2 days'));
         
         $task = $query->findOne();
         $this->assertTrue($task instanceof TaskInterface);
@@ -65,13 +65,10 @@ class ScriptTaskTest extends BusinessProcessTestCase
         $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
     }
 
-    /**
-     * @ServiceTaskHandler("ServiceTask_1", processKey = "main")
-     * 
-     * @param DelegateExecutionInterface $execution
-     */
-    public function verifyNumbersAdded(DelegateExecutionInterface $execution)
+    protected function verifyNumbersAdded(): ServiceTaskHandler
     {
-        $this->assertEquals($execution->getVariable('expected'), $execution->getVariable('result'));
+        return new ServiceTaskHandler('ServiceTask_1', null, function (DelegateExecutionInterface $execution) {
+            $this->assertEquals($execution->getVariable('expected'), $execution->getVariable('result'));
+        });
     }
 }

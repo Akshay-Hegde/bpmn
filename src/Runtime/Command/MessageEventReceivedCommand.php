@@ -30,9 +30,9 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
 
     protected $variables;
 
-    public function __construct($messageName, UUID $executionId, array $variables = [])
+    public function __construct(string $messageName, UUID $executionId, array $variables = [])
     {
-        $this->messageName = (string) $messageName;
+        $this->messageName = $messageName;
         $this->executionId = $executionId;
         $this->variables = serialize($variables);
     }
@@ -42,7 +42,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
      * 
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -50,7 +50,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return self::PRIORITY_DEFAULT - 100;
     }
@@ -58,7 +58,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $sql = "
             SELECT s.`id`, s.`execution_id`, s.`activity_id`, s.`node`

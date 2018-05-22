@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Repository;
 use KoolKode\BPMN\Runtime\Behavior\MessageStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\NoneStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalStartEventBehavior;
+use KoolKode\Process\Node;
 use KoolKode\Process\ProcessModel;
 use KoolKode\Util\UUID;
 
@@ -35,7 +36,7 @@ class ProcessDefinition implements \JsonSerializable
 
     protected $resourceId;
 
-    public function __construct(UUID $id, $key, $revision, ProcessModel $model, $name, \DateTimeImmutable $deployed, UUID $deploymentId = null, UUID $resourceId = null)
+    public function __construct(UUID $id, string $key, int $revision, ProcessModel $model, string $name, \DateTimeImmutable $deployed, ?UUID $deploymentId = null, ?UUID $resourceId = null)
     {
         $this->id = $id;
         $this->key = $key;
@@ -47,7 +48,7 @@ class ProcessDefinition implements \JsonSerializable
         $this->resourceId = $resourceId;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => (string) $this->id,
@@ -60,47 +61,47 @@ class ProcessDefinition implements \JsonSerializable
         ];
     }
 
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
 
-    public function getKey()
+    public function getKey(): string
     {
         return $this->key;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getRevision()
+    public function getRevision(): int
     {
         return $this->revision;
     }
 
-    public function getModel()
+    public function getModel(): ProcessModel
     {
         return clone $this->model;
     }
 
-    public function getDeployed()
+    public function getDeployed(): \DateTimeImmutable
     {
         return $this->deployed;
     }
 
-    public function getDeploymentId()
+    public function getDeploymentId(): ?UUID
     {
         return $this->deploymentId;
     }
 
-    public function getResourceId()
+    public function getResourceId(): ?UUID
     {
         return $this->resourceId;
     }
 
-    public function findNoneStartEvent()
+    public function findNoneStartEvent(): Node
     {
         foreach ($this->model->findStartNodes() as $node) {
             $behavior = $node->getBehavior();
@@ -113,10 +114,8 @@ class ProcessDefinition implements \JsonSerializable
         throw new \OutOfBoundsException(sprintf('No none start event found in "%s" revision %u', $this->key, $this->revision));
     }
 
-    public function findMessageStartEvent($messageName)
+    public function findMessageStartEvent(string $messageName): Node
     {
-        $messageName = (string) $messageName;
-        
         foreach ($this->model->findStartNodes() as $node) {
             $behavior = $node->getBehavior();
             
@@ -130,10 +129,8 @@ class ProcessDefinition implements \JsonSerializable
         throw new \OutOfBoundsException(sprintf('No "%s" message start event found in "%s" revision %u', $messageName, $this->key, $this->revision));
     }
 
-    public function findSignalStartEvent($signalName)
+    public function findSignalStartEvent(string $signalName): Node
     {
-        $signalName = (string) $signalName;
-        
         foreach ($this->model->findStartNodes() as $node) {
             $behavior = $node->getBehavior();
             

@@ -20,12 +20,12 @@ class IntermediateLinkCatchBehavior extends AbstractActivity implements Intermed
 {
     protected $link;
 
-    public function __construct($link)
+    public function __construct(string $link)
     {
-        $this->link = (string) $link;
+        $this->link = $link;
     }
 
-    public function getLink()
+    public function getLink(): string
     {
         return $this->link;
     }

@@ -174,7 +174,7 @@ class JobExecutor implements JobExecutorInterface
     /**
      * {@inheritdoc}
      */
-    public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = null)
+    public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeImmutable $runAt = null)
     {
         $id = UUID::createRandom();
         $handlerType = (string) $handlerType;

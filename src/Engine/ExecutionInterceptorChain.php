@@ -24,10 +24,10 @@ class ExecutionInterceptorChain
 
     protected $interceptors;
 
-    public function __construct(callable $callback, $executionDepth, array $interceptors = [])
+    public function __construct(callable $callback, int $executionDepth, array $interceptors = [])
     {
         $this->callback = $callback;
-        $this->executionDepth = (int) $executionDepth;
+        $this->executionDepth = $executionDepth;
         $this->interceptors = new \SplPriorityQueue();
         
         foreach ($interceptors as $interceptor) {
@@ -43,11 +43,9 @@ class ExecutionInterceptorChain
     public function performExecution()
     {
         if (!$this->interceptors->isEmpty()) {
-            $interceptor = $this->interceptors->extract();
-            
-            return $interceptor->interceptExecution($this, $this->executionDepth);
+            return $this->interceptors->extract()->interceptExecution($this, $this->executionDepth);
         }
         
-        return call_user_func($this->callback);
+        return ($this->callback)();
     }
 }

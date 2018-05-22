@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Job;
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -50,7 +51,7 @@ class JobQuery extends AbstractQuery
         $this->engine = $engine;
     }
 
-    public function executionId($id)
+    public function executionId($id): self
     {
         $this->populateMultiProperty($this->executionId, $id, function ($value) {
             return new UUID($value);
@@ -59,14 +60,14 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function externalId($id)
+    public function externalId(string $id): self
     {
         $this->populateMultiProperty($this->externalId, $id);
         
         return $this;
     }
 
-    public function processInstanceId($id)
+    public function processInstanceId($id): self
     {
         $this->populateMultiProperty($this->processInstanceId, $id, function ($value) {
             return new UUID($value);
@@ -75,23 +76,21 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionKey($key)
+    public function processDefinitionKey(string $key): self
     {
         $this->populateMultiProperty($this->processDefinitionKey, $key);
         
         return $this;
     }
 
-    public function processBusinessKey($key)
+    public function processBusinessKey(string $key): self
     {
-        $this->populateMultiProperty($this->processBusinessKey, $key, function ($value) {
-            return new UUID($value);
-        });
+        $this->populateMultiProperty($this->processBusinessKey, $key);
         
         return $this;
     }
 
-    public function jobId($id)
+    public function jobId($id): self
     {
         $this->populateMultiProperty($this->jobId, $id, function ($value) {
             return new UUID($value);
@@ -100,49 +99,49 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function jobRetries($retries)
+    public function jobRetries(int $retries): self
     {
         $this->populateMultiProperty($this->jobRetries, $retries);
         
         return $this;
     }
 
-    public function jobLockOwner($owner)
+    public function jobLockOwner(string $owner): self
     {
         $this->populateMultiProperty($this->jobLockOwner, $owner);
         
         return $this;
     }
 
-    public function jobHandlerType($handlerType)
+    public function jobHandlerType(string $handlerType): self
     {
         $this->populateMultiProperty($this->jobHandlerType, $handlerType);
         
         return $this;
     }
 
-    public function scheduled($scheduled = true)
+    public function scheduled(?bool $scheduled = true): self
     {
-        $this->isScheduled = $scheduled ? true : false;
+        $this->isScheduled = $scheduled;
         
         return $this;
     }
 
-    public function timer($timer = true)
+    public function timer(?bool $timer = true): self
     {
-        $this->isTimer = $timer ? true : false;
+        $this->isTimer = $timer;
         
         return $this;
     }
 
-    public function failed($failed = true)
+    public function failed(?bool $failed = true): self
     {
-        $this->isFailed = $failed ? true : false;
+        $this->isFailed = $failed;
         
         return $this;
     }
 
-    public function orderByProcessInstanceId($ascending = true)
+    public function orderByProcessInstanceId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'e.`process_id`',
@@ -152,7 +151,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessBusinessKey($ascending = true)
+    public function orderByProcessBusinessKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'e.`business_key`',
@@ -162,7 +161,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionId($ascending = true)
+    public function orderByProcessDefinitionId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`id`',
@@ -172,7 +171,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionKey($ascending = true)
+    public function orderByProcessDefinitionKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`process_key`',
@@ -182,7 +181,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByExternalId($ascending = true)
+    public function orderByExternalId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`external_id`',
@@ -192,7 +191,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByCreated($ascending = true)
+    public function orderByCreated(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`created_at`',
@@ -202,7 +201,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByScheduled($ascending = true)
+    public function orderByScheduled(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`scheduled_at`',
@@ -212,7 +211,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByRun($ascending = true)
+    public function orderByRun(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`run_at`',
@@ -222,7 +221,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByHandlerType($ascending = true)
+    public function orderByHandlerType(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`handler_type`',
@@ -232,7 +231,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByJobId($ascending = true)
+    public function orderByJobId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`id`',
@@ -242,7 +241,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByRetries($ascending = true)
+    public function orderByRetries(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`retries`',
@@ -252,7 +251,7 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByLockOwner($ascending = true)
+    public function orderByLockOwner(bool $ascending = true): self
     {
         $this->orderings[] = [
             'j.`lock_owner`',
@@ -262,14 +261,14 @@ class JobQuery extends AbstractQuery
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $stmt = $this->executeSql(true);
         
         return (int) $stmt->fetchNextColumn(0);
     }
 
-    public function findOne()
+    public function findOne(): JobInterface
     {
         $stmt = $this->executeSql(false, 1);
         $row = $stmt->fetchNextRow();
@@ -281,7 +280,7 @@ class JobQuery extends AbstractQuery
         return $this->unserializeJob($row);
     }
 
-    public function findAll()
+    public function findAll(): array
     {
         $stmt = $this->executeSql(false, $this->limit, $this->offset);
         $result = [];
@@ -293,7 +292,7 @@ class JobQuery extends AbstractQuery
         return $result;
     }
 
-    protected function unserializeJob(array $row)
+    protected function unserializeJob(array $row): JobInterface
     {
         $job = new Job($row['id'], $row['execution_id'], $row['handler_type'], unserialize(BinaryData::decode($row['handler_data'])), new \DateTimeImmutable('@' . $row['created_at']), $row['retries'], $row['lock_owner']);
         
@@ -331,7 +330,7 @@ class JobQuery extends AbstractQuery
         return $job;
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             'j.`id`',
@@ -339,7 +338,7 @@ class JobQuery extends AbstractQuery
         ];
     }
 
-    protected function executeSql($count = false, $limit = 0, $offset = 0)
+    protected function executeSql(bool $count = false, int $limit = 0, int $offset = 0): StatementInterface
     {
         $fields = [];
         

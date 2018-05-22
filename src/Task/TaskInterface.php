@@ -22,100 +22,71 @@ interface TaskInterface
 {
     /**
      * Get the unique identifier of this user task instance.
-     * 
-     * @return UUID
      */
-    public function getId();
+    public function getId(): UUID;
 
     /**
      * Get the unique identifier of the execution that triggered the task instance.
-     * 
-     * @return UUID or null when the task is not related to an execution.
      */
-    public function getExecutionId();
+    public function getExecutionId(): ?UUID;
 
     /**
      * Get the process instance ID that create the task.
-     * 
-     * @return UUID or null hen the task is not related to a process instance.
      */
-    public function getProcessInstanceId();
+    public function getProcessInstanceId(): ?UUID;
 
     /**
      * Get the business key of the process that spawned the task.
-     * 
-     * @return string Business key or null when no such key exists.
      */
-    public function getProcessBusinessKey();
+    public function getProcessBusinessKey(): ?string;
 
     /**
      * Get the name (as defined in a BPMN 2.0 process diagram) of the activity to be performed.
-     * 
-     * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Get the documentation of the task (will contain text-only).
-     * 
-     * @return string
      */
-    public function getDocumentation();
+    public function getDocumentation(): string;
 
     /**
-     * Get the identifier (as defined by the "id" attribute in a BPMN 2.0 diagram) of the
-     * activity to be performed.
-     * 
-     * @return string ID or null if the task is not related to an execution.
+     * Get the identifier (as defined by the "id" attribute in a BPMN 2.0 diagram) of the activity to be performed.
      */
-    public function getDefinitionKey();
+    public function getDefinitionKey(): ?string;
 
     /**
      * Get the time of creation of this activity instance.
-     * 
-     * @return \DateTimeImmutable
      */
-    public function getCreated();
+    public function getCreated(): \DateTimeImmutable;
 
     /**
      * Check if the task has been claimed.
-     * 
-     * @return boolean
      */
-    public function isClaimed();
+    public function isClaimed(): bool;
 
     /**
      * Get the assignment date of this task.
-     * 
-     * @return \DateTimeImmutable or null when the task instance has not been claimed yet.
      */
-    public function getClaimDate();
+    public function getClaimDate(): ?\DateTimeImmutable;
 
     /**
      * Get the identity of the assignee of this task.
-     * 
-     * @return string or null when the task instance has not been claimed yet.
      */
-    public function getAssignee();
+    public function getAssignee(): ?string;
 
     /**
      * Get the task priority, defaults to 0.
-     * 
-     * @return integer
      */
-    public function getPriority();
+    public function getPriority(): int;
 
     /**
      * Check if the task has a due date set.
-     * 
-     * @return boolean
      */
-    public function hasDueDate();
+    public function hasDueDate(): bool;
 
     /**
      * Get the due date of the task.
-     * 
-     * @return \DateTimeImmutable or null when no due date is set.
      */
-    public function getDueDate();
+    public function getDueDate(): ?\DateTimeImmutable;
 }

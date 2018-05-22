@@ -35,9 +35,9 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
 
     protected $sourceExecutionId;
 
-    public function __construct($signal, UUID $executionId = null, array $variables = [], VirtualExecution $sourceExecution = null)
+    public function __construct(string $signal, ?UUID $executionId = null, array $variables = [], ?VirtualExecution $sourceExecution = null)
     {
-        $this->signal = (string) $signal;
+        $this->signal = $signal;
         $this->variables = serialize($variables);
         $this->executionId = $executionId;
         $this->sourceExecutionId = ($sourceExecution === null) ? null : $sourceExecution->getId();
@@ -48,7 +48,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
      *
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -56,7 +56,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return self::PRIORITY_DEFAULT - 100;
     }
@@ -64,7 +64,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $sql = "
             SELECT s.`id`, s.`execution_id`, s.`activity_id`, s.`node`

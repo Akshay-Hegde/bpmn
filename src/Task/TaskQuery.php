@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Task;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -64,7 +65,7 @@ class TaskQuery extends AbstractQuery
         $this->engine = $engine;
     }
 
-    public function executionId($id)
+    public function executionId($id): self
     {
         $this->populateMultiProperty($this->executionId, $id, function ($value) {
             return new UUID($value);
@@ -73,7 +74,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function processInstanceId($id)
+    public function processInstanceId($id): self
     {
         $this->populateMultiProperty($this->processInstanceId, $id, function ($value) {
             return new UUID($value);
@@ -82,30 +83,28 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionKey($key)
+    public function processDefinitionKey(string $key): self
     {
         $this->populateMultiProperty($this->processDefinitionKey, $key);
         
         return $this;
     }
 
-    public function processBusinessKey($key)
+    public function processBusinessKey(string $key): self
     {
-        $this->populateMultiProperty($this->processBusinessKey, $key, function ($value) {
-            return new UUID($value);
-        });
+        $this->populateMultiProperty($this->processBusinessKey, $key);
         
         return $this;
     }
 
-    public function taskDefinitionKey($key)
+    public function taskDefinitionKey(string $key): self
     {
         $this->populateMultiProperty($this->taskDefinitionKey, $key);
         
         return $this;
     }
 
-    public function taskId($id)
+    public function taskId($id): self
     {
         $this->populateMultiProperty($this->taskId, $id, function ($value) {
             return new UUID($value);
@@ -114,86 +113,84 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function taskName($name)
+    public function taskName(string $name): self
     {
         $this->populateMultiProperty($this->taskName, $name);
         
         return $this;
     }
 
-    public function taskUnassigned()
+    public function taskUnassigned(): self
     {
         $this->taskUnassigned = true;
         
         return $this;
     }
 
-    public function taskAssignee($assignee)
+    public function taskAssignee(string $assignee): self
     {
         $this->populateMultiProperty($this->taskAssignee, $assignee);
         
         return $this;
     }
 
-    public function taskWithoutActivity()
+    public function taskWithoutActivity(): self
     {
         $this->taskWithoutActivity = true;
         
         return $this;
     }
 
-    public function dueBefore(\DateTimeInterface $date)
+    public function dueBefore(\DateTimeImmutable $date): self
     {
         $this->dueBefore = $date->getTimestamp();
         
         return $this;
     }
 
-    public function dueAfter(\DateTimeInterface $date)
+    public function dueAfter(\DateTimeImmutable $date): self
     {
         $this->dueAfter = $date->getTimestamp();
         
         return $this;
     }
 
-    public function taskPriority($priority)
+    public function taskPriority(int $priority): self
     {
-        $this->populateMultiProperty($this->taskPriority, $priority, function ($value) {
-            return (int) $value;
-        });
+        $this->populateMultiProperty($this->taskPriority, $priority);
         
         return $this;
     }
 
-    public function taskMinPriority($priority)
+    public function taskMinPriority(int $priority): self
     {
-        $this->taskMinPriority = (int) $priority;
+        $this->taskMinPriority = $priority;
         
         return $this;
     }
 
-    public function taskMaxPriority($priority)
+    public function taskMaxPriority(int $priority): self
     {
-        $this->taskMaxPriority = (int) $priority;
+        $this->taskMaxPriority = $priority;
         
         return $this;
     }
 
-    public function taskCreatedBefore(\DateTimeInterface $date)
+    public function taskCreatedBefore(\DateTimeImmutable $date): self
     {
         $this->taskCreatedBefore = $date->getTimestamp();
         
         return $this;
     }
 
-    public function taskCreatedAfter(\DateTimeInterface $date)
+    public function taskCreatedAfter(\DateTimeImmutable $date): self
     {
         $this->taskCreatedAfter = $date->getTimestamp();
         
         return $this;
     }
 
-    public function orderByProcessBusinessKey($ascending = true)
+    public function orderByProcessBusinessKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'e.`business_key`',
@@ -203,7 +200,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionKey($ascending = true)
+    public function orderByProcessDefinitionKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`process_key`',
@@ -213,7 +210,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessInstanceId($ascending = true)
+    public function orderByProcessInstanceId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'e.`process_id`',
@@ -223,7 +220,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskAssignee($ascending = true)
+    public function orderByTaskAssignee(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`claimed_by`',
@@ -233,7 +230,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskDefinitionKey($ascending = true)
+    public function orderByTaskDefinitionKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`activity`',
@@ -243,7 +240,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskName($ascending = true)
+    public function orderByTaskName(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`name`',
@@ -253,7 +250,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskPriority($ascending = true)
+    public function orderByTaskPriority(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`priority`',
@@ -263,7 +260,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskCreated($ascending = true)
+    public function orderByTaskCreated(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`created_at`',
@@ -273,7 +270,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskDue($ascending = true)
+    public function orderByTaskDue(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`due_at`',
@@ -283,7 +280,7 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByTaskClaimed($ascending = true)
+    public function orderByTaskClaimed(bool $ascending = true): self
     {
         $this->orderings[] = [
             't.`claimed_at`',
@@ -293,14 +290,14 @@ class TaskQuery extends AbstractQuery
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $stmt = $this->executeSql(true);
         
         return (int) $stmt->fetchNextColumn(0);
     }
 
-    public function findOne()
+    public function findOne(): TaskInterface
     {
         $stmt = $this->executeSql(false, 1);
         $row = $stmt->fetchNextRow();
@@ -312,7 +309,7 @@ class TaskQuery extends AbstractQuery
         return $this->unserializeTask($row);
     }
 
-    public function findAll()
+    public function findAll(): array
     {
         $stmt = $this->executeSql(false, $this->limit, $this->offset);
         $result = [];
@@ -324,7 +321,7 @@ class TaskQuery extends AbstractQuery
         return $result;
     }
 
-    protected function unserializeTask(array $row)
+    protected function unserializeTask(array $row): TaskInterface
     {
         $task = new Task($row['id'], $row['name'], new \DateTimeImmutable('@' . $row['created_at']), empty($row['claimed_at']) ? null : new \DateTimeImmutable('@' . $row['claimed_at']), $row['claimed_by'], $row['priority'], empty($row['due_at']) ? null : new \DateTimeImmutable('@' . $row['due_at']));
         
@@ -337,7 +334,7 @@ class TaskQuery extends AbstractQuery
         return $task;
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             't.`id`',
@@ -345,7 +342,7 @@ class TaskQuery extends AbstractQuery
         ];
     }
 
-    protected function executeSql($count = false, $limit = 0, $offset = 0)
+    protected function executeSql(bool $count = false, int $limit = 0, int $offset = 0): StatementInterface
     {
         if ($count) {
             $fields = 'COUNT(*) AS num';

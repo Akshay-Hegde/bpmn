@@ -22,7 +22,6 @@ use KoolKode\BPMN\Runtime\Behavior\EventBasedGatewayBehavior;
 use KoolKode\BPMN\Runtime\Behavior\EventSubProcessBehavior;
 use KoolKode\BPMN\Runtime\Behavior\ExclusiveGatewayBehavior;
 use KoolKode\BPMN\Runtime\Behavior\InclusiveGatewayBehavior;
-use KoolKode\BPMN\Runtime\Behavior\ParallelGatewayBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateLinkCatchBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateLinkThrowBehavior;
 use KoolKode\BPMN\Runtime\Behavior\IntermediateMessageCatchBehavior;
@@ -36,15 +35,18 @@ use KoolKode\BPMN\Runtime\Behavior\MessageBoundaryEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\MessageStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\NoneEndEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\NoneStartEventBehavior;
+use KoolKode\BPMN\Runtime\Behavior\ParallelGatewayBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalBoundaryEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\SignalStartEventBehavior;
 use KoolKode\BPMN\Runtime\Behavior\StartEventBehaviorInterface;
 use KoolKode\BPMN\Runtime\Behavior\SubProcessBehavior;
 use KoolKode\BPMN\Runtime\Behavior\TerminateEndEventBehavior;
 use KoolKode\BPMN\Task\Behavior\UserTaskBehavior;
+use KoolKode\Expression\ExpressionInterface;
 use KoolKode\Expression\Parser\ExpressionLexer;
 use KoolKode\Expression\Parser\ExpressionParser;
 use KoolKode\Process\ExpressionTrigger;
+use KoolKode\Process\Node;
 use KoolKode\Process\ProcessBuilder;
 use KoolKode\Process\ProcessModel;
 use KoolKode\Process\Transition;
@@ -63,7 +65,7 @@ class BusinessProcessBuilder
 
     protected $expressionParser;
 
-    public function __construct($key, $title = '', ExpressionParser $parser = null)
+    public function __construct(string $key, string $title = '', ?ExpressionParser $parser = null)
     {
         $this->key = $key;
         $this->builder = new ProcessBuilder($title);
@@ -78,12 +80,12 @@ class BusinessProcessBuilder
         $this->expressionParser = $parser;
     }
 
-    public function getKey()
+    public function getKey(): string
     {
         return $this->key;
     }
 
-    public function build()
+    public function build(): ProcessModel
     {
         $model = $this->builder->build();
         
@@ -118,14 +120,14 @@ class BusinessProcessBuilder
         return $model;
     }
 
-    public function append(BusinessProcessBuilder $builder)
+    public function append(BusinessProcessBuilder $builder): self
     {
         $this->builder->append($builder->builder);
         
         return $this;
     }
 
-    public function startEvent($id, $subProcessStart = false, $name = null)
+    public function startEvent(string $id, bool $subProcessStart = false, ?string $name = null): NoneStartEventBehavior
     {
         $behavior = new NoneStartEventBehavior($subProcessStart);
         $behavior->setName($this->stringExp($name));
@@ -135,7 +137,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function messageStartEvent($id, $messageName, $subProcessStart = false, $name = null)
+    public function messageStartEvent(string $id, string $messageName, bool $subProcessStart = false, ?string $name = null): MessageStartEventBehavior
     {
         $behavior = new MessageStartEventBehavior($messageName, $subProcessStart);
         $behavior->setName($this->stringExp($name));
@@ -145,7 +147,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function signalStartEvent($id, $signalName, $subProcessStart = false, $name = null)
+    public function signalStartEvent(string $id, string $signalName, bool $subProcessStart = false, ?string $name = null): SignalStartEventBehavior
     {
         $behavior = new SignalStartEventBehavior($signalName, $subProcessStart);
         $behavior->setName($this->stringExp($name));
@@ -155,7 +157,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function endEvent($id, $name = null)
+    public function endEvent(string $id, ?string $name = null): NoneEndEventBehavior
     {
         $behavior = new NoneEndEventBehavior();
         $behavior->setName($this->stringExp($name));
@@ -165,7 +167,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function terminateEndEvent($id, $name = null)
+    public function terminateEndEvent(string $id, ?string $name = null): TerminateEndEventBehavior
     {
         $behavior = new TerminateEndEventBehavior();
         $behavior->setName($this->stringExp($name));
@@ -175,7 +177,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function messageEndEvent($id, $name = null)
+    public function messageEndEvent(string $id, ?string $name = null): IntermediateMessageThrowBehavior
     {
         $behavior = new IntermediateMessageThrowBehavior();
         $behavior->setName($this->stringExp($name));
@@ -185,7 +187,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function signalEndEvent($id, $signalName, $name = null)
+    public function signalEndEvent(string $id, string $signalName, ?string $name = null): IntermediateSignalThrowBehavior
     {
         $behavior = new IntermediateSignalThrowBehavior($signalName);
         $behavior->setName($this->stringExp($name));
@@ -195,7 +197,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function sequenceFlow($id, $from, $to, $condition = null)
+    public function sequenceFlow(string $id, string $from, string $to, ?string $condition = null): Transition
     {
         $transition = $this->builder->transition($id, $from, $to);
         
@@ -206,7 +208,7 @@ class BusinessProcessBuilder
         return $transition;
     }
 
-    public function exclusiveGateway($id, $name = null)
+    public function exclusiveGateway(string $id, ?string $name = null): ExclusiveGatewayBehavior
     {
         $behavior = new ExclusiveGatewayBehavior();
         $behavior->setName($this->stringExp($name));
@@ -216,7 +218,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function inclusiveGateway($id, $name = null)
+    public function inclusiveGateway(string $id, ?string $name = null): InclusiveGatewayBehavior
     {
         $behavior = new InclusiveGatewayBehavior();
         $behavior->setName($this->stringExp($name));
@@ -236,7 +238,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function eventBasedGateway($id, $name = null)
+    public function eventBasedGateway(string $id, ?string $name = null): EventBasedGatewayBehavior
     {
         $behavior = new EventBasedGatewayBehavior();
         $behavior->setName($this->stringExp($name));
@@ -246,7 +248,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function task($id, $name = null)
+    public function task(string $id, ?string $name = null): TaskBehavior
     {
         $behavior = new TaskBehavior($id);
         $behavior->setName($this->stringExp($name));
@@ -256,7 +258,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function serviceTask($id, $name = null)
+    public function serviceTask(string $id, ?string $name = null): TaskBehavior
     {
         $behavior = new TaskBehavior($id);
         $behavior->setName($this->stringExp($name));
@@ -266,7 +268,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function delegateTask($id, $typeName, $name = null)
+    public function delegateTask(string $id, string $typeName, ?string $name = null): DelegateTaskBehavior
     {
         $behavior = new DelegateTaskBehavior($id, $this->stringExp($typeName));
         $behavior->setName($this->stringExp($name));
@@ -276,7 +278,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function expressionTask($id, $expression, $name = null)
+    public function expressionTask(string $id, string $expression, ?string $name = null): ExpressionTaskBehavior
     {
         $behavior = new ExpressionTaskBehavior($id, $this->exp($expression));
         $behavior->setName($this->stringExp($name));
@@ -286,7 +288,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function receiveTask($id, $name = null)
+    public function receiveTask(string $id, ?string $name = null): ReceiveTaskBehavior
     {
         $behavior = new ReceiveTaskBehavior($id);
         $behavior->setName($this->stringExp($name));
@@ -296,7 +298,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function receiveMessageTask($id, $message, $name = null)
+    public function receiveMessageTask(string $id, string $message, ?string $name = null): ReceiveMessageTaskBehavior
     {
         $behavior = new ReceiveMessageTaskBehavior($id, $message);
         $behavior->setName($this->stringExp($name));
@@ -306,7 +308,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function userTask($id, $name = null)
+    public function userTask(string $id, ?string $name = null): UserTaskBehavior
     {
         $behavior = new UserTaskBehavior($id);
         $behavior->setName($this->stringExp($name));
@@ -316,7 +318,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function manualTask($id, $name = null)
+    public function manualTask(string $id, ?string $name = null): TaskBehavior
     {
         $behavior = new TaskBehavior($id);
         $behavior->setName($this->stringExp($name));
@@ -326,7 +328,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function scriptTask($id, $language, $script, $name = null)
+    public function scriptTask(string $id, string $language, string $script, ?string $name = null): ScriptTaskBehavior
     {
         $behavior = new ScriptTaskBehavior($id);
         $behavior->setScript($script, $language);
@@ -337,7 +339,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function scriptResourceTask($id, $resource, $name = null)
+    public function scriptResourceTask(string $id, string $resource, ?string $name = null): ScriptTaskBehavior
     {
         $behavior = new ScriptTaskBehavior($id);
         $behavior->setScriptResource($resource);
@@ -348,9 +350,9 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function callActivity($id, $element, $name = null)
+    public function callActivity(string $id, string $processDefinitionKey, ?string $name = null): CallActivityBehavior
     {
-        $behavior = new CallActivityBehavior($id, $element);
+        $behavior = new CallActivityBehavior($id, $processDefinitionKey);
         $behavior->setName($this->stringExp($name));
         
         $this->builder->node($id)->behavior($behavior);
@@ -358,7 +360,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function subProcess($id, BusinessProcessBuilder $subProcess, $name = null)
+    public function subProcess(string $id, BusinessProcessBuilder $subProcess, ?string $name = null): SubProcessBehavior
     {
         $subModel = $subProcess->build();
         $startNode = $this->findSubProcessStartNode($id, $subModel);
@@ -373,7 +375,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function eventSubProcess($id, $attachedTo, BusinessProcessBuilder $subProcess, $name = null)
+    public function eventSubProcess(string $id, string $attachedTo, BusinessProcessBuilder $subProcess, ?string $name = null): EventSubProcessBehavior
     {
         $subModel = $subProcess->build();
         $startNode = $this->findSubProcessStartNode($id, $subModel);
@@ -396,7 +398,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    protected function findSubProcessStartNode($id, ProcessModel $subModel)
+    protected function findSubProcessStartNode(string $id, ProcessModel $subModel): Node
     {
         $startNode = null;
         
@@ -417,7 +419,7 @@ class BusinessProcessBuilder
         return $startNode;
     }
 
-    public function intermediateLinkCatchEvent($id, $link, $name = null)
+    public function intermediateLinkCatchEvent(string $id, string $link, ?string $name = null): IntermediateLinkCatchBehavior
     {
         $behavior = new IntermediateLinkCatchBehavior($link);
         $behavior->setName($this->stringExp($name));
@@ -427,7 +429,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateLinkThrowEvent($id, $link, $name = null)
+    public function intermediateLinkThrowEvent(string $id, string $link, ?string $name = null): IntermediateLinkThrowBehavior
     {
         $behavior = new IntermediateLinkThrowBehavior($link);
         $behavior->setName($this->stringExp($name));
@@ -437,7 +439,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateNoneEvent($id, $name = null)
+    public function intermediateNoneEvent(string $id, ?string $name = null): IntermediateNoneEventBehavior
     {
         $behavior = new IntermediateNoneEventBehavior();
         $behavior->setName($this->stringExp($name));
@@ -447,7 +449,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateSignalCatchEvent($id, $signal, $name = null)
+    public function intermediateSignalCatchEvent(string $id, string $signal, ?string $name = null): IntermediateSignalCatchBehavior
     {
         $behavior = new IntermediateSignalCatchBehavior($signal);
         $behavior->setName($this->stringExp($name));
@@ -457,7 +459,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateMessageCatchEvent($id, $message, $name = null)
+    public function intermediateMessageCatchEvent(string $id, string $message, ?string $name = null): IntermediateMessageCatchBehavior
     {
         $behavior = new IntermediateMessageCatchBehavior($message);
         $behavior->setName($this->stringExp($name));
@@ -467,7 +469,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateTimerDateEvent($id, $date, $name = null)
+    public function intermediateTimerDateEvent(string $id, string $date, ?string $name = null): IntermediateTimerDateBehavior
     {
         $behavior = new IntermediateTimerDateBehavior();
         $behavior->setDate($this->stringExp($date));
@@ -478,7 +480,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateTimerDurationEvent($id, $duration, $name = null)
+    public function intermediateTimerDurationEvent(string $id, string $duration, ?string $name = null): IntermediateTimerDurationBehavior
     {
         $behavior = new IntermediateTimerDurationBehavior();
         $behavior->setDuration($this->stringExp($duration));
@@ -489,7 +491,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateSignalThrowEvent($id, $signal, $name = null)
+    public function intermediateSignalThrowEvent(string $id, string $signal, ?string $name = null): IntermediateSignalThrowBehavior
     {
         $behavior = new IntermediateSignalThrowBehavior($signal);
         $behavior->setName($this->stringExp($name));
@@ -499,7 +501,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function intermediateMessageThrowEvent($id, $name = null)
+    public function intermediateMessageThrowEvent(string $id, ?string $name = null): IntermediateMessageThrowBehavior
     {
         $behavior = new IntermediateMessageThrowBehavior();
         $behavior->setName($this->stringExp($name));
@@ -509,7 +511,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function signalBoundaryEvent($id, $attachedTo, $signal, $name = null)
+    public function signalBoundaryEvent(string $id, string $attachedTo, string $signal, ?string $name = null): SignalBoundaryEventBehavior
     {
         $behavior = new SignalBoundaryEventBehavior($id, $attachedTo, $signal);
         $behavior->setName($this->stringExp($name));
@@ -519,7 +521,7 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function messageBoundaryEvent($id, $attachedTo, $message, $name = null)
+    public function messageBoundaryEvent(string $id, string $attachedTo, string $message, ?string $name = null): MessageBoundaryEventBehavior
     {
         $behavior = new MessageBoundaryEventBehavior($id, $attachedTo, $message);
         $behavior->setName($this->stringExp($name));
@@ -529,17 +531,17 @@ class BusinessProcessBuilder
         return $behavior;
     }
 
-    public function normalize($input)
+    public function normalize(?string $input): ?string
     {
-        return trim(preg_replace("'\s+'", ' ', $input));
+        return ($input === null) ? null : trim(preg_replace("'\s+'", ' ', $input));
     }
 
-    public function exp($input)
+    public function exp(?string $input): ?ExpressionInterface
     {
         return ($input === null) ? null : $this->expressionParser->parse($this->normalize($input));
     }
 
-    public function stringExp($input)
+    public function stringExp(?string $input): ?ExpressionInterface
     {
         return ($input === null) ? null : $this->expressionParser->parseString($this->normalize($input));
     }

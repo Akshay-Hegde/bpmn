@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\History;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -39,7 +40,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         $this->engine = $engine;
     }
 
-    public function activityId($id)
+    public function activityId($id): self
     {
         $this->populateMultiProperty($this->activityId, $id, function ($value) {
             return new UUID($value);
@@ -48,7 +49,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function processInstanceId($id)
+    public function processInstanceId($id): self
     {
         $this->populateMultiProperty($this->processInstanceId, $id, function ($value) {
             return new UUID($value);
@@ -57,7 +58,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionId($id)
+    public function processDefinitionId($id): self
     {
         $this->populateMultiProperty($this->processDefinitionId, $id, function ($value) {
             return new UUID($value);
@@ -66,39 +67,35 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionKey($key)
+    public function processDefinitionKey(string $key): self
     {
-        $this->populateMultiProperty($this->processDefinitionKey, $key, function ($value) {
-            return (string) $value;
-        });
+        $this->populateMultiProperty($this->processDefinitionKey, $key);
         
         return $this;
     }
 
-    public function activityDefinitionKey($definitionKey)
+    public function activityDefinitionKey(string $definitionKey): self
     {
-        $this->populateMultiProperty($this->activityDefinitionKey, $definitionKey, function ($value) {
-            return (string) $value;
-        });
+        $this->populateMultiProperty($this->activityDefinitionKey, $definitionKey);
         
         return $this;
     }
 
-    public function completed($completed)
+    public function completed(bool $completed): self
     {
-        $this->completed = $completed ? true : false;
+        $this->completed = $completed;
         
         return $this;
     }
 
-    public function canceled($canceled)
+    public function canceled($canceled): self
     {
-        $this->canceled = $canceled ? true : false;
+        $this->canceled = $canceled;
         
         return $this;
     }
 
-    public function orderByActivityDefinitionKey($ascending = true)
+    public function orderByActivityDefinitionKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'a.`activity`',
@@ -108,7 +105,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByStartedAt($ascending = true)
+    public function orderByStartedAt(bool $ascending = true): self
     {
         $this->orderings[] = [
             'a.`started_at`',
@@ -118,7 +115,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByEndedAt($ascending = true)
+    public function orderByEndedAt(bool $ascending = true): self
     {
         $this->orderings[] = [
             'a.`ended_at`',
@@ -128,7 +125,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDuration($ascending = true)
+    public function orderByDuration(bool $ascending = true): self
     {
         $this->orderings[] = [
             'a.`duration`',
@@ -138,14 +135,14 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $stmt = $this->executeSql(true);
         
         return (int) $stmt->fetchNextColumn(0);
     }
 
-    public function findOne()
+    public function findOne(): HistoricActivityInstance
     {
         $stmt = $this->executeSql(false, 1);
         $row = $stmt->fetchNextRow();
@@ -157,7 +154,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $this->unserializeActivity($row);
     }
 
-    public function findAll()
+    public function findAll(): array
     {
         $stmt = $this->executeSql(false, $this->limit, $this->offset);
         $result = [];
@@ -169,7 +166,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $result;
     }
 
-    protected function unserializeActivity(array $row)
+    protected function unserializeActivity(array $row): HistoricActivityInstance
     {
         $activity = new HistoricActivityInstance($row['id'], $row['process_id'], $row['definition_id'], $row['process_key'], $row['activity'], $row['started_at']);
         
@@ -184,7 +181,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         return $activity;
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             'a.`id`',
@@ -192,7 +189,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         ];
     }
 
-    protected function executeSql($count = false, $limit = 0, $offset = 0)
+    protected function executeSql(bool $count = false, int $limit = 0, int $offset = 0): StatementInterface
     {
         $fields = [];
         

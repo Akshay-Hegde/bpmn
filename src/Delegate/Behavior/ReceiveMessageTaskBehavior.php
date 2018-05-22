@@ -28,17 +28,17 @@ class ReceiveMessageTaskBehavior extends AbstractScopeActivity implements Interm
 {
     protected $message;
 
-    public function __construct($activityId, $message)
+    public function __construct(string $activityId, string $message)
     {
         parent::__construct($activityId);
         
-        $this->message = (string) $message;
+        $this->message = $message;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->waitForSignal();
     }
@@ -46,7 +46,7 @@ class ReceiveMessageTaskBehavior extends AbstractScopeActivity implements Interm
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== $this->message) {
             throw new \RuntimeException(sprintf('Receive task awaits message "%s", unable to process signal "%s"', $this->message, $signal));
@@ -70,7 +70,7 @@ class ReceiveMessageTaskBehavior extends AbstractScopeActivity implements Interm
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $execution->getEngine()->executeCommand(new CreateMessageSubscriptionCommand($this->message, $execution, $activityId, ($node === null) ? $execution->getNode() : $node));
     }

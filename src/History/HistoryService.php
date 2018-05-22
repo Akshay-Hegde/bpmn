@@ -36,17 +36,17 @@ class HistoryService
         $this->engine = $engine;
     }
 
-    public function createHistoricProcessInstanceQuery()
+    public function createHistoricProcessInstanceQuery(): HistoricProcessInstanceQuery
     {
         return new HistoricProcessInstanceQuery($this->engine);
     }
 
-    public function createHistoricActivityInstanceQuery()
+    public function createHistoricActivityInstanceQuery(): HistoricActivityInstanceQuery
     {
         return new HistoricActivityInstanceQuery($this->engine);
     }
 
-    public function recordEvent(AbstractAuditEvent $event)
+    public function recordEvent(AbstractAuditEvent $event): void
     {
         if ($event instanceof ExecutionCreatedEvent) {
             $this->recordExecutionCreated($event);
@@ -71,7 +71,7 @@ class HistoryService
         }
     }
 
-    protected function recordExecutionCreated(ExecutionCreatedEvent $event)
+    protected function recordExecutionCreated(ExecutionCreatedEvent $event): void
     {
         if (!$event->execution->isRootExecution()) {
             return;
@@ -91,7 +91,7 @@ class HistoryService
         ]);
     }
 
-    protected function recordExecutionModified(ExecutionModifiedEvent $event)
+    protected function recordExecutionModified(ExecutionModifiedEvent $event): void
     {
         if (!$event->execution->isRootExecution()) {
             return;
@@ -111,7 +111,7 @@ class HistoryService
         ]);
     }
 
-    protected function recordExecutionTerminated(ExecutionTerminatedEvent $event)
+    protected function recordExecutionTerminated(ExecutionTerminatedEvent $event): void
     {
         if (!$event->execution->isRootExecution()) {
             return;
@@ -138,7 +138,7 @@ class HistoryService
         $stmt->execute();
     }
 
-    protected function recordActivityStarted(ActivityStartedEvent $event)
+    protected function recordActivityStarted(ActivityStartedEvent $event): void
     {
         $this->engine->getConnection()->insert('#__bpmn_history_activity', [
             'id' => UUID::createRandom(),
@@ -148,7 +148,7 @@ class HistoryService
         ]);
     }
 
-    protected function recordActivityCompleted(ActivityCompletedEvent $event)
+    protected function recordActivityCompleted(ActivityCompletedEvent $event): void
     {
         $stmt = $this->engine->prepareQuery("
             SELECT `id`
@@ -183,7 +183,7 @@ class HistoryService
         }
     }
 
-    protected function recordActivityCanceled(ActivityCanceledEvent $event)
+    protected function recordActivityCanceled(ActivityCanceledEvent $event): void
     {
         $stmt = $this->engine->prepareQuery("
             SELECT `id`
@@ -217,7 +217,7 @@ class HistoryService
         }
     }
 
-    protected function recordUserTaskCreated(UserTaskCreatedEvent $event)
+    protected function recordUserTaskCreated(UserTaskCreatedEvent $event): void
     {
         $this->engine->getConnection()->insert('#__bpmn_history_task', [
             'id' => $event->task->getId(),
@@ -229,7 +229,7 @@ class HistoryService
         ]);
     }
 
-    protected function recordUserTaskClaimed(UserTaskClaimedEvent $event)
+    protected function recordUserTaskClaimed(UserTaskClaimedEvent $event): void
     {
         $this->engine->getConnection()->update('#__bpmn_history_task', [
             'id' => $event->task->getId()
@@ -238,7 +238,7 @@ class HistoryService
         ]);
     }
 
-    protected function recordUserTaskUnclaimed(UserTaskUnclaimedEvent $event)
+    protected function recordUserTaskUnclaimed(UserTaskUnclaimedEvent $event): void
     {
         $this->engine->getConnection()->update('#__bpmn_history_task', [
             'id' => $event->task->getId()
@@ -247,7 +247,7 @@ class HistoryService
         ]);
     }
 
-    protected function recordUserTaskCompleted(UserTaskCompletedEvent $event)
+    protected function recordUserTaskCompleted(UserTaskCompletedEvent $event): void
     {
         $stmt = $this->engine->prepareQuery("
             UPDATE `#__bpmn_history_task`

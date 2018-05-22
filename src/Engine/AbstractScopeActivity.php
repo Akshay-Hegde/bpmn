@@ -26,12 +26,12 @@ abstract class AbstractScopeActivity extends AbstractActivity
 {
     protected $activityId;
 
-    public function __construct($activityId)
+    public function __construct(string $activityId)
     {
-        $this->activityId = (string) $activityId;
+        $this->activityId = $activityId;
     }
 
-    public function getActivityId()
+    public function getActivityId(): string
     {
         return $this->activityId;
     }
@@ -39,7 +39,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function execute(Execution $execution)
+    public function execute(Execution $execution): void
     {
         $execution->getEngine()->notify(new ActivityStartedEvent($this->activityId, $execution, $execution->getEngine()));
         
@@ -60,7 +60,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, Node $node = null): void
     {
         parent::createEventSubscriptions($execution, $this->activityId, $node);
         
@@ -75,11 +75,8 @@ abstract class AbstractScopeActivity extends AbstractActivity
 
     /**
      * Interrupt the scope activity.
-     * 
-     * @param VirtualExecution $execution
-     * @param array $transitions
      */
-    public function interrupt(VirtualExecution $execution, array $transitions = null)
+    public function interrupt(VirtualExecution $execution, ?array $transitions = null): void
     {
         $this->leave($execution, $transitions, true);
     }
@@ -87,7 +84,7 @@ abstract class AbstractScopeActivity extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function leave(VirtualExecution $execution, array $transitions = null, $canceled = false)
+    public function leave(VirtualExecution $execution, ?array $transitions = null, bool $canceled = false): void
     {
         $root = $execution->getScope();
         
@@ -119,13 +116,8 @@ abstract class AbstractScopeActivity extends AbstractActivity
      * 
      * If the given execution is concurrent this method will create a new child execution from the parent execution.
      * Otherwise a new concurrent root will be introduced as parent of the given execution.
-     * 
-     * @param VirtualExecution $execution
-     * @param Node $node
-     * @param array $transitions
-     * @return VirtualExecution The new concurrent execution created by this method.
      */
-    public function leaveConcurrent(VirtualExecution $execution, Node $node = null, array $transitions = null)
+    public function leaveConcurrent(VirtualExecution $execution, ?Node $node = null, ?array $transitions = null): VirtualExecution
     {
         $root = $execution->getScope();
         $parent = $root->getParentExecution();
@@ -144,11 +136,8 @@ abstract class AbstractScopeActivity extends AbstractActivity
 
     /**
      * Collect all boundary events connected to the activity of the given execution.
-     *
-     * @param VirtualExecution $execution
-     * @return array<Node>
      */
-    public function findAttachedBoundaryActivities(VirtualExecution $execution)
+    public function findAttachedBoundaryActivities(VirtualExecution $execution): array
     {
         $model = $execution->getProcessModel();
         $activities = [];

@@ -13,6 +13,7 @@ namespace KoolKode\BPMN\Repository;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -37,7 +38,7 @@ class DeploymentQuery extends AbstractQuery
         $this->engine = $engine;
     }
 
-    public function deploymentId($id)
+    public function deploymentId($id): self
     {
         $this->populateMultiProperty($this->deploymentId, $id, function ($id) {
             return new UUID($id);
@@ -46,21 +47,21 @@ class DeploymentQuery extends AbstractQuery
         return $this;
     }
 
-    public function deploymentName($name)
+    public function deploymentName(string $name): self
     {
         $this->populateMultiProperty($this->deploymentName, $name);
         
         return $this;
     }
 
-    public function processDefinitionKey($key)
+    public function processDefinitionKey(string $key): self
     {
         $this->populateMultiProperty($this->processDefinitionKey, $key);
         
         return $this;
     }
 
-    public function containsResource($id)
+    public function containsResource($id): self
     {
         $this->populateMultiProperty($this->containsResource, $id, function ($id) {
             return new UUID($id);
@@ -69,21 +70,21 @@ class DeploymentQuery extends AbstractQuery
         return $this;
     }
 
-    public function deployedBefore(\DateTimeInterface $date)
+    public function deployedBefore(\DateTimeImmutable $date): self
     {
         $this->deployedBefore = $date->getTimestamp();
         
         return $this;
     }
 
-    public function deployedAfter(\DateTimeInterface $date)
+    public function deployedAfter(\DateTimeImmutable $date): self
     {
         $this->deployedAfter = $date->getTimestamp();
         
         return $this;
     }
 
-    public function orderByDeploymentId($ascending = true)
+    public function orderByDeploymentId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`id`',
@@ -93,7 +94,7 @@ class DeploymentQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDeploymentName($ascending = true)
+    public function orderByDeploymentName(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`name`',
@@ -103,7 +104,7 @@ class DeploymentQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDeployed($ascending = true)
+    public function orderByDeployed(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`deployed_at`',
@@ -113,14 +114,14 @@ class DeploymentQuery extends AbstractQuery
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $stmt = $this->executeSql(true);
         
         return (int) $stmt->fetchNextColumn(0);
     }
 
-    public function findOne()
+    public function findOne(): Deployment
     {
         $stmt = $this->executeSql(false, 1);
         $row = $stmt->fetchNextRow();
@@ -132,7 +133,7 @@ class DeploymentQuery extends AbstractQuery
         return $this->unserializeDeployment($row);
     }
 
-    public function findAll()
+    public function findAll(): array
     {
         $stmt = $this->executeSql(false, $this->limit, $this->offset);
         $result = [];
@@ -144,12 +145,12 @@ class DeploymentQuery extends AbstractQuery
         return $result;
     }
 
-    protected function unserializeDeployment(array $row)
+    protected function unserializeDeployment(array $row): Deployment
     {
         return new Deployment($this->engine, $row['id'], $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']));
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             'd.`id`',
@@ -157,7 +158,7 @@ class DeploymentQuery extends AbstractQuery
         ];
     }
 
-    protected function executeSql($count = false, $limit = 0, $offset = 0)
+    protected function executeSql(bool $count = false, int $limit = 0, int $offset = 0): StatementInterface
     {
         if ($count) {
             $fields = 'COUNT(*) AS num';

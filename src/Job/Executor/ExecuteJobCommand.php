@@ -53,7 +53,7 @@ class ExecuteJobCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    protected function executeCommand(ProcessEngine $engine)
+    protected function executeCommand(ProcessEngine $engine): void
     {
         $execution = $engine->findExecution($this->job->getExecutionId());
         

@@ -25,15 +25,15 @@ class IntermediateMessageCatchBehavior extends AbstractActivity implements Inter
 {
     protected $message;
 
-    public function __construct($message)
+    public function __construct(string $message)
     {
-        $this->message = (string) $message;
+        $this->message = $message;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->waitForSignal();
     }
@@ -41,7 +41,7 @@ class IntermediateMessageCatchBehavior extends AbstractActivity implements Inter
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== $this->message) {
             throw new \RuntimeException(sprintf('Catch event awaits message "%s", unable to process signal "%s"', $this->message, $signal));
@@ -55,7 +55,7 @@ class IntermediateMessageCatchBehavior extends AbstractActivity implements Inter
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $execution->getEngine()->executeCommand(new CreateMessageSubscriptionCommand($this->message, $execution, $activityId, ($node === null) ? $execution->getNode() : $node));
     }

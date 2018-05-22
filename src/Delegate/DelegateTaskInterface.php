@@ -20,8 +20,6 @@ interface DelegateTaskInterface
 {
     /**
      * Execute business logic related to the given execution.
-     * 
-     * @param DelegateExecutionInterface $execution
      */
-    public function execute(DelegateExecutionInterface $execution);
+    public function execute(DelegateExecutionInterface $execution): void;
 }

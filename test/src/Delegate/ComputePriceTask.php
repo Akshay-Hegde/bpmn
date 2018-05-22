@@ -16,7 +16,7 @@ class ComputePriceTask implements DelegateTaskInterface
     /**
      * {@inheritdoc}
      */
-    public function execute(DelegateExecutionInterface $execution)
+    public function execute(DelegateExecutionInterface $execution): void
     {
         $amount = (int) $execution->getVariable('amount');
         $discount = (int) $execution->getVariable('discount', 0);

@@ -32,17 +32,17 @@ class UserTaskBehavior extends AbstractScopeActivity
 
     protected $dueDate;
 
-    public function setAssignee(ExpressionInterface $assignee = null)
+    public function setAssignee(?ExpressionInterface $assignee): void
     {
         $this->assignee = $assignee;
     }
 
-    public function setPriority(ExpressionInterface $priority = null)
+    public function setPriority(?ExpressionInterface $priority): void
     {
         $this->priority = $priority;
     }
 
-    public function setDueDate(ExpressionInterface $dueDate = null)
+    public function setDueDate(?ExpressionInterface $dueDate): void
     {
         $this->dueDate = $dueDate;
     }
@@ -50,7 +50,7 @@ class UserTaskBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $context = $execution->getExpressionContext();
         $command = new CreateUserTaskCommand($this->getStringValue($this->name, $context), (int) $this->getIntegerValue($this->priority, $context), $execution, $this->getStringValue($this->documentation, $context));
@@ -71,7 +71,7 @@ class UserTaskBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($this->delegateSignal($execution, $signal, $variables, $delegation)) {
             return;
@@ -89,7 +89,7 @@ class UserTaskBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function interrupt(VirtualExecution $execution, array $transitions = null)
+    public function interrupt(VirtualExecution $execution, ?array $transitions = null): void
     {
         $engine = $execution->getEngine();
         $root = $execution->getScope();

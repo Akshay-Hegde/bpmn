@@ -27,7 +27,7 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
         $this->builder = $builder;
     }
 
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): UUID
     {
         $name = $this->builder->getName();
         

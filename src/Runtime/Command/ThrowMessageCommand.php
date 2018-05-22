@@ -38,7 +38,7 @@ class ThrowMessageCommand extends AbstractBusinessCommand
      *
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -46,7 +46,7 @@ class ThrowMessageCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return self::PRIORITY_DEFAULT - 500;
     }
@@ -54,7 +54,7 @@ class ThrowMessageCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $execution = $engine->findExecution($this->executionId);
         

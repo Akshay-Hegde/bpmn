@@ -38,17 +38,17 @@ class DiagramLoader
 
     protected $subProcessId;
 
-    public function parseDiagramFile($file)
+    public function parseDiagramFile(string $file): array
     {
         return $this->parseDiagram((new XmlDocumentBuilder())->buildDocument(new \SplFileInfo($file)));
     }
 
-    public function parseDiagramString($contents)
+    public function parseDiagramString(string $contents): array
     {
         return $this->parseDiagram((new XmlDocumentBuilder())->buildFromSource($contents));
     }
 
-    public function parseDiagram(\DOMDocument $xml)
+    public function parseDiagram(\DOMDocument $xml): array
     {
         try {
             $this->xpath = $this->createXPath($xml);
@@ -72,17 +72,17 @@ class DiagramLoader
             if (empty($result)) {
                 throw new \OutOfBoundsException('No executable process definitions found');
             }
-            
-            return $result;
         } finally {
             $this->xpath = null;
             $this->signals = [];
             $this->messages = [];
             $this->subProcessId = null;
         }
+        
+        return $result;
     }
 
-    protected function parseProcessDefinition(\DOMElement $process)
+    protected function parseProcessDefinition(\DOMElement $process): BusinessProcessBuilder
     {
         $title = $process->hasAttribute('name') ? trim($process->getAttribute('name')) : '';
         $builder = new BusinessProcessBuilder($process->getAttribute('id'), $title);
@@ -156,7 +156,7 @@ class DiagramLoader
         }
     }
 
-    protected function parseSequenceFlow($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseSequenceFlow(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $condition = null;
         
@@ -176,7 +176,7 @@ class DiagramLoader
         return $builder->sequenceFlow($id, $el->getAttribute('sourceRef'), $el->getAttribute('targetRef'), $condition);
     }
 
-    protected function parseServiceTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseServiceTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         if ($el->hasAttributeNS(self::NS_IMPL, 'class') && '' !== trim($el->getAttributeNS(self::NS_IMPL, 'class'))) {
             $delegateTask = $builder->delegateTask($id, $el->getAttributeNS(self::NS_IMPL, 'class'), $el->getAttribute('name'));
@@ -208,7 +208,7 @@ class DiagramLoader
         return $serviceTask;
     }
 
-    protected function parseScriptTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseScriptTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         if ($el->hasAttributeNS(self::NS_IMPL, 'resource')) {
             $scriptTask = $builder->scriptResourceTask($id, $el->getAttributeNS(self::NS_IMPL, 'resource'), $el->getAttribute('name'));
@@ -233,7 +233,7 @@ class DiagramLoader
         return $scriptTask;
     }
 
-    protected function parseUserTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseUserTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $userTask = $builder->userTask($id, $el->getAttribute('name'));
         $userTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
@@ -255,7 +255,7 @@ class DiagramLoader
         return $userTask;
     }
 
-    protected function parseManualTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseManualTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $manualTask = $builder->manualTask($id, $el->getAttribute('name'));
         $manualTask->setDocumentation($builder->stringExp($this->getDocumentation($el)));
@@ -265,7 +265,7 @@ class DiagramLoader
         return $manualTask;
     }
 
-    protected function parseReceiveTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseReceiveTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $receiveTask = null;
         
@@ -284,12 +284,12 @@ class DiagramLoader
         return $receiveTask;
     }
 
-    protected function parseSendTask($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseSendTask(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         return $builder->intermediateMessageThrowEvent($id, $el->getAttribute('name'));
     }
 
-    protected function parseCallActivity($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseCallActivity(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $call = $builder->callActivity($id, $el->getAttribute('calledElement'), $el->getAttribute('name'));
         $call->setDocumentation($builder->stringExp($this->getDocumentation($el)));
@@ -315,7 +315,7 @@ class DiagramLoader
         return $call;
     }
 
-    protected function parseSubProcess($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseSubProcess(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $parentSubId = $this->subProcessId;
         $this->subProcessId = $id;
@@ -339,7 +339,7 @@ class DiagramLoader
         }
     }
 
-    protected function parseStartEvent($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseStartEvent(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         foreach ($this->xpath->query('m:messageEventDefinition', $el) as $messageElement) {
             $message = $this->messages[$messageElement->getAttribute('messageRef')];
@@ -362,7 +362,7 @@ class DiagramLoader
         return $builder->startEvent($id, $this->subProcessId !== null, $el->getAttribute('name'));
     }
 
-    protected function parseEndEvent($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseEndEvent(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         foreach ($this->xpath->query('m:terminateEventDefinition', $el) as $def) {
             return $builder->terminateEndEvent($id, $el->getAttribute('name'));
@@ -381,7 +381,7 @@ class DiagramLoader
         return $builder->endEvent($id, $el->getAttribute('name'));
     }
 
-    protected function parseIntermediateCatchEvent($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseIntermediateCatchEvent(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         foreach ($this->xpath->query('m:messageEventDefinition', $el) as $messageElement) {
             $message = $this->messages[$messageElement->getAttribute('messageRef')];
@@ -418,7 +418,7 @@ class DiagramLoader
         return $builder->intermediateNoneEvent($id, $el->getAttribute('name'));
     }
 
-    protected function parseIntermediateThrowEvent($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseIntermediateThrowEvent(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         foreach ($this->xpath->query('m:messageEventDefinition', $el) as $def) {
             return $builder->intermediateMessageThrowEvent($id, $el->getAttribute('name'));
@@ -439,7 +439,7 @@ class DiagramLoader
         return $builder->intermediateNoneEvent($id, $el->getAttribute('name'));
     }
 
-    protected function parseBoundaryEvent($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseBoundaryEvent(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $attachedTo = $el->getAttribute('attachedToRef');
         $cancelActivity = true;
@@ -469,7 +469,7 @@ class DiagramLoader
         throw new \RuntimeException('Unsupported boundary event type with id ' . $id);
     }
 
-    protected function parseExclusiveGateway($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseExclusiveGateway(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $gateway = $builder->exclusiveGateway($id, $el->getAttribute('name'));
         $gateway->setDefaultFlow($el->getAttribute('default'));
@@ -479,7 +479,7 @@ class DiagramLoader
         return $gateway;
     }
 
-    protected function parseInclusiveGateway($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseInclusiveGateway(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $gateway = $builder->inclusiveGateway($id, $el->getAttribute('name'));
         $gateway->setDefaultFlow($el->getAttribute('default'));
@@ -489,7 +489,7 @@ class DiagramLoader
         return $gateway;
     }
 
-    protected function parseParallelGateway($id, \DOMElement $el, BusinessProcessBuilder $builder)
+    protected function parseParallelGateway(string $id, \DOMElement $el, BusinessProcessBuilder $builder)
     {
         $gateway = $builder->parallelGateway($id, $el->getAttribute('name'));
         $gateway->setAsyncBefore($this->getAsyncBefore($el));
@@ -506,7 +506,7 @@ class DiagramLoader
         return $gateway;
     }
 
-    protected function getDocumentation(\DOMElement $el)
+    protected function getDocumentation(\DOMElement $el): ?string
     {
         $docs = [];
         
@@ -517,7 +517,7 @@ class DiagramLoader
         return empty($docs) ? null : implode(' ', $docs);
     }
 
-    protected function getAsyncBefore(\DOMElement $el)
+    protected function getAsyncBefore(\DOMElement $el): bool
     {
         if (strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncBefore')) == 'true') {
             return true;
@@ -526,12 +526,12 @@ class DiagramLoader
         return strtolower($el->getAttributeNS(self::NS_IMPL, 'async')) == 'true';
     }
 
-    protected function getAsyncAfter(\DOMElement $el)
+    protected function getAsyncAfter(\DOMElement $el): bool
     {
         return strtolower($el->getAttributeNS(self::NS_IMPL, 'asyncAfter')) == 'true';
     }
 
-    protected function createXPath(\DOMNode $xml)
+    protected function createXPath(\DOMNode $xml): \DOMXPath
     {
         $xpath = new \DOMXPath(($xml instanceof \DOMDocument) ? $xml : $xml->ownerDocument);
         $xpath->registerNamespace('m', self::NS_MODEL);

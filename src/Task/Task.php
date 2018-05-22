@@ -39,18 +39,18 @@ class Task implements TaskInterface, \JsonSerializable
 
     protected $documentation = '';
 
-    public function __construct(UUID $id, $name, \DateTimeImmutable $created, \DateTimeImmutable $claimDate = null, $assignee = null, $priority = 0, \DateTimeImmutable $dueDate = null)
+    public function __construct(UUID $id, string $name, \DateTimeImmutable $created, ?\DateTimeImmutable $claimDate = null, ?string $assignee = null, int $priority = 0, ?\DateTimeImmutable $dueDate = null)
     {
         $this->id = $id;
-        $this->name = (string) $name;
+        $this->name = $name;
         $this->created = $created;
         $this->claimDate = $claimDate;
-        $this->assignee = ($assignee === null) ? null : (string) $assignee;
-        $this->priority = (int) $priority;
+        $this->assignee = $assignee;
+        $this->priority = $priority;
         $this->dueDate = $dueDate;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => (string) $this->id,
@@ -70,7 +70,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
@@ -78,12 +78,12 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getExecutionId()
+    public function getExecutionId(): ?UUID
     {
         return $this->executionId;
     }
 
-    public function setExecutionId(UUID $executionId = null)
+    public function setExecutionId(?UUID $executionId): void
     {
         $this->executionId = $executionId;
     }
@@ -91,12 +91,12 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getProcessInstanceId()
+    public function getProcessInstanceId(): ?UUID
     {
         return $this->processInstanceId;
     }
 
-    public function setProcessInstanceId(UUID $processInstanceId = null)
+    public function setProcessInstanceId(?UUID $processInstanceId): void
     {
         $this->processInstanceId = $processInstanceId;
     }
@@ -104,20 +104,20 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getProcessBusinessKey()
+    public function getProcessBusinessKey(): ?string
     {
         return $this->processBusinessKey;
     }
 
-    public function setProcessBusinessKey($processBusinessKey)
+    public function setProcessBusinessKey(?string $processBusinessKey): void
     {
-        $this->processBusinessKey = ($processBusinessKey === null) ? null : (string) $processBusinessKey;
+        $this->processBusinessKey = $processBusinessKey;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -125,12 +125,12 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getDocumentation()
+    public function getDocumentation(): string
     {
         return $this->documentation;
     }
 
-    public function setDocumentation($documentation = null)
+    public function setDocumentation(string $documentation): void
     {
         $this->documentation = trim($documentation);
     }
@@ -138,20 +138,20 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getDefinitionKey()
+    public function getDefinitionKey(): ?string
     {
         return $this->definitionKey;
     }
 
-    public function setDefinitionKey($definitionKey = null)
+    public function setDefinitionKey(?string $definitionKey): void
     {
-        $this->definitionKey = ($definitionKey === null) ? null : (string) $definitionKey;
+        $this->definitionKey = $definitionKey;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCreated()
+    public function getCreated(): \DateTimeImmutable
     {
         return $this->created;
     }
@@ -159,7 +159,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function isClaimed()
+    public function isClaimed(): bool
     {
         return $this->claimDate !== null;
     }
@@ -167,7 +167,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getClaimDate()
+    public function getClaimDate(): ?\DateTimeImmutable
     {
         return $this->claimDate;
     }
@@ -175,7 +175,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getAssignee()
+    public function getAssignee(): ?string
     {
         return $this->assignee;
     }
@@ -183,7 +183,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return $this->priority;
     }
@@ -191,7 +191,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function hasDueDate()
+    public function hasDueDate(): bool
     {
         return $this->dueDate !== null;
     }
@@ -199,7 +199,7 @@ class Task implements TaskInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getDueDate()
+    public function getDueDate(): ?\DateTimeImmutable
     {
         return $this->dueDate;
     }

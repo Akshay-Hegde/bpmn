@@ -14,9 +14,9 @@ namespace KoolKode\BPMN\Runtime\Command;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\Job\Job;
 use KoolKode\Process\Node;
 use KoolKode\Util\UUID;
-use KoolKode\BPMN\Job\Job;
 
 /**
  * Base class for event subscription commands.
@@ -69,13 +69,13 @@ abstract class AbstractCreateSubscriptionCommand extends AbstractBusinessCommand
      * @param Node $node Target node to receive the delegated signal or null in order to use the activity node.
      * @param boolean $boundaryEvent Is this a subscription for a boundary event?
      */
-    public function __construct($name, VirtualExecution $execution, $activityId, Node $node = null, $boundaryEvent = false)
+    public function __construct(string $name, VirtualExecution $execution, string $activityId, ?Node $node = null, ?bool $boundaryEvent = false)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
         $this->executionId = $execution->getId();
-        $this->activityId = (string) $activityId;
+        $this->activityId = $activityId;
         $this->nodeId = ($node === null) ? null : (string) $node->getId();
-        $this->boundaryEvent = $boundaryEvent ? true : false;
+        $this->boundaryEvent = $boundaryEvent;
     }
 
     /**
@@ -83,18 +83,15 @@ abstract class AbstractCreateSubscriptionCommand extends AbstractBusinessCommand
      * 
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
 
     /**
      * Create an event subscription entry in the DB.
-     * 
-     * @param ProcessEngine $engine
-     * @param Job $job
      */
-    protected function createSubscription(ProcessEngine $engine, Job $job = null)
+    protected function createSubscription(ProcessEngine $engine, ?Job $job = null): void
     {
         $execution = $engine->findExecution($this->executionId);
         $nodeId = ($this->nodeId === null) ? null : $execution->getProcessModel()->findNode($this->nodeId)->getId();
@@ -120,8 +117,6 @@ abstract class AbstractCreateSubscriptionCommand extends AbstractBusinessCommand
 
     /**
      * Get the value being used as flag in the subscription table.
-     * 
-     * @return integer
      */
-    protected abstract function getSubscriptionFlag();
+    protected abstract function getSubscriptionFlag(): int;
 }

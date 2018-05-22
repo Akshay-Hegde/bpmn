@@ -36,9 +36,9 @@ class TaskExecutedEvent extends ProcessEngineEvent
      */
     public $execution;
 
-    public function __construct($name, DelegateExecutionInterface $execution, ProcessEngine $engine)
+    public function __construct(string $name, DelegateExecutionInterface $execution, ProcessEngine $engine)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
         $this->execution = $execution;
         $this->engine = $engine;
     }

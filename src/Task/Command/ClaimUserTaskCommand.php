@@ -27,10 +27,10 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand
 
     protected $assignee;
 
-    public function __construct(UUID $taskId, $assignee)
+    public function __construct(UUID $taskId, string $assignee)
     {
         $this->taskId = $taskId;
-        $this->assignee = (string) $assignee;
+        $this->assignee = $assignee;
     }
 
     /**
@@ -38,7 +38,7 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand
      *
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -46,7 +46,7 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $task = $engine->getTaskService()->createTaskQuery()->taskId($this->taskId)->findOne();
         

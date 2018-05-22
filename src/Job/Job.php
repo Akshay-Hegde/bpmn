@@ -45,18 +45,18 @@ class Job implements JobInterface, \JsonSerializable
 
     protected $exceptionData;
 
-    public function __construct(UUID $id, UUID $executionId, $handlerType, $handlerData, \DateTimeInterface $createdAt = null, $retries = 0, $lockOwner = null)
+    public function __construct(UUID $id, UUID $executionId, string $handlerType, $handlerData, ?\DateTimeImmutable $createdAt = null, ?int $retries = 0, ?string $lockOwner = null)
     {
         $this->id = $id;
         $this->executionId = $executionId;
-        $this->handlerType = (string) $handlerType;
+        $this->handlerType = $handlerType;
         $this->handlerData = $handlerData;
-        $this->createdAt = ($createdAt === null) ? new \DateTimeImmutable('now') : new \DateTimeImmutable('@' . $createdAt->getTimestamp());
-        $this->retries = (int) $retries;
-        $this->lockOwner = ($lockOwner === null) ? null : (string) $lockOwner;
+        $this->createdAt = $createdAt;
+        $this->retries = $retries;
+        $this->lockOwner = $lockOwner;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,
@@ -72,7 +72,7 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
@@ -80,7 +80,7 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getExecutionId()
+    public function getExecutionId(): UUID
     {
         return $this->executionId;
     }
@@ -88,20 +88,20 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getExternalId()
+    public function getExternalId(): ?string
     {
         return $this->externalId;
     }
 
-    public function setExternalId($id = null)
+    public function setExternalId(?string $id): void
     {
-        $this->externalId = ($id === null) ? null : (string) $id;
+        $this->externalId = $id;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHandlerType()
+    public function getHandlerType(): string
     {
         return $this->handlerType;
     }
@@ -114,7 +114,7 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getRetries()
+    public function getRetries(): int
     {
         return $this->retries;
     }
@@ -122,20 +122,20 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function isLocked()
+    public function isLocked(): bool
     {
         return $this->locked;
     }
 
-    public function setLocked($locked)
+    public function setLocked(bool $locked): void
     {
-        $this->locked = $locked ? true : false;
+        $this->locked = $locked;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getLockOwner()
+    public function getLockOwner(): ?string
     {
         return $this->lockOwner;
     }
@@ -143,7 +143,7 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -151,58 +151,46 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getScheduledAt()
+    public function getScheduledAt(): ?\DateTimeImmutable
     {
         return $this->scheduledAt;
     }
 
-    public function setScheduledAt(\DateTimeInterface $scheduledAt = null)
+    public function setScheduledAt(?\DateTimeImmutable $scheduledAt): void
     {
-        if ($scheduledAt === null) {
-            $this->scheduledAt = null;
-        } else {
-            $this->scheduledAt = new \DateTimeImmutable('@' . $scheduledAt->getTimestamp(), new \DateTimeZone('UTC'));
-        }
+        $this->scheduledAt = $scheduledAt;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getRunAt()
+    public function getRunAt(): ?\DateTimeImmutable
     {
         return $this->runAt;
     }
 
-    public function setRunAt(\DateTimeInterface $runAt = null)
+    public function setRunAt(?\DateTimeImmutable $runAt): void
     {
-        if ($runAt === null) {
-            $this->runAt = null;
-        } else {
-            $this->runAt = new \DateTimeImmutable('@' . $runAt->getTimestamp(), new \DateTimeZone('UTC'));
-        }
+        $this->runAt = $runAt;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getLockedAt()
+    public function getLockedAt(): ?\DateTimeImmutable
     {
         return $this->lockedAt;
     }
 
-    public function setLockedAt(\DateTimeInterface $lockedAt = null)
+    public function setLockedAt(?\DateTimeImmutable $lockedAt): void
     {
-        if ($lockedAt === null) {
-            $this->lockedAt = null;
-        } else {
-            $this->lockedAt = new \DateTimeImmutable('@' . $lockedAt->getTimestamp(), new \DateTimeZone('UTC'));
-        }
+        $this->lockedAt = $lockedAt;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isFailed()
+    public function isFailed(): bool
     {
         return $this->exceptionType !== null;
     }
@@ -210,39 +198,39 @@ class Job implements JobInterface, \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getExceptionType()
+    public function getExceptionType(): ?string
     {
         return $this->exceptionType;
     }
 
-    public function setExceptionType($exceptionType = null)
+    public function setExceptionType(?string $exceptionType): void
     {
-        $this->exceptionType = ($exceptionType === null) ? null : (string) $exceptionType;
+        $this->exceptionType = $exceptionType;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getExceptionMessage()
+    public function getExceptionMessage(): ?string
     {
         return $this->exceptionMessage;
     }
 
-    public function setExceptionMessage($exceptionMessage = null)
+    public function setExceptionMessage(?string $exceptionMessage): void
     {
-        $this->exceptionMessage = ($exceptionMessage === null) ? null : (string) $exceptionMessage;
+        $this->exceptionMessage = $exceptionMessage;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getExceptionData()
+    public function getExceptionData(): ?string
     {
         return $this->exceptionData;
     }
 
-    public function setExceptionData($exceptionData = null)
+    public function setExceptionData(?string $exceptionData): void
     {
-        $this->exceptionData = ($exceptionData === null) ? null : (string) $exceptionData;
+        $this->exceptionData = $exceptionData;
     }
 }

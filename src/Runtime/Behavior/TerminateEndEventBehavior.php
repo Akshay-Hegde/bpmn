@@ -25,7 +25,7 @@ class TerminateEndEventBehavior extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->getEngine()->debug('Reached terminate end event "{name}"', [
             'name' => $this->getStringValue($this->name, $execution->getExpressionContext())

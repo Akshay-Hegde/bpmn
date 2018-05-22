@@ -13,5 +13,5 @@ namespace KoolKode\BPMN\Delegate;
 
 interface DelegateTaskFactoryInterface
 {
-    public function createDelegateTask($typeName);
+    public function createDelegateTask(string $typeName): DelegateTaskInterface;
 }

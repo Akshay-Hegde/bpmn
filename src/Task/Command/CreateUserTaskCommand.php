@@ -14,6 +14,7 @@ namespace KoolKode\BPMN\Task\Command;
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\BPMN\Task\TaskInterface;
 use KoolKode\BPMN\Task\Event\UserTaskCreatedEvent;
 use KoolKode\Util\UUID;
 
@@ -34,12 +35,12 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
 
     protected $documentation;
 
-    public function __construct($name, $priority, VirtualExecution $execution = null, $documentation = null)
+    public function __construct(string $name, int $priority, ?VirtualExecution $execution = null, ?string $documentation = null)
     {
-        $this->name = (string) $name;
-        $this->priority = (int) $priority;
+        $this->name = $name;
+        $this->priority = $priority;
         $this->executionId = ($execution === null) ? null : $execution->getId();
-        $this->documentation = ($documentation === null) ? null : (string) $documentation;
+        $this->documentation = $documentation;
     }
 
     /**
@@ -47,12 +48,12 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
      *
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
 
-    public function setDueDate(\DateTimeInterface $dueDate = null)
+    public function setDueDate(?\DateTimeImmutable $dueDate)
     {
         if ($dueDate === null) {
             $this->dueDate = null;
@@ -64,7 +65,7 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): TaskInterface
     {
         $id = UUID::createRandom();
         $activityId = null;

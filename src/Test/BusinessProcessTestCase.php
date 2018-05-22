@@ -11,6 +11,7 @@
 
 namespace KoolKode\BPMN\Test;
 
+use KoolKode\BPMN\ManagementService;
 use KoolKode\BPMN\Delegate\DelegateTaskRegistry;
 use KoolKode\BPMN\Delegate\Event\TaskExecutedEvent;
 use KoolKode\BPMN\Engine\ProcessEngine;
@@ -19,27 +20,27 @@ use KoolKode\BPMN\History\HistoricActivityInstance;
 use KoolKode\BPMN\History\HistoryService;
 use KoolKode\BPMN\Job\Executor\JobExecutor;
 use KoolKode\BPMN\Job\Scheduler\TestJobScheduler;
-use KoolKode\BPMN\ManagementService;
+use KoolKode\BPMN\Repository\Deployment;
 use KoolKode\BPMN\Repository\RepositoryService;
-use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Runtime\RuntimeService;
+use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Task\TaskService;
 use KoolKode\Database\Test\DatabaseTestTrait;
 use KoolKode\Event\EventDispatcher;
 use KoolKode\Expression\ExpressionContextFactory;
-use KoolKode\Meta\Info\ReflectionTypeInfo;
 use KoolKode\Process\Event\CreateExpressionContextEvent;
 use KoolKode\Util\UUID;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Sets up in in-memory Sqlite databse and a process engine using it.
  * 
  * @author Martin Schröder
  */
-abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
+abstract class BusinessProcessTestCase extends TestCase
 {
     use DatabaseTestTrait;
 
@@ -94,8 +95,6 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
 
     private $serviceTaskHandlers;
 
-    private $typeInfo;
-
     protected function setUp()
     {
         parent::setUp();
@@ -120,8 +119,8 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
             fwrite($stderr, "\n");
             fwrite($stderr, sprintf("TEST CASE: %s\n", $this->getName()));
             
-//             $this->conn->setDebug(true);
-//             $this->conn->setLogger($logger);
+            //             $this->conn->setDebug(true);
+            //             $this->conn->setLogger($logger);
         }
         
         $this->messageHandlers = [];
@@ -129,26 +128,32 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         
         // Provide message handler subscriptions.
         $this->eventDispatcher->connect(function (MessageThrownEvent $event) {
-            
             $def = $this->repositoryService->createProcessDefinitionQuery()->processDefinitionId($event->execution->getProcessDefinitionId())->findOne();
             
             $key = $def->getKey();
             $id = $event->execution->getActivityId();
             
             if (isset($this->messageHandlers[$key][$id])) {
-                return $this->messageHandlers[$key][$id]($event);
+                return $this->messageHandlers[$key][$id]->execute($event);
+            }
+            
+            if (isset($this->messageHandlers['*'][$id])) {
+                return $this->messageHandlers['*'][$id]->execute($event);
             }
         });
         
         $this->eventDispatcher->connect(function (TaskExecutedEvent $event) {
-            
             $execution = $this->runtimeService->createExecutionQuery()->executionId($event->execution->getExecutionId())->findOne();
             
             $key = $execution->getProcessDefinition()->getKey();
             $id = $event->execution->getActivityId();
             
             if (isset($this->serviceTaskHandlers[$key][$id])) {
-                $this->serviceTaskHandlers[$key][$id]($event->execution);
+                $this->serviceTaskHandlers[$key][$id]->execute($event->execution);
+            }
+            
+            if (isset($this->serviceTaskHandlers['*'][$id])) {
+                $this->serviceTaskHandlers['*'][$id]->execute($event->execution);
             }
         });
         
@@ -174,46 +179,66 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         $this->historyService = $this->processEngine->getHistoryService();
         $this->managementService = $this->processEngine->getManagementService();
         
-        if ($this->typeInfo === null) {
-            $this->typeInfo = new ReflectionTypeInfo(new \ReflectionClass(get_class($this)));
-        }
+        $ref = new \ReflectionClass(static::class);
         
-        foreach ($this->typeInfo->getMethods() as $method) {
-            if (!$method->isPublic() || $method->isStatic()) {
+        foreach ($ref->getMethods() as $method) {
+            if ($method->isStatic() || !$method->hasReturnType()) {
                 continue;
             }
             
-            foreach ($method->getAnnotations() as $anno) {
-                if ($anno instanceof MessageHandler) {
-                    $this->messageHandlers[$anno->processKey][$anno->value] = [
-                        $this,
-                        $method->getName()
-                    ];
-                }
-                
-                if ($anno instanceof ServiceTaskHandler) {
-                    $this->serviceTaskHandlers[$anno->processKey][$anno->value] = [
-                        $this,
-                        $method->getName()
-                    ];
-                }
+            switch ($method->getReturnType()) {
+                case MessageHandler::class:
+                    $method->setAccessible(true);
+                    $handler = $method->invoke($this);
+                    
+                    $this->messageHandlers[$handler->getProcessKey() ?? '*'][$handler->getMessageName()] = $handler;
+                    break;
+                case ServiceTaskHandler::class:
+                    $method->setAccessible(true);
+                    $handler = $method->invoke($this);
+                    
+                    $this->serviceTaskHandlers[$handler->getProcessKey() ?? '*'][$handler->getServiceTask()] = $handler;
+                    break;
             }
         }
+    }
+
+    public function getRepositoryService(): RepositoryService
+    {
+        return $this->repositoryService;
+    }
+
+    public function getRuntimeService(): RuntimeService
+    {
+        return $this->runtimeService;
+    }
+
+    public function getTaskService(): TaskService
+    {
+        return $this->taskService;
+    }
+
+    public function getHistoryService(): HistoryService
+    {
+        return $this->repositoryService;
+    }
+
+    public function getManagementService(): ManagementService
+    {
+        return $this->repositoryService;
     }
 
     /**
      * Get the minimum level of log messages to be displayed.
      * 
      * Logging is not enabled by default.
-     * 
-     * @return string
      */
-    public function getlogLevel()
+    public function getlogLevel(): ?string
     {
         return null;
     }
 
-    protected function deployFile($file)
+    protected function deployFile(string $file): Deployment
     {
         if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
             $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
@@ -222,7 +247,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         return $this->repositoryService->deployProcess(new \SplFileInfo($file));
     }
 
-    protected function deployDirectory($file, array $extensions = [])
+    protected function deployDirectory(string $file, array $extensions = []): Deployment
     {
         if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
             $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
@@ -235,7 +260,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         return $this->repositoryService->deploy($builder);
     }
 
-    protected function deployArchive($file, array $extensions = [])
+    protected function deployArchive(string $file, array $extensions = []): Deployment
     {
         if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
             $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
@@ -248,23 +273,17 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         return $this->repositoryService->deploy($builder);
     }
 
-    protected function registerMessageHandler($processDefinitionKey, $nodeId, callable $handler)
+    protected function registerMessageHandler(?string $processDefinitionKey, string $nodeId, callable $callback): void
     {
-        $args = array_slice(func_get_args(), 3);
-        
-        $this->messageHandlers[(string) $processDefinitionKey][(string) $nodeId] = function ($event) use ($handler, $args) {
-            return call_user_func_array($handler, array_merge([
-                $event
-            ], $args));
-        };
+        $this->messageHandlers[$processDefinitionKey ?? '*'][$nodeId] = new MessageHandler($nodeId, $processDefinitionKey, $callback);
     }
 
-    protected function registerServiceTaskHandler($processDefinitionKey, $activityId, callable $handler)
+    protected function registerServiceTaskHandler(?string $processDefinitionKey, string $activityId, callable $callback): void
     {
-        $this->serviceTaskHandlers[(string) $processDefinitionKey][(string) $activityId] = $handler;
+        $this->serviceTaskHandlers[$processDefinitionKey ?? '*'][$activityId] = new ServiceTaskHandler($activityId, $processDefinitionKey, $callback);
     }
 
-    protected function dumpProcessInstances(UUID $id = null)
+    protected function dumpProcessInstances(?UUID $id = null): void
     {
         $query = $this->runtimeService->createProcessInstanceQuery();
         
@@ -279,7 +298,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function dumpExecution(VirtualExecution $exec)
+    protected function dumpExecution(VirtualExecution $exec): void
     {
         $node = $exec->getNode();
         $nodeId = ($node === null) ? null : $node->getId();
@@ -291,7 +310,7 @@ abstract class BusinessProcessTestCase extends \PHPUnit_Framework_TestCase
         }
     }
 
-    protected function findCompletedActivityDefinitionKeys(UUID $processId = null)
+    protected function findCompletedActivityDefinitionKeys(?UUID $processId = null): array
     {
         $query = $this->historyService->createHistoricActivityInstanceQuery()->completed(true)->orderByStartedAt();
         

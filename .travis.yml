@@ -8,8 +8,8 @@ cache:
     - vendor
 
 php:
-  - 5.6
-  - 7.0
+  - 7.1
+  - 7.2
 
 env:
   - 'DB=sqlite DEPS=""'

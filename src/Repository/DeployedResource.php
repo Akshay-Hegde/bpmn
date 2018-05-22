@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Repository;
 
 use KoolKode\BPMN\Engine\BinaryData;
+use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\Util\UUID;
 
 class DeployedResource implements \JsonSerializable
@@ -22,14 +23,14 @@ class DeployedResource implements \JsonSerializable
 
     protected $deployment;
 
-    public function __construct(Deployment $deployment, UUID $id, $name)
+    public function __construct(Deployment $deployment, UUID $id, string $name)
     {
         $this->deployment = $deployment;
         $this->id = $id;
-        $this->name = (string) $name;
+        $this->name = $name;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => (string) $this->id,
@@ -37,22 +38,22 @@ class DeployedResource implements \JsonSerializable
         ];
     }
 
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getDeployment()
+    public function getDeployment(): Deployment
     {
         return $this->deployment;
     }
 
-    public function getProcessEngine()
+    public function getProcessEngine(): ProcessEngine
     {
         return $this->deployment->getProcessEngine();
     }

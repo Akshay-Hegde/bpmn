@@ -25,15 +25,15 @@ class IntermediateSignalCatchBehavior extends AbstractActivity implements Interm
 {
     protected $signal;
 
-    public function __construct($signal)
+    public function __construct(string $signal)
     {
-        $this->signal = (string) $signal;
+        $this->signal = $signal;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->waitForSignal();
     }
@@ -41,7 +41,7 @@ class IntermediateSignalCatchBehavior extends AbstractActivity implements Interm
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== $this->signal) {
             throw new \RuntimeException(sprintf('Catch event awaits signal "%s", unable to process signal "%s"', $this->signal, $signal));
@@ -55,7 +55,7 @@ class IntermediateSignalCatchBehavior extends AbstractActivity implements Interm
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $execution->getEngine()->pushCommand(new CreateSignalSubscriptionCommand($this->signal, $execution, $activityId, ($node === null) ? $execution->getNode() : $node));
         

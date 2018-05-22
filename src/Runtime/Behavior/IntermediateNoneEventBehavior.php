@@ -26,7 +26,7 @@ class IntermediateNoneEventBehavior extends AbstractActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $engine = $execution->getEngine();
         

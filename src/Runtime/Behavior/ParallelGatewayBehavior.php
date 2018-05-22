@@ -29,7 +29,7 @@ class ParallelGatewayBehavior extends SyncBehavior
     /**
      * {@inheritdoc}
      */
-    public function execute(Execution $execution)
+    public function execute(Execution $execution): void
     {
         $engine = $execution->getEngine();
         $activityId = $execution->getNode()->getId();

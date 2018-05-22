@@ -24,66 +24,66 @@ trait BasicAttributesTrait
 
     protected $asyncAfter = false;
 
-    public function setName(ExpressionInterface $name = null)
+    public function setName(?ExpressionInterface $name): void
     {
         $this->name = $name;
     }
 
-    public function setDocumentation(ExpressionInterface $documentation = null)
+    public function setDocumentation(?ExpressionInterface $documentation): void
     {
         $this->documentation = $documentation;
     }
 
-    public function getValue(ExpressionInterface $exp = null, ExpressionContextInterface $context = null)
+    public function getValue(?ExpressionInterface $exp = null, ?ExpressionContextInterface $context = null)
     {
         return ($exp === null || $context === null) ? null : $exp($context);
     }
 
-    public function getIntegerValue(ExpressionInterface $exp = null, ExpressionContextInterface $context = null)
+    public function getIntegerValue(?ExpressionInterface $exp = null, ?ExpressionContextInterface $context = null): int
     {
         return ($exp === null || $context === null) ? 0 : (int) $exp($context);
     }
 
-    public function getStringValue(ExpressionInterface $exp = null, ExpressionContextInterface $context = null)
+    public function getStringValue(?ExpressionInterface $exp = null, ?ExpressionContextInterface $context = null): string
     {
         return ($exp === null || $context === null) ? '' : (string) $exp($context);
     }
 
-    public function getDateValue(ExpressionInterface $exp = null, ExpressionContextInterface $context = null)
+    public function getDateValue(ExpressionInterface $exp = null, ExpressionContextInterface $context = null): ?\DateTimeImmutable
     {
         $value = ($exp === null || $context === null) ? null : $exp($context);
         
         if ($value === null) {
-            return;
+            return null;
         }
         
         if (is_numeric($value)) {
             return new \DateTimeImmutable('@' . $value);
         }
         
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof \DateTimeImmutable) {
             return new \DateTimeImmutable('@' . $value->getTimestamp(), $value->getTimezone());
         }
         
         return new \DateTimeImmutable($value);
     }
 
-    public function isAsyncBefore()
+    public function isAsyncBefore(): bool
     {
         return $this->asyncBefore;
     }
 
-    public function setAsyncBefore($async)
+    public function setAsyncBefore(bool $async): void
     {
         $this->asyncBefore = $async ? true : false;
     }
 
-    public function isAsyncAfter()
+    public function isAsyncAfter(): bool
     {
         return $this->asyncAfter;
     }
 
-    public function setAsyncAfter($async)
+    public function setAsyncAfter(bool $async): void
     {
         $this->asyncAfter = $async ? true : false;
     }

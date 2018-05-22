@@ -15,6 +15,7 @@ use KoolKode\BPMN\Engine\AbstractQuery;
 use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
 use KoolKode\BPMN\Runtime\EventSubscription;
+use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
 
@@ -50,7 +51,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         $this->engine = $engine;
     }
 
-    public function processDefinitionId($processDefinitionId)
+    public function processDefinitionId($processDefinitionId): self
     {
         $this->populateMultiProperty($this->processDefinitionId, $processDefinitionId, function ($value) {
             return new UUID($value);
@@ -59,23 +60,21 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionKey($key)
+    public function processDefinitionKey(string $key): self
     {
         $this->populateMultiProperty($this->processDefinitionKey, $key);
         
         return $this;
     }
 
-    public function processDefinitionVersion($version)
+    public function processDefinitionVersion(int $version): self
     {
-        $this->populateMultiProperty($this->processDefinitionVersion, $version, function ($value) {
-            return (int) $value;
-        });
+        $this->populateMultiProperty($this->processDefinitionVersion, $version);
         
         return $this;
     }
 
-    public function deploymentId($id)
+    public function deploymentId($id): self
     {
         $this->populateMultiProperty($this->deploymentId, $id, function ($value) {
             return new UUID($value);
@@ -84,7 +83,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function resourceId($id)
+    public function resourceId($id): self
     {
         $this->populateMultiProperty($this->resourceId, $id, function ($value) {
             return new UUID($value);
@@ -93,23 +92,21 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function resourceName($name)
+    public function resourceName(string $name): self
     {
-        $this->populateMultiProperty($this->resourceName, $name, function ($name) {
-            return (string) $name;
-        });
+        $this->populateMultiProperty($this->resourceName, $name);
         
         return $this;
     }
 
-    public function latestVersion()
+    public function latestVersion(): self
     {
         $this->latestVersion = true;
         
         return $this;
     }
 
-    public function messageEventSubscriptionName($name)
+    public function messageEventSubscriptionName(string $name): self
     {
         $this->messageEventSubscriptionNames[] = [];
         $this->populateMultiProperty($this->messageEventSubscriptionNames[count($this->messageEventSubscriptionNames) - 1], $name);
@@ -117,7 +114,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function signalEventSubscriptionName($name)
+    public function signalEventSubscriptionName(string $name): self
     {
         $this->signalEventSubscriptionNames[] = [];
         $this->populateMultiProperty($this->signalEventSubscriptionNames[count($this->signalEventSubscriptionNames) - 1], $name);
@@ -125,7 +122,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDeploymentId($ascending = true)
+    public function orderByDeploymentId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`id`',
@@ -135,7 +132,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDeploymentName($ascending = true)
+    public function orderByDeploymentName(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`name`',
@@ -145,7 +142,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDeployed($ascending = true)
+    public function orderByDeployed(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`deployed_at`',
@@ -155,7 +152,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessName($ascending = true)
+    public function orderByProcessName(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`name`',
@@ -165,7 +162,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessRevision($ascending = true)
+    public function orderByProcessRevision(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`revision`',
@@ -175,7 +172,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionId($ascending = true)
+    public function orderByProcessDefinitionId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`id`',
@@ -185,7 +182,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionKey($ascending = true)
+    public function orderByProcessDefinitionKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`process_key`',
@@ -195,7 +192,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByResourceId($ascending = true)
+    public function orderByResourceId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'r.`id`',
@@ -205,7 +202,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByResourceName($ascending = true)
+    public function orderByResourceName(bool $ascending = true): self
     {
         $this->orderings[] = [
             'r.`name`',
@@ -215,14 +212,14 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $stmt = $this->executeSql(true);
         
         return (int) $stmt->fetchNextColumn(0);
     }
 
-    public function findOne()
+    public function findOne(): ProcessDefinition
     {
         $stmt = $this->executeSql(false, 1);
         $row = $stmt->fetchNextRow();
@@ -234,7 +231,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $this->unserializeProcessDefinition($row);
     }
 
-    public function findAll()
+    public function findAll(): array
     {
         $stmt = $this->executeSql(false, $this->limit, $this->offset);
         $result = [];
@@ -246,12 +243,12 @@ class ProcessDefinitionQuery extends AbstractQuery
         return $result;
     }
 
-    protected function unserializeProcessDefinition(array $row)
+    protected function unserializeProcessDefinition(array $row): ProcessDefinition
     {
         return new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id'], $row['resource_id']);
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             'p.`id`',
@@ -259,7 +256,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         ];
     }
 
-    protected function executeSql($count = false, $limit = 0, $offset = 0)
+    protected function executeSql(bool $count = false, int $limit = 0, int $offset = 0): StatementInterface
     {
         if ($count) {
             $fields = 'COUNT(*) AS num';

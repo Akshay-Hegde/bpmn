@@ -68,7 +68,7 @@ interface JobExecutorInterface
      *
      * @param Job $job
      */
-    public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeInterface $runAt = null);
+    public function scheduleJob(UUID $executionId, $handlerType, $data, \DateTimeImmutable $runAt = null);
 
     /**
      * Execute the given job using the process engine.

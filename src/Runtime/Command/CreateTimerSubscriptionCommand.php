@@ -36,13 +36,13 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
     /**
      * Created a timer event subscription backed by a scheduled job.
      * 
-     * @param \DateTimeInterface $time Schedule date.
+     * @param \DateTimeImmutable $time Schedule date.
      * @param VirtualExecution $execution Target execution.
      * @param string $activityId ID of the activity that created the event subscription.
      * @param Node $node Target node to receive the delegated signal or null in order to use the activity node.
      * @param boolean $boundaryEvent Is this a subscription for a boundary event?
      */
-    public function __construct(\DateTimeInterface $time, VirtualExecution $execution, $activityId, Node $node = null, $boundaryEvent = false)
+    public function __construct(\DateTimeImmutable $time, VirtualExecution $execution, string $activityId, ?Node $node = null, ?bool $boundaryEvent = false)
     {
         parent::__construct('timer', $execution, $activityId, $node, $boundaryEvent);
         
@@ -52,7 +52,7 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $id = UUID::createRandom();
         $execution = $engine->findExecution($this->executionId);
@@ -75,14 +75,12 @@ class CreateTimerSubscriptionCommand extends AbstractCreateSubscriptionCommand
             'execution' => (string) $execution,
             'job' => ($job === null) ? 'null' : (string) $job->getId()
         ]);
-        
-        return $id;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getSubscriptionFlag()
+    protected function getSubscriptionFlag(): int
     {
         return EventSubscription::TYPE_TIMER;
     }

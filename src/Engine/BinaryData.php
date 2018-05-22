@@ -23,7 +23,7 @@ class BinaryData
 
     protected $level;
 
-    public function __construct($data, $level = 1)
+    public function __construct($data, int $level = 1)
     {
         if (is_resource($data)) {
             $data = stream_get_contents($data);
@@ -35,12 +35,12 @@ class BinaryData
         $this->level = (int) $level;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->data;
     }
 
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return [
             'length' => strlen($this->data),
@@ -48,12 +48,12 @@ class BinaryData
         ];
     }
 
-    public function encode()
+    public function encode(): string
     {
         return gzcompress($this->data, $this->level);
     }
 
-    public static function decode($input)
+    public static function decode($input): ?string
     {
         if (is_resource($input)) {
             $input = stream_get_contents($input);

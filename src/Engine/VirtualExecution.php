@@ -25,7 +25,7 @@ class VirtualExecution extends Execution
 {
     protected $businessKey;
 
-    public function __construct(UUID $id, ProcessEngine $engine, ProcessModel $model, VirtualExecution $parentExecution = null)
+    public function __construct(UUID $id, ProcessEngine $engine, ProcessModel $model, ?VirtualExecution $parentExecution = null)
     {
         parent::__construct($id, $engine, $model, $parentExecution);
         
@@ -34,7 +34,7 @@ class VirtualExecution extends Execution
         }
     }
 
-    public function collectSyncData()
+    public function collectSyncData(): array
     {
         $data = parent::collectSyncData();
         
@@ -43,7 +43,7 @@ class VirtualExecution extends Execution
         return $data;
     }
 
-    public function setParentExecution(VirtualExecution $parent = null)
+    public function setParentExecution(?VirtualExecution $parent): void
     {
         if ($parent !== null) {
             $this->parentExecution = $parent;
@@ -56,37 +56,35 @@ class VirtualExecution extends Execution
 
     /**
      * Get the BPMN process engine instance.
-     * 
-     * @return ProcessEngine
      */
-    public function getEngine()
+    public function getEngine(): ProcessEngine
     {
         return parent::getEngine();
     }
 
-    public function getBusinessKey()
+    public function getBusinessKey(): ?string
     {
         return $this->businessKey;
     }
 
-    public function setBusinessKey($businessKey = null)
+    public function setBusinessKey(?string $businessKey): void
     {
         $this->businessKey = ($businessKey === null) ? null : (string) $businessKey;
         
         $this->markModified();
     }
 
-    public function setExecutionState($state)
+    public function setExecutionState(int $state): void
     {
-        $this->state = (int) $state;
+        $this->state = $state;
     }
 
-    public function setTransition(Transition $trans = null)
+    public function setTransition(Transition $trans = null): void
     {
         $this->transition = $trans;
     }
 
-    protected function injectVariablesLocal(array $variables)
+    protected function injectVariablesLocal(array $variables): void
     {
         $this->variables = $variables;
     }

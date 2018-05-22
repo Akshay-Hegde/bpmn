@@ -46,13 +46,10 @@ class SignalThrowingTest extends BusinessProcessTestCase
         $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
     }
 
-    /**
-     * @ServiceTaskHandler("ServiceTask_1", processKey = "SignalThrowingTest")
-     * 
-     * @param DelegateExecutionInterface $execution
-     */
-    public function verifyCounter(DelegateExecutionInterface $execution)
+    protected function verifyCounter(): ServiceTaskHandler
     {
-        $this->assertEquals(9, $execution->getVariable('counter'));
+        return new ServiceTaskHandler('ServiceTask_1', 'SignalThrowingTest', function (DelegateExecutionInterface $execution) {
+            $this->assertEquals(9, $execution->getVariable('counter'));
+        });
     }
 }

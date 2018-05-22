@@ -26,10 +26,10 @@ class GetExecutionVariablesCommand extends AbstractBusinessCommand
 
     protected $local;
 
-    public function __construct(UUID $executionId, $local = false)
+    public function __construct(UUID $executionId, ?bool $local = false)
     {
         $this->executionId = $executionId;
-        $this->local = $local ? true : false;
+        $this->local = $local;
     }
 
     /**
@@ -37,7 +37,7 @@ class GetExecutionVariablesCommand extends AbstractBusinessCommand
      * 
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -45,7 +45,7 @@ class GetExecutionVariablesCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): array
     {
         $execution = $engine->findExecution($this->executionId);
         

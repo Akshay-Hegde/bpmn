@@ -30,7 +30,7 @@ abstract class AbstractActivity implements ActivityInterface
     /**
      * {@inheritdoc}
      */
-    public function execute(Execution $execution)
+    public function execute(Execution $execution): void
     {
         $execution->getEngine()->notify(new ActivityStartedEvent($execution->getNode()->getId(), $execution, $execution->getEngine()));
         
@@ -42,7 +42,7 @@ abstract class AbstractActivity implements ActivityInterface
     /**
      * {@inheritdoc}
      */
-    public function signal(Execution $execution, $signal, array $variables = [], array $delegation = [])
+    public function signal(Execution $execution, $signal, array $variables = [], array $delegation = []): void
     {
         $this->processSignal($execution, $signal, $variables, $delegation);
     }
@@ -50,7 +50,7 @@ abstract class AbstractActivity implements ActivityInterface
     /**
      * {@inheritdoc}
      */
-    public function clearEventSubscriptions(VirtualExecution $execution, $activityId)
+    public function clearEventSubscriptions(VirtualExecution $execution, string $activityId): void
     {
         $engine = $execution->getEngine();
         
@@ -99,7 +99,7 @@ abstract class AbstractActivity implements ActivityInterface
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null) { }
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void { }
 
     /**
      * Process the given signal, roughly equivalent to the signal() method of a SignalableBehavior.
@@ -109,28 +109,23 @@ abstract class AbstractActivity implements ActivityInterface
      * @param array<string, mixed> $variables Signal data.
      * @param array<string, mixed> $delegation Signal delegation data.
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         throw new \RuntimeException(sprintf('Signal <%s> is not supported by activity %s', ($signal === null) ? 'null' : $signal, get_class($this)));
     }
 
     /**
      * Enter the activity, this is roughly equal to calling execute() on standard a behavior.
-     * 
-     * @param VirtualExecution $execution
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $this->leave($execution);
     }
 
     /**
      * Have the given execution leave the activity.
-     * 
-     * @param VirtualExecution $execution
-     * @param array $transitions
      */
-    public function leave(VirtualExecution $execution, array $transitions = null)
+    public function leave(VirtualExecution $execution, ?array $transitions = null): void
     {
         $execution->getEngine()->notify(new ActivityCompletedEvent($execution->getNode()->getId(), $execution, $execution->getEngine()));
         
@@ -141,11 +136,8 @@ abstract class AbstractActivity implements ActivityInterface
 
     /**
      * Pass all variables given to the execution setting them in the executions's scope.
-     * 
-     * @param VirtualExecution $execution
-     * @param array $variables
      */
-    protected function passVariablesToExecution(VirtualExecution $execution, array $variables)
+    protected function passVariablesToExecution(VirtualExecution $execution, array $variables): void
     {
         foreach ($variables as $k => $v) {
             $execution->setVariable($k, $v);
@@ -161,7 +153,7 @@ abstract class AbstractActivity implements ActivityInterface
      * @param array $delegation
      * @return boolean Returns true if the signal could be delegated.
      */
-    protected function delegateSignal(VirtualExecution $execution, $signal, array $variables, array $delegation)
+    protected function delegateSignal(VirtualExecution $execution, ?string $signal, array $variables, array $delegation): bool
     {
         if (empty($delegation['nodeId'])) {
             return false;

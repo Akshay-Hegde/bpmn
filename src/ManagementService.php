@@ -29,12 +29,12 @@ class ManagementService
      * 
      * @return JobQuery
      */
-    public function createJobQuery()
+    public function createJobQuery(): JobQuery
     {
         return new JobQuery($this->engine);
     }
 
-    public function executeJob(UUID $jobId)
+    public function executeJob(UUID $jobId): void
     {
         $executor = $this->engine->getJobExecutor();
         
@@ -49,15 +49,13 @@ class ManagementService
         }
     }
 
-    public function removeJob(UUID $jobId)
+    public function removeJob(UUID $jobId): void
     {
         $this->engine->getJobExecutor()->removeJob($jobId);
     }
 
-    public function setJobRetries(UUID $jobId, $retries)
+    public function setJobRetries(UUID $jobId, int $retries): void
     {
-        $retries = (int) $retries;
-        
         if ($retries < 0) {
             throw new \InvalidArgumentException(sprintf('Job retry count must not be negative'));
         }

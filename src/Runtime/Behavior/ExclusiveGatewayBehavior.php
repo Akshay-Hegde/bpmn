@@ -26,25 +26,23 @@ class ExclusiveGatewayBehavior extends ExclusiveChoiceBehavior
 {
     use BasicAttributesTrait;
 
-    public function setDefaultFlow($flow = null)
+    public function setDefaultFlow(?string $flow)
     {
-        $this->defaultTransition = ($flow === null) ? null : (string) $flow;
+        $this->defaultTransition = $flow;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function execute(Execution $execution)
+    public function execute(Execution $execution): void
     {
         $engine = $execution->getEngine();
         $activityId = $execution->getNode()->getId();
         
         $engine->notify(new ActivityStartedEvent($activityId, $execution, $engine));
         
-        $result = parent::execute($execution);
+        parent::execute($execution);
         
         $engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
-        
-        return $result;
     }
 }

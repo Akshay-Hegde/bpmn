@@ -12,10 +12,11 @@
 namespace KoolKode\BPMN\History;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
+use KoolKode\BPMN\Engine\BinaryData;
 use KoolKode\BPMN\Engine\ProcessEngine;
+use KoolKode\Database\StatementInterface;
 use KoolKode\Database\UUIDTransformer;
 use KoolKode\Util\UUID;
-use KoolKode\BPMN\Engine\BinaryData;
 
 class HistoricProcessInstanceQuery extends AbstractQuery
 {
@@ -40,7 +41,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         $this->engine = $engine;
     }
 
-    public function processInstanceId($id)
+    public function processInstanceId($id): self
     {
         $this->populateMultiProperty($this->processInstanceId, $id, function ($value) {
             return new UUID($value);
@@ -49,7 +50,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionId($id)
+    public function processDefinitionId($id): self
     {
         $this->populateMultiProperty($this->processDefinitionId, $id, function ($value) {
             return new UUID($value);
@@ -58,44 +59,42 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function processDefinitionKey($key)
+    public function processDefinitionKey(string $key): self
     {
-        $this->populateMultiProperty($this->processDefinitionKey, $key, function ($value) {
-            return (string) $value;
-        });
+        $this->populateMultiProperty($this->processDefinitionKey, $key);
         
         return $this;
     }
 
-    public function processBusinessKey($key)
+    public function processBusinessKey(string $key): self
     {
         $this->populateMultiProperty($this->processBusinessKey, $key);
         
         return $this;
     }
 
-    public function startActivityId($id)
+    public function startActivityId(string $id): self
     {
         $this->populateMultiProperty($this->startActivityId, $id);
         
         return $this;
     }
 
-    public function endActivityId($id)
+    public function endActivityId(string $id): self
     {
         $this->populateMultiProperty($this->endActivityId, $id);
         
         return $this;
     }
 
-    public function finished($finished)
+    public function finished(bool $finished): self
     {
-        $this->finished = $finished ? true : false;
+        $this->finished = $finished;
         
         return $this;
     }
 
-    public function orderByProcessBusinessKey($ascending = true)
+    public function orderByProcessBusinessKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`business_key`',
@@ -105,7 +104,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionId($ascending = true)
+    public function orderByProcessDefinitionId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`id`',
@@ -115,7 +114,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByProcessDefinitionKey($ascending = true)
+    public function orderByProcessDefinitionKey(bool $ascending = true): self
     {
         $this->orderings[] = [
             'd.`process_key`',
@@ -125,7 +124,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByStartActivityId($ascending = true)
+    public function orderByStartActivityId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`start_activity`',
@@ -135,7 +134,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByStarted($ascending = true)
+    public function orderByStarted(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`started_at`',
@@ -145,7 +144,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByEndActivityId($ascending = true)
+    public function orderByEndActivityId(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`end_activity`',
@@ -155,7 +154,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByEnded($ascending = true)
+    public function orderByEnded(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`ended_at`',
@@ -165,7 +164,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function orderByDuration($ascending = true)
+    public function orderByDuration(bool $ascending = true): self
     {
         $this->orderings[] = [
             'p.`duration`',
@@ -175,14 +174,14 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $stmt = $this->executeSql(true);
         
         return (int) $stmt->fetchNextColumn(0);
     }
 
-    public function findOne()
+    public function findOne(): HistoricProcessInstance
     {
         $stmt = $this->executeSql(false, 1);
         $row = $stmt->fetchNextRow();
@@ -194,7 +193,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $this->unserializeProcess($row);
     }
 
-    public function findAll()
+    public function findAll(): array
     {
         $stmt = $this->executeSql(false, $this->limit, $this->offset);
         $result = [];
@@ -206,7 +205,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $result;
     }
 
-    protected function unserializeProcess(array $row)
+    protected function unserializeProcess(array $row): HistoricProcessInstance
     {
         $process = new HistoricProcessInstance($row['id'], $row['definition_id'], $row['process_key'], $row['start_activity'], $row['started_at'], unserialize(BinaryData::decode($row['vars'])));
         
@@ -221,7 +220,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         return $process;
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             'p.`id`',
@@ -229,7 +228,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         ];
     }
 
-    protected function executeSql($count = false, $limit = 0, $offset = 0)
+    protected function executeSql(bool $count = false, int $limit = 0, int $offset = 0): StatementInterface
     {
         $fields = [];
         

@@ -32,7 +32,7 @@ class IntermediateTimerDurationBehavior extends AbstractActivity implements Inte
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->waitForSignal();
     }
@@ -40,7 +40,7 @@ class IntermediateTimerDurationBehavior extends AbstractActivity implements Inte
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== 'timer') {
             throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
@@ -54,7 +54,7 @@ class IntermediateTimerDurationBehavior extends AbstractActivity implements Inte
     /**
      * {@inheritdoc}
      */
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $interval = $this->getValue($this->duration, $execution->getExpressionContext());
         

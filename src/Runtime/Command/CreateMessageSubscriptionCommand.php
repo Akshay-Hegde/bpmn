@@ -24,7 +24,7 @@ class CreateMessageSubscriptionCommand extends AbstractCreateSubscriptionCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $this->createSubscription($engine);
         
@@ -37,7 +37,7 @@ class CreateMessageSubscriptionCommand extends AbstractCreateSubscriptionCommand
     /**
      * {@inheritdoc}
      */
-    protected function getSubscriptionFlag()
+    protected function getSubscriptionFlag(): int
     {
         return EventSubscription::TYPE_MESSAGE;
     }

@@ -28,35 +28,35 @@ class CallActivityBehavior extends AbstractScopeActivity
 
     protected $outputs = [];
 
-    public function __construct($activityId, $processDefinitionKey)
+    public function __construct(string $activityId, string $processDefinitionKey)
     {
         parent::__construct($activityId);
         
-        $this->processDefinitionKey = (string) $processDefinitionKey;
+        $this->processDefinitionKey = $processDefinitionKey;
     }
 
-    public function addInput($target, $source)
+    public function addInput(string $target, $source): void
     {
         if ($source instanceof ExpressionInterface) {
-            $this->inputs[(string) $target] = $source;
+            $this->inputs[$target] = $source;
         } else {
-            $this->inputs[(string) $target] = (string) $source;
+            $this->inputs[$target] = (string) $source;
         }
     }
 
-    public function addOutput($target, $source)
+    public function addOutput(string $target, $source): void
     {
         if ($source instanceof ExpressionInterface) {
-            $this->outputs[(string) $target] = $source;
+            $this->outputs[$target] = $source;
         } else {
-            $this->outputs[(string) $target] = (string) $source;
+            $this->outputs[$target] = (string) $source;
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $context = $execution->getExpressionContext();
         $definition = $execution->getEngine()->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionKey($this->processDefinitionKey)->findOne();
@@ -92,7 +92,7 @@ class CallActivityBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($this->delegateSignal($execution, $signal, $variables, $delegation)) {
             return;
@@ -119,13 +119,13 @@ class CallActivityBehavior extends AbstractScopeActivity
             'task' => $this->getStringValue($this->name, $execution->getExpressionContext())
         ]);
         
-        return $this->leave($execution);
+        $this->leave($execution);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function interrupt(VirtualExecution $execution, array $transitions = null)
+    public function interrupt(VirtualExecution $execution, ?array $transitions = null): void
     {
         foreach ($execution->findChildExecutions() as $sub) {
             $sub->terminate(false);

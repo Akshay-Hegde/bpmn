@@ -26,14 +26,14 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
 {
     protected $startNodeId;
 
-    public function __construct($activityId, $attachedTo, $startNodeId)
+    public function __construct(string $activityId, string $attachedTo, string $startNodeId)
     {
         parent::__construct($activityId, $attachedTo);
         
-        $this->startNodeId = (string) $startNodeId;
+        $this->startNodeId = $startNodeId;
     }
 
-    public function createEventSubscriptions(VirtualExecution $execution, $activityId, Node $node = null)
+    public function createEventSubscriptions(VirtualExecution $execution, string $activityId, ?Node $node = null): void
     {
         $startNode = $execution->getProcessModel()->findNode($this->startNodeId);
         $behavior = $startNode->getBehavior();
@@ -45,7 +45,7 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
         $behavior->createEventSubscriptions($execution, $activityId, $execution->getProcessModel()->findNode($this->activityId));
     }
 
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         $startNode = $execution->getProcessModel()->findNode($this->startNodeId);
         
@@ -53,7 +53,9 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
         $scope = $this->findScopeActivity($execution);
         
         if (!$this->isInterrupting()) {
-            return $scope->leaveConcurrent($root, $startNode);
+            $scope->leaveConcurrent($root, $startNode);
+            
+            return;
         }
         
         // Kill all remaining concurrent executions within the scope activity:

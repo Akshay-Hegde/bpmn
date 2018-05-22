@@ -22,17 +22,17 @@ class NoneStartEventBehavior extends AbstractActivity implements StartEventBehav
 {
     protected $subProcessStart;
 
-    public function __construct($subProcessStart = false)
+    public function __construct(bool $subProcessStart = false)
     {
-        $this->subProcessStart = $subProcessStart ? true : false;
+        $this->subProcessStart = $subProcessStart;
     }
 
-    public function isSubProcessStart()
+    public function isSubProcessStart(): bool
     {
         return $this->subProcessStart;
     }
 
-    public function isInterrupting()
+    public function isInterrupting(): bool
     {
         return false;
     }

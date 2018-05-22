@@ -26,7 +26,7 @@ class TaskBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $engine = $execution->getEngine();
         $name = $this->getStringValue($this->name, $execution->getExpressionContext());

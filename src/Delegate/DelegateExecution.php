@@ -12,6 +12,7 @@
 namespace KoolKode\BPMN\Delegate;
 
 use KoolKode\BPMN\Engine\VirtualExecution;
+use KoolKode\Expression\ExpressionContextInterface;
 use KoolKode\Util\UUID;
 
 class DelegateExecution implements DelegateExecutionInterface
@@ -26,7 +27,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getExecutionId()
+    public function getExecutionId(): UUID
     {
         return $this->execution->getId();
     }
@@ -34,7 +35,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getActivityId()
+    public function getActivityId(): ?string
     {
         $node = $this->execution->getNode();
         
@@ -44,7 +45,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getProcessInstanceId()
+    public function getProcessInstanceId(): UUID
     {
         return $this->execution->getRootExecution()->getId();
     }
@@ -52,7 +53,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getProcessDefinitionId()
+    public function getProcessDefinitionId(): UUID
     {
         return new UUID($this->execution->getProcessModel()->getId());
     }
@@ -60,7 +61,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function isProcessInstance()
+    public function isProcessInstance(): bool
     {
         return $this->execution->isRootExecution();
     }
@@ -68,7 +69,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function isActive()
+    public function isActive(): bool
     {
         return $this->execution->isActive();
     }
@@ -76,7 +77,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function isConcurrent()
+    public function isConcurrent(): bool
     {
         return $this->execution->isConcurrent();
     }
@@ -84,7 +85,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function isScope()
+    public function isScope(): bool
     {
         return $this->execution->isScope();
     }
@@ -92,7 +93,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function isScopeRoot()
+    public function isScopeRoot(): bool
     {
         return $this->execution->isScopeRoot();
     }
@@ -100,7 +101,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function isWaiting()
+    public function isWaiting(): bool
     {
         return $this->execution->isWaiting();
     }
@@ -108,7 +109,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getBusinessKey()
+    public function getBusinessKey(): ?string
     {
         return $this->execution->getBusinessKey();
     }
@@ -116,7 +117,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getExpressionContext()
+    public function getExpressionContext(): ExpressionContextInterface
     {
         return $this->execution->getExpressionContext();
     }
@@ -124,7 +125,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasVariable($name)
+    public function hasVariable(string $name): bool
     {
         return $this->execution->hasVariable($name);
     }
@@ -132,7 +133,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function getVariable($name)
+    public function getVariable(string $name)
     {
         if (func_num_args() > 1) {
             return $this->execution->getVariable($name, func_get_arg(1));
@@ -144,7 +145,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function setVariable($name, $value)
+    public function setVariable(string $name, $value): void
     {
         $this->execution->setVariable($name, $value);
     }
@@ -152,7 +153,7 @@ class DelegateExecution implements DelegateExecutionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeVariable($name)
+    public function removeVariable(string $name): void
     {
         $this->execution->removeVariable($name);
     }

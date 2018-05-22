@@ -15,6 +15,7 @@ use KoolKode\BPMN\Runtime\Event\MessageThrownEvent;
 use KoolKode\BPMN\Task\TaskInterface;
 use KoolKode\BPMN\Test\BusinessProcessTestCase;
 use KoolKode\BPMN\Test\MessageHandler;
+use function PHPUnit_Framework_Assert\assertEquals as var_dump;
 
 class EndEventsTest extends BusinessProcessTestCase
 {
@@ -65,13 +66,10 @@ class EndEventsTest extends BusinessProcessTestCase
         $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
     }
 
-    /**
-     * @MessageHandler("messageEndEvent1", processKey = "test2")
-     * 
-     * @param MessageThrownEvent $event
-     */
-    public function verifyMessageEndEvent(MessageThrownEvent $event)
+    protected function verifyMessageEndEvent(): MessageHandler
     {
-        $this->assertEquals('messageEndEvent1', $event->execution->getActivityId());
+        return new MessageHandler('messageEndEvent1', 'test2', function (MessageThrownEvent $event) {
+            $this->assertEquals('messageEndEvent1', $event->execution->getActivityId());
+        });
     }
 }

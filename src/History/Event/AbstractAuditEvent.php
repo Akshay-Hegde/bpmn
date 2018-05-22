@@ -24,7 +24,7 @@ abstract class AbstractAuditEvent extends ProcessEngineEvent
     /**
      * Timestamp of the audit event.
      * 
-     * @var \DateTimeInterface
+     * @var \DateTimeImmutable
      */
     public $timestamp;
 
@@ -34,7 +34,7 @@ abstract class AbstractAuditEvent extends ProcessEngineEvent
      * @param ProcessEngine $engine
      * @param boolean $delay Delay creation of timestamp by 1 millisecond?
      */
-    public function __construct(ProcessEngine $engine, $delay = false)
+    public function __construct(ProcessEngine $engine, ?bool $delay = false)
     {
         if ($delay) {
             usleep(1000);

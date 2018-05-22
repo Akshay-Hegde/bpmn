@@ -41,11 +41,11 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
      * @param string $businessKey
      * @param array $variables
      */
-    public function __construct(ProcessDefinition $definition, Node $startNode, $businessKey = null, array $variables = [])
+    public function __construct(ProcessDefinition $definition, Node $startNode, ?string $businessKey = null, array $variables = [])
     {
         $this->definitionId = $definition->getId();
         $this->startNodeId = $startNode->getId();
-        $this->businessKey = ($businessKey === null) ? null : (string) $businessKey;
+        $this->businessKey = $businessKey;
         $this->variables = serialize($variables);
     }
 
@@ -54,7 +54,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
      * 
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -62,7 +62,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): UUID
     {
         $def = $engine->getRepositoryService()->createProcessDefinitionQuery()->processDefinitionId($this->definitionId)->findOne();
         $definition = $def->getModel();

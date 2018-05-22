@@ -38,7 +38,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
      *
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -46,7 +46,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $task = $engine->getTaskService()->createTaskQuery()->taskId($this->taskId)->findOne();
         

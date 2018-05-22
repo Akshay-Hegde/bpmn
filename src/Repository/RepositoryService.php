@@ -25,22 +25,22 @@ class RepositoryService
         $this->engine = $engine;
     }
 
-    public function createDeploymentQuery()
+    public function createDeploymentQuery(): DeploymentQuery
     {
         return new DeploymentQuery($this->engine);
     }
 
-    public function createProcessDefinitionQuery()
+    public function createProcessDefinitionQuery(): ProcessDefinitionQuery
     {
         return new ProcessDefinitionQuery($this->engine);
     }
 
-    public function createDeployment($name)
+    public function createDeployment(string $name): DeploymentBuilder
     {
         return new DeploymentBuilder($name);
     }
 
-    public function deployProcess(\SplFileInfo $file, $name = null)
+    public function deployProcess(\SplFileInfo $file, ?string $name = null): Deployment
     {
         $builder = new DeploymentBuilder(($name === null) ? $file->getFilename() : $name);
         $builder->addExtensions($file->getExtension());
@@ -49,14 +49,14 @@ class RepositoryService
         return $this->deploy($builder);
     }
 
-    public function deploy(DeploymentBuilder $builder)
+    public function deploy(DeploymentBuilder $builder): Deployment
     {
         $id = $this->engine->executeCommand(new CreateDeploymentCommand($builder));
         
         return $this->createDeploymentQuery()->deploymentId($id)->findOne();
     }
 
-    public function deployProcessBuilder(BusinessProcessBuilder $builder)
+    public function deployProcessBuilder(BusinessProcessBuilder $builder): ProcessDefinition
     {
         return $this->engine->executeCommand(new DeployBusinessProcessCommand($builder));
     }

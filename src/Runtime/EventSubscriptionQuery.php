@@ -176,7 +176,7 @@ class EventSubscriptionQuery extends AbstractQuery
         return $subscription;
     }
 
-    protected function getDefaultOrderBy()
+    protected function getDefaultOrderBy(): array
     {
         return [
             's.`id`',

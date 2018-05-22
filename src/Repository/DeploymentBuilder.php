@@ -11,9 +11,9 @@
 
 namespace KoolKode\BPMN\Repository;
 
-use Psr\Http\Message\StreamInterface;
 use KoolKode\Stream\ResourceInputStream;
 use KoolKode\Stream\StringStream;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Builds a deployment from any number of resources.
@@ -30,22 +30,22 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 
     protected $resources = [];
 
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name;
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->resources);
     }
 
-    public function getIterator()
+    public function getIterator(): \Iterator
     {
         return new \ArrayIterator($this->resources);
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -54,11 +54,8 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
      * Add a file extension that shoul be parsed for BPMN 2.0 process definitions.
      * 
      * The deployment mechanism will parse ".bpmn" files by default.
-     * 
-     * @param mixed $extensions Sinlge extension string or array of extensions.
-     * @return DeploymentBuilder
      */
-    public function addExtensions($extensions)
+    public function addExtensions($extensions): self
     {
         $this->fileExtensions = array_unique(array_merge($this->fileExtensions, array_map('strtolower', (array) $extensions)));
         
@@ -67,11 +64,8 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 
     /**
      * Check if the given file will be parsed for BPMN 2.0 process definitions.
-     * 
-     * @param string $name
-     * @return boolean
      */
-    public function isProcessResource($name)
+    public function isProcessResource(string $name): bool
     {
         return in_array(strtolower(pathinfo($name, PATHINFO_EXTENSION)), $this->fileExtensions);
     }
@@ -81,9 +75,8 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
      * 
      * @param string $name Local path and filename of the resource within the deployment.
      * @param mixed $resource Deployable resource (file), that can be loaded using a stream.
-     * @return DeploymentBuilder
      */
-    public function addResource($name, $resource)
+    public function addResource(string $name, $resource): self
     {
         if ($resource instanceof StreamInterface) {
             $in = $resource;
@@ -103,13 +96,10 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
     /**
      * Add a ZIP archives file contents to the deployment.
      * 
-     * @param string $file
-     * @return Deployment
-     * 
      * @throws \InvalidArgumentException When the given archive could not be found.
      * @throws \RuntimeException When the given archive could not be read.
      */
-    public function addArchive($file)
+    public function addArchive(string $file): self
     {
         if (!is_file($file)) {
             throw new \InvalidArgumentException(sprintf('Archive not found: "%s"', $file));
@@ -159,13 +149,10 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
     /**
      * (Recursively) add a all files from the given directory to the deployment, paths will be relative to the root directory.
      * 
-     * @param string $dir
-     * @return DeploymentBuilder
-     * 
      * @throws \InvalidArgumentException When the given directory was not found.
      * @throws \RuntimeException When the given directory is not readable.
      */
-    public function addDirectory($dir)
+    public function addDirectory(string $dir): self
     {
         $base = @realpath($dir);
         
@@ -186,12 +173,8 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 
     /**
      * Collect all files from the directory, uses recursion to grab files from sub-directories.
-     * 
-     * @param string $dir
-     * @param string $basePath
-     * @return array<string, string>
      */
-    protected function collectFiles($dir, $basePath)
+    protected function collectFiles(string $dir, string $basePath): array
     {
         $files = [];
         $dh = opendir($dir);

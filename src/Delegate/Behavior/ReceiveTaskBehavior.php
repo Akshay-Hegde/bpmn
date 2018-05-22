@@ -28,7 +28,7 @@ class ReceiveTaskBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function enter(VirtualExecution $execution)
+    public function enter(VirtualExecution $execution): void
     {
         $execution->waitForSignal();
     }
@@ -36,7 +36,7 @@ class ReceiveTaskBehavior extends AbstractScopeActivity
     /**
      * {@inheritdoc}
      */
-    public function processSignal(VirtualExecution $execution, $signal, array $variables = [], array $delegation = [])
+    public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== null) {
             throw new \RuntimeException(sprintf('Receive task only supports null-signals, given "%s"', $signal));

@@ -35,17 +35,17 @@ class HistoricProcessInstance implements \JsonSerializable
 
     protected $variables;
 
-    public function __construct(UUID $id, UUID $processDefinitionId, $processDefinitionKey, $startActivityId, \DateTimeInterface $startedAt, array $variables = [])
+    public function __construct(UUID $id, UUID $processDefinitionId, string $processDefinitionKey, string $startActivityId, \DateTimeImmutable $startedAt, array $variables = [])
     {
         $this->id = $id;
         $this->processDefinitionId = $processDefinitionId;
-        $this->processDefinitionKey = (string) $processDefinitionKey;
-        $this->startActivityId = (string) $startActivityId;
+        $this->processDefinitionKey = $processDefinitionKey;
+        $this->startActivityId = $startActivityId;
         $this->startedAt = clone $startedAt;
         $this->variables = $variables;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,
@@ -61,82 +61,82 @@ class HistoricProcessInstance implements \JsonSerializable
         ];
     }
 
-    public function getId()
+    public function getId(): UUID
     {
         return $this->id;
     }
 
-    public function getProcessDefinitionId()
+    public function getProcessDefinitionId(): UUID
     {
         return $this->processDefinitionId;
     }
 
-    public function getProcessDefinitionKey()
+    public function getProcessDefinitionKey(): string
     {
         return $this->processDefinitionKey;
     }
 
-    public function getBusinessKey()
+    public function getBusinessKey(): ?string
     {
         return $this->businessKey;
     }
 
-    public function setBusinessKey($businessKey = null)
+    public function setBusinessKey(?string $businessKey): void
     {
-        $this->businessKey = ($businessKey === null) ? null : (string) $businessKey;
+        $this->businessKey = $businessKey;
     }
 
-    public function getStartActivityId()
+    public function getStartActivityId(): string
     {
         return $this->startActivityId;
     }
 
-    public function getEndActivityId()
+    public function getEndActivityId(): ?string
     {
         return $this->endActivityId;
     }
 
-    public function setEndActivityId($endActivityId = null)
+    public function setEndActivityId(?string $endActivityId): void
     {
-        $this->endActivityId = ($endActivityId === null) ? null : (string) $endActivityId;
+        $this->endActivityId = $endActivityId;
     }
 
-    public function getStartedAt()
+    public function getStartedAt(): \DateTimeImmutable
     {
         return clone $this->startedAt;
     }
 
-    public function getEndedAt()
+    public function getEndedAt(): ?\DateTimeImmutable
     {
-        return ($this->endedAt === null) ? null : clone $this->endedAt;
+        return $this->endedAt;
     }
 
-    public function setEndedAt(\DateTimeInterface $endedAt = null)
+    public function setEndedAt(?\DateTimeImmutable $endedAt): void
     {
-        $this->endedAt = ($endedAt === null) ? null : clone $endedAt;
+        $this->endedAt = $endedAt;
     }
 
-    public function getDuration()
+    public function getDuration(): ?float
     {
         return $this->duration;
     }
 
-    public function setDuration($duration = null)
+    public function setDuration(?float $duration): void
     {
-        $this->duration = ($duration === null) ? null : (float) $duration;
+        $this->duration = $duration;
     }
 
-    public function isFinished()
+    public function isFinished(): bool
     {
         return $this->endedAt !== null;
     }
 
-    public function hasVariable($name)
+    public function hasVariable(string $name): bool
     {
         return array_key_exists($name, $this->variables);
     }
 
-    public function getVariable($name)
+    public function getVariable(string $name)
     {
         if (array_key_exists($name, $this->variables)) {
             return $this->variables[$name];
@@ -149,7 +149,7 @@ class HistoricProcessInstance implements \JsonSerializable
         throw new \OutOfBoundsException(sprintf('Variable "%s" not defined in process instance %s', $name, $this->id));
     }
 
-    public function getVariables()
+    public function getVariables(): array
     {
         return $this->variables;
     }

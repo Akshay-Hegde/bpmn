@@ -30,12 +30,12 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
 
     protected $local;
 
-    public function __construct(UUID $executionId, $variableName, $variableValue, $local = true)
+    public function __construct(UUID $executionId, string $variableName, $variableValue, ?bool $local = true)
     {
         $this->executionId = $executionId;
-        $this->variableName = (string) $variableName;
+        $this->variableName = $variableName;
         $this->variableValue = serialize($variableValue);
-        $this->local = $local ? true : false;
+        $this->local = $local;
     }
 
     /**
@@ -43,7 +43,7 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
      *
      * @codeCoverageIgnore
      */
-    public function isSerializable()
+    public function isSerializable(): bool
     {
         return true;
     }
@@ -51,7 +51,7 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
     /**
      * {@inheritdoc}
      */
-    public function executeCommand(ProcessEngine $engine)
+    public function executeCommand(ProcessEngine $engine): void
     {
         $execution = $engine->findExecution($this->executionId);
         

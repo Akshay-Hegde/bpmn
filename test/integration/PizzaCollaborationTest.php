@@ -72,36 +72,28 @@ class PizzaCollaborationTest extends BusinessProcessTestCase
         $this->taskService->complete($task->getId(), []);
         $this->assertEquals(0, $this->runtimeService->createExecutionQuery()->count());
     }
-
-    /**
-     * @MessageHandler("sendPizzaOrder", processKey = "CustomerOrdersPizza")
-     * 
-     * @param MessageThrownEvent $event
-     */
-    public function sendPizzaOrder(MessageThrownEvent $event)
+    
+    protected function sendPizzaOrder(): MessageHandler
     {
-        $process = $this->runtimeService->startProcessInstanceByMessage('pizzaOrderReceived', $event->execution->getBusinessKey());
-        $this->assertTrue($process instanceof HistoricProcessInstance);
-        $this->assertEquals('PizzaServiceDeliversPizza', $process->getProcessDefinitionKey());
+        return new MessageHandler('sendPizzaOrder', 'CustomerOrdersPizza', function (MessageThrownEvent $event) {
+            $process = $this->runtimeService->startProcessInstanceByMessage('pizzaOrderReceived', $event->execution->getBusinessKey());
+            
+            $this->assertTrue($process instanceof HistoricProcessInstance);
+            $this->assertEquals('PizzaServiceDeliversPizza', $process->getProcessDefinitionKey());
+        });
     }
-
-    /**
-     * @MessageHandler("deliverPizza", processKey = "PizzaServiceDeliversPizza")
-     * 
-     * @param MessageThrownEvent $event
-     */
-    public function deliverPizza(MessageThrownEvent $event)
+    
+    protected function deliverPizza(): MessageHandler
     {
-        $this->runtimeService->createMessageCorrelation('pizzaReceived')->processBusinessKey($event->execution->getBusinessKey())->correlate();
+        return new MessageHandler('deliverPizza', 'PizzaServiceDeliversPizza', function (MessageThrownEvent $event) {
+            $this->runtimeService->createMessageCorrelation('pizzaReceived')->processBusinessKey($event->execution->getBusinessKey())->correlate();
+        });
     }
-
-    /**
-     * @MessageHandler("payForPizza", processKey = "CustomerOrdersPizza")
-     * 
-     * @param MessageThrownEvent $event
-     */
-    public function payForPizza(MessageThrownEvent $event)
+    
+    protected function payForPizza(): MessageHandler
     {
-        $this->runtimeService->createMessageCorrelation('pizzaPaymentReceived')->processBusinessKey($event->execution->getBusinessKey())->correlate();
+        return new MessageHandler('payForPizza', 'CustomerOrdersPizza', function (MessageThrownEvent $event) {
+            $this->runtimeService->createMessageCorrelation('pizzaPaymentReceived')->processBusinessKey($event->execution->getBusinessKey())->correlate();
+        });
     }
 }

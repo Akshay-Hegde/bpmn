@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Repository;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -245,7 +247,16 @@ class ProcessDefinitionQuery extends AbstractQuery
 
     protected function unserializeProcessDefinition(array $row): ProcessDefinition
     {
-        return new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], \unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id'], $row['resource_id']);
+        return new ProcessDefinition(...[
+            $row['id'],
+            $row['process_key'],
+            (int) $row['revision'],
+            \unserialize(BinaryData::decode($row['definition'])),
+            $row['name'],
+            new \DateTimeImmutable('@' . $row['deployed_at']),
+            $row['deployment_id'],
+            $row['resource_id']
+        ]);
     }
 
     protected function getDefaultOrderBy(): array

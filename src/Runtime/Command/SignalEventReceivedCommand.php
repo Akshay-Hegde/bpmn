@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Runtime\Command;
 
 use KoolKode\BPMN\Engine\AbstractBusinessCommand;
@@ -174,7 +176,15 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
         $source = ($this->sourceExecutionId === null) ? null : $engine->findExecution($this->sourceExecutionId);
         
         while ($row = $stmt->fetchNextRow()) {
-            $definition = new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], \unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id']);
+            $definition = new ProcessDefinition(...[
+                $row['id'],
+                $row['process_key'],
+                (int) $row['revision'],
+                \unserialize(BinaryData::decode($row['definition'])),
+                $row['name'],
+                new \DateTimeImmutable('@' . $row['deployed_at']),
+                $row['deployment_id']
+            ]);
             
             $engine->pushCommand(new StartProcessInstanceCommand($definition, $definition->findSignalStartEvent($row['signal_name']), ($source === null) ? null : $source->getBusinessKey(), $vars));
         }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Engine;
 
 use KoolKode\BPMN\ManagementService;
@@ -583,7 +585,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
                         $val = $val ? '1' : '0';
                     }
                     
-                    $value = new UnicodeString(\trim($val));
+                    $value = new UnicodeString(\trim((string) $val));
                     
                     if ($value->length() > 250) {
                         $value = $value->substring(0, 250);

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Task;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -323,7 +325,15 @@ class TaskQuery extends AbstractQuery
 
     protected function unserializeTask(array $row): TaskInterface
     {
-        $task = new Task($row['id'], $row['name'], new \DateTimeImmutable('@' . $row['created_at']), empty($row['claimed_at']) ? null : new \DateTimeImmutable('@' . $row['claimed_at']), $row['claimed_by'], $row['priority'], empty($row['due_at']) ? null : new \DateTimeImmutable('@' . $row['due_at']));
+        $task = new Task(...[
+            $row['id'],
+            $row['name'],
+            new \DateTimeImmutable('@' . $row['created_at']),
+            empty($row['claimed_at']) ? null : new \DateTimeImmutable('@' . $row['claimed_at']),
+            $row['claimed_by'],
+            (int) $row['priority'],
+            empty($row['due_at']) ? null : new \DateTimeImmutable('@' . $row['due_at'])
+        ]);
         
         $task->setDefinitionKey($row['activity']);
         $task->setDocumentation($row['documentation']);

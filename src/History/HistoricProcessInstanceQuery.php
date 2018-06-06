@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\History;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -207,7 +209,14 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 
     protected function unserializeProcess(array $row): HistoricProcessInstance
     {
-        $process = new HistoricProcessInstance($row['id'], $row['definition_id'], $row['process_key'], $row['start_activity'], $row['started_at'], \unserialize(BinaryData::decode($row['vars'])));
+        $process = new HistoricProcessInstance(...[
+            $row['id'],
+            $row['definition_id'],
+            $row['process_key'],
+            $row['start_activity'],
+            $row['started_at'],
+            \unserialize(BinaryData::decode($row['vars']))
+        ]);
         
         $process->setBusinessKey($row['business_key']);
         $process->setEndActivityId($row['end_activity']);

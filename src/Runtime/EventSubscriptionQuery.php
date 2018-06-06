@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Runtime;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -168,7 +170,15 @@ class EventSubscriptionQuery extends AbstractQuery
 
     protected function unserializeSubscription(array $row)
     {
-        $subscription = new EventSubscription($row['id'], $row['execution_id'], $row['process_instance_id'], $row['activity_id'], $row['flags'], $row['name'], new \DateTimeImmutable('@' . $row['created_at']));
+        $subscription = new EventSubscription(...[
+            $row['id'],
+            $row['execution_id'],
+            $row['process_instance_id'],
+            $row['activity_id'],
+            (int) $row['flags'],
+            $row['name'],
+            new \DateTimeImmutable('@' . $row['created_at'])
+        ]);
         
         $subscription->setJobId($row['job_id']);
         $subscription->setBoundaryEvent($row['boundary']);

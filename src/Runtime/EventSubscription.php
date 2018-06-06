@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Runtime;
 
 use KoolKode\Util\UUID;
@@ -44,14 +46,14 @@ class EventSubscription implements \JsonSerializable
 
     protected $boundaryEvent;
 
-    public function __construct(UUID $id, UUID $executionId, UUID $processInstanceId, $activityId, $eventType, $eventName, \DateTimeImmutable $created)
+    public function __construct(UUID $id, UUID $executionId, UUID $processInstanceId, string $activityId, int $eventType, string $eventName, \DateTimeImmutable $created)
     {
         $this->id = $id;
         $this->executionId = $executionId;
         $this->processInstanceId = $processInstanceId;
-        $this->activityId = (string) $activityId;
-        $this->eventType = (int) $eventType;
-        $this->eventName = (string) $eventName;
+        $this->activityId = $activityId;
+        $this->eventType = $eventType;
+        $this->eventName = $eventName;
         $this->created = $created;
     }
 

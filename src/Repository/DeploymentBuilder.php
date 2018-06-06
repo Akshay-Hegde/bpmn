@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Repository;
 
 use KoolKode\Stream\ResourceInputStream;
@@ -82,10 +84,14 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
             $in = $resource;
         } elseif (\is_resource($resource)) {
             $in = new ResourceInputStream($resource);
-        } elseif (\preg_match("'^/|(?:[^:\\\\/]+://)|(?:[a-z]:[\\\\/])'i", $resource)) {
-            $in = ResourceInputStream::fromUrl($resource);
         } else {
-            $in = new StringStream($resource);
+            $resource = (string) $resource;
+            
+            if (\preg_match("'^/|(?:[^:\\\\/]+://)|(?:[a-z]:[\\\\/])'i", $resource)) {
+                $in = ResourceInputStream::fromUrl($resource);
+            } else {
+                $in = new StringStream($resource);
+            }
         }
         
         $this->resources[\trim(\str_replace('\\', '/', $name), '/')] = $in;

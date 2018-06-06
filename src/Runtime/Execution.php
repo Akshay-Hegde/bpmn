@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Runtime;
 
 use KoolKode\BPMN\Repository\ProcessDefinition;
@@ -31,15 +33,15 @@ class Execution implements ExecutionInterface, \JsonSerializable
 
     protected $businessKey;
 
-    public function __construct(ProcessDefinition $definition, UUID $id, UUID $processInstanceId, UUID $parentId = null, $activityId = null, $state = 0, $businessKey = null)
+    public function __construct(ProcessDefinition $definition, UUID $id, UUID $processInstanceId, ?UUID $parentId = null, ?string $activityId = null, int $state = 0, ?string $businessKey = null)
     {
         $this->definition = $definition;
         $this->id = $id;
         $this->parentId = $parentId;
         $this->processInstanceId = $processInstanceId;
-        $this->activityId = ($activityId === null) ? null : (string) $activityId;
-        $this->state = (int) $state;
-        $this->businessKey = ($businessKey === null) ? null : (string) $businessKey;
+        $this->activityId = $activityId;
+        $this->state = $state;
+        $this->businessKey = $businessKey;
     }
 
     public function jsonSerialize()

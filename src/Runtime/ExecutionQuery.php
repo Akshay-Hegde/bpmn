@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Runtime;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -239,9 +241,17 @@ class ExecutionQuery extends AbstractQuery
 
     protected function unserializeExecution(array $row)
     {
-        $def = new ProcessDefinition($row['def_id'], $row['def_key'], $row['def_rev'], \unserialize(BinaryData::decode($row['def_data'])), $row['def_name'], new \DateTimeImmutable('@' . $row['def_deployed']), $row['deployment_id']);
+        $def = new ProcessDefinition(...[
+            $row['def_id'],
+            $row['def_key'],
+            (int) $row['def_rev'],
+            \unserialize(BinaryData::decode($row['def_data'])),
+            $row['def_name'],
+            new \DateTimeImmutable('@' . $row['def_deployed']),
+            $row['deployment_id']
+        ]);
         
-        return new Execution($def, $row['id'], $row['process_id'], $row['pid'], $row['node'], $row['state'], $row['business_key']);
+        return new Execution($def, $row['id'], $row['process_id'], $row['pid'], $row['node'], (int) $row['state'], $row['business_key']);
     }
 
     protected function getDefaultOrderBy(): array

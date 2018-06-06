@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\Job;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -294,7 +296,15 @@ class JobQuery extends AbstractQuery
 
     protected function unserializeJob(array $row): JobInterface
     {
-        $job = new Job($row['id'], $row['execution_id'], $row['handler_type'], \unserialize(BinaryData::decode($row['handler_data'])), new \DateTimeImmutable('@' . $row['created_at']), $row['retries'], $row['lock_owner']);
+        $job = new Job(...[
+            $row['id'],
+            $row['execution_id'],
+            $row['handler_type'],
+            \unserialize(BinaryData::decode($row['handler_data'])),
+            new \DateTimeImmutable('@' . $row['created_at']),
+            (int) $row['retries'],
+            $row['lock_owner']
+        ]);
         
         $job->setExternalId($row['external_id']);
         

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types = 1);
+
 namespace KoolKode\BPMN\History;
 
 use KoolKode\BPMN\Engine\AbstractQuery;
@@ -168,7 +170,15 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 
     protected function unserializeActivity(array $row): HistoricActivityInstance
     {
-        $activity = new HistoricActivityInstance($row['id'], $row['process_id'], $row['definition_id'], $row['process_key'], $row['activity'], $row['name'], $row['started_at']);
+        $activity = new HistoricActivityInstance(...[
+            $row['id'],
+            $row['process_id'],
+            $row['definition_id'],
+            $row['process_key'],
+            $row['activity'],
+            $row['name'],
+            $row['started_at']
+        ]);
         
         $activity->setEndedAt($row['ended_at']);
         
@@ -176,7 +186,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
             $activity->setDuration((float) $row['duration'] / 1000 + .001);
         }
         
-        $activity->setCompleted($row['completed']);
+        $activity->setCompleted($row['completed'] ? true : false);
         
         return $activity;
     }

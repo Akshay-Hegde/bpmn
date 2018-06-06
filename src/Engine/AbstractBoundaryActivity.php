@@ -76,8 +76,15 @@ abstract class AbstractBoundaryActivity extends AbstractActivity
     {
         $engine = $execution->getEngine();
         
+        $node = $execution->getProcessModel()->findNode($this->activityId);
+        $name = '';
+        
+        if ($node->getBehavior() instanceof AbstractActivity) {
+            $name = $node->getBehavior()->getName($execution->getExpressionContext()) ?? '';
+        }
+        
         // Log activity, boundary events do not have a duration > 0.
-        $engine->notify(new ActivityStartedEvent($this->activityId, $execution, $engine));
+        $engine->notify(new ActivityStartedEvent($this->activityId, $name, $execution, $engine));
         $engine->notify(new ActivityCompletedEvent($this->activityId, $execution, $engine));
         
         if ($this->isInterrupting()) {

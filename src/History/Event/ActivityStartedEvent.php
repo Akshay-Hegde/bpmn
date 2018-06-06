@@ -27,6 +27,13 @@ class ActivityStartedEvent extends AbstractAuditEvent
      * @var string
      */
     public $name;
+    
+    /**
+     * Title of the started activity.
+     * 
+     * @var string
+     */
+    public $title;
 
     /**
      * The related execution.
@@ -35,11 +42,12 @@ class ActivityStartedEvent extends AbstractAuditEvent
      */
     public $execution;
 
-    public function __construct(string $name, VirtualExecution $execution, ProcessEngine $engine)
+    public function __construct(string $name, string $title, VirtualExecution $execution, ProcessEngine $engine)
     {
         parent::__construct($engine, true);
         
         $this->name = $name;
+        $this->title = $title;
         $this->execution = $execution;
     }
 }

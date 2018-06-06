@@ -144,6 +144,7 @@ class HistoryService
             'id' => UUID::createRandom(),
             'process_id' => $event->execution->getRootExecution()->getId(),
             'activity' => $event->name,
+            'name' => $event->title,
             'started_at' => DateTimeMillisTransformer::encode($event->timestamp)
         ]);
     }

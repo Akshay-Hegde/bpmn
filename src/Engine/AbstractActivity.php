@@ -32,7 +32,10 @@ abstract class AbstractActivity implements ActivityInterface
      */
     public function execute(Execution $execution): void
     {
-        $execution->getEngine()->notify(new ActivityStartedEvent($execution->getNode()->getId(), $execution, $execution->getEngine()));
+        $node = $execution->getNode();
+        $name = $this->getName($execution->getExpressionContext()) ?? '';
+        
+        $execution->getEngine()->notify(new ActivityStartedEvent($node->getId(), $name, $execution, $execution->getEngine()));
         
         $this->createEventSubscriptions($execution, $execution->getNode()->getId());
         

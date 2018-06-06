@@ -168,7 +168,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
 
     protected function unserializeActivity(array $row): HistoricActivityInstance
     {
-        $activity = new HistoricActivityInstance($row['id'], $row['process_id'], $row['definition_id'], $row['process_key'], $row['activity'], $row['started_at']);
+        $activity = new HistoricActivityInstance($row['id'], $row['process_id'], $row['definition_id'], $row['process_key'], $row['activity'], $row['name'], $row['started_at']);
         
         $activity->setEndedAt($row['ended_at']);
         

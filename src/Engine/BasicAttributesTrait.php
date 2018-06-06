@@ -23,10 +23,20 @@ trait BasicAttributesTrait
     protected $asyncBefore = false;
 
     protected $asyncAfter = false;
+    
+    public function getName(ExpressionContextInterface $context): ?string
+    {
+        return $this->getStringValue($this->name, $context);
+    }
 
     public function setName(?ExpressionInterface $name): void
     {
         $this->name = $name;
+    }
+    
+    public function getDocumentation(ExpressionContextInterface $context): ?string
+    {
+        return $this->getStringValue($this->documentation, $context);
     }
 
     public function setDocumentation(?ExpressionInterface $documentation): void

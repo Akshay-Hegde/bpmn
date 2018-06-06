@@ -14,8 +14,8 @@ namespace KoolKode\BPMN\Runtime\Behavior;
 use KoolKode\BPMN\Engine\BasicAttributesTrait;
 use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
 use KoolKode\BPMN\History\Event\ActivityStartedEvent;
-use KoolKode\Process\Behavior\SyncBehavior;
 use KoolKode\Process\Execution;
+use KoolKode\Process\Behavior\SyncBehavior;
 
 /**
  * Provides join and fork behavior within BPMN processes.
@@ -32,12 +32,14 @@ class ParallelGatewayBehavior extends SyncBehavior
     public function execute(Execution $execution): void
     {
         $engine = $execution->getEngine();
-        $activityId = $execution->getNode()->getId();
+        $id = $execution->getNode()->getId();
         
-        $engine->notify(new ActivityStartedEvent($activityId, $execution, $engine));
+        $name = $this->getStringValue($this->name, $execution->getExpressionContext()) ?? '';
+        
+        $engine->notify(new ActivityStartedEvent($id, $name, $execution, $engine));
         
         parent::execute($execution);
         
-        $engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
+        $engine->notify(new ActivityCompletedEvent($id, $execution, $engine));
     }
 }

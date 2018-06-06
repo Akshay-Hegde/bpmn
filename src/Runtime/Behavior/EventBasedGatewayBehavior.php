@@ -59,7 +59,9 @@ class EventBasedGatewayBehavior extends AbstractActivity
         $engine->notify(new ActivityCompletedEvent($execution->getNode()->getId(), $execution, $engine));
         
         $node = $execution->getProcessModel()->findNode($delegation['nodeId']);
-        $engine->notify(new ActivityStartedEvent($node->getId(), $execution, $engine));
+        $name = $this->getName($execution->getExpressionContext()) ?? '';
+        
+        $engine->notify(new ActivityStartedEvent($node->getId(), $name, $execution, $engine));
         
         $this->delegateSignal($execution, $signal, $variables, $delegation);
     }

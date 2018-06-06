@@ -220,12 +220,12 @@ abstract class BusinessProcessTestCase extends TestCase
 
     public function getHistoryService(): HistoryService
     {
-        return $this->repositoryService;
+        return $this->historyService;
     }
 
     public function getManagementService(): ManagementService
     {
-        return $this->repositoryService;
+        return $this->managementService;
     }
 
     /**

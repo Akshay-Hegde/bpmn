@@ -14,8 +14,8 @@ namespace KoolKode\BPMN\Runtime\Behavior;
 use KoolKode\BPMN\Engine\BasicAttributesTrait;
 use KoolKode\BPMN\History\Event\ActivityCompletedEvent;
 use KoolKode\BPMN\History\Event\ActivityStartedEvent;
-use KoolKode\Process\Behavior\ExclusiveChoiceBehavior;
 use KoolKode\Process\Execution;
+use KoolKode\Process\Behavior\ExclusiveChoiceBehavior;
 
 /**
  * Chooses exactly one outgoing sequence flow.
@@ -37,12 +37,14 @@ class ExclusiveGatewayBehavior extends ExclusiveChoiceBehavior
     public function execute(Execution $execution): void
     {
         $engine = $execution->getEngine();
-        $activityId = $execution->getNode()->getId();
+        $id = $execution->getNode()->getId();
         
-        $engine->notify(new ActivityStartedEvent($activityId, $execution, $engine));
+        $name = $this->getStringValue($this->name, $execution->getExpressionContext()) ?? '';
+        
+        $engine->notify(new ActivityStartedEvent($id, $name, $execution, $engine));
         
         parent::execute($execution);
         
-        $engine->notify(new ActivityCompletedEvent($activityId, $execution, $engine));
+        $engine->notify(new ActivityCompletedEvent($id, $execution, $engine));
     }
 }

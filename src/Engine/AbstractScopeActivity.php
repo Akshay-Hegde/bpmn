@@ -41,7 +41,14 @@ abstract class AbstractScopeActivity extends AbstractActivity
      */
     public function execute(Execution $execution): void
     {
-        $execution->getEngine()->notify(new ActivityStartedEvent($this->activityId, $execution, $execution->getEngine()));
+        $node = $execution->getProcessModel()->findNode($this->activityId);
+        $name = '';
+        
+        if ($node->getBehavior() instanceof AbstractActivity) {
+            $name = $node->getBehavior()->getName($execution->getExpressionContext()) ?? '';
+        }
+        
+        $execution->getEngine()->notify(new ActivityStartedEvent($this->activityId, $name, $execution, $execution->getEngine()));
         
         $execution->getEngine()->info('ENTER: scope <{scope}> at level {level} using {execution}', [
             'scope' => $this->activityId,

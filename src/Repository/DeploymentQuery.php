@@ -127,7 +127,7 @@ class DeploymentQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching deployment found'));
+            throw new \OutOfBoundsException(\sprintf('No matching deployment found'));
         }
         
         return $this->unserializeDeployment($row);
@@ -180,14 +180,14 @@ class DeploymentQuery extends AbstractQuery
         $this->buildPredicate("d.`name`", $this->deploymentName, $where, $params);
         
         if ($this->deployedBefore !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "d.`deployed_at` < :$p1";
             $params[$p1] = $this->deployedBefore;
         }
         
         if ($this->deployedAfter !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "d.`deployed_at` > :$p1";
             $params[$p1] = $this->deployedAfter;
@@ -214,7 +214,7 @@ class DeploymentQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

@@ -72,7 +72,7 @@ class Deployment implements \JsonSerializable
             }
         }
         
-        throw new \OutOfBoundsException(sprintf('Resource %s not found in deployment %s', $id, $this->id));
+        throw new \OutOfBoundsException(\sprintf('Resource %s not found in deployment %s', $id, $this->id));
     }
 
     public function findResource(string $name): DeployedResource
@@ -83,7 +83,7 @@ class Deployment implements \JsonSerializable
             }
         }
         
-        throw new \OutOfBoundsException(sprintf('Resource "%s" not found in deployment %s', $name, $this->id));
+        throw new \OutOfBoundsException(\sprintf('Resource "%s" not found in deployment %s', $name, $this->id));
     }
 
     public function findResources(): array

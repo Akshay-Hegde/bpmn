@@ -133,20 +133,20 @@ class HistoricProcessInstance implements \JsonSerializable
 
     public function hasVariable(string $name): bool
     {
-        return array_key_exists($name, $this->variables);
+        return \array_key_exists($name, $this->variables);
     }
 
     public function getVariable(string $name)
     {
-        if (array_key_exists($name, $this->variables)) {
+        if (\array_key_exists($name, $this->variables)) {
             return $this->variables[$name];
         }
         
-        if (func_num_args() > 1) {
-            return func_get_arg(1);
+        if (\func_num_args() > 1) {
+            return \func_get_arg(1);
         }
         
-        throw new \OutOfBoundsException(sprintf('Variable "%s" not defined in process instance %s', $name, $this->id));
+        throw new \OutOfBoundsException(\sprintf('Variable "%s" not defined in process instance %s', $name, $this->id));
     }
 
     public function getVariables(): array

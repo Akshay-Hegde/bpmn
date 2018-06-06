@@ -219,7 +219,7 @@ class ExecutionQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching execution found'));
+            throw new \OutOfBoundsException(\sprintf('No matching execution found'));
         }
         
         return $this->unserializeExecution($row);
@@ -239,7 +239,7 @@ class ExecutionQuery extends AbstractQuery
 
     protected function unserializeExecution(array $row)
     {
-        $def = new ProcessDefinition($row['def_id'], $row['def_key'], $row['def_rev'], unserialize(BinaryData::decode($row['def_data'])), $row['def_name'], new \DateTimeImmutable('@' . $row['def_deployed']), $row['deployment_id']);
+        $def = new ProcessDefinition($row['def_id'], $row['def_key'], $row['def_rev'], \unserialize(BinaryData::decode($row['def_data'])), $row['def_name'], new \DateTimeImmutable('@' . $row['def_deployed']), $row['deployment_id']);
         
         return new Execution($def, $row['id'], $row['process_id'], $row['pid'], $row['node'], $row['state'], $row['business_key']);
     }
@@ -294,8 +294,8 @@ class ExecutionQuery extends AbstractQuery
         foreach ($this->variableValues as $var) {
             $joins[] = 'INNER JOIN `#__bpmn_execution_variables` AS v' . $alias . " ON (v$alias.`execution_id` = e.`id`)";
             
-            $p1 = 'p' . count($params);
-            $p2 = 'p' . (count($params) + 1);
+            $p1 = 'p' . \count($params);
+            $p2 = 'p' . (\count($params) + 1);
             
             $where[] = "v$alias.`name` = :$p1";
             $params[$p1] = $var->getName();
@@ -303,20 +303,20 @@ class ExecutionQuery extends AbstractQuery
             $val = $var->getValue();
             $field = 'value';
             
-            if (is_bool($val)) {
+            if (\is_bool($val)) {
                 $val = $val ? '1' : '0';
             } else {
                 $val = (new UnicodeString($val))->toLowerCase();
                 
                 if ($val->length() > 250) {
-                    if (!in_array($var->getOperator(), [
+                    if (!\in_array($var->getOperator(), [
                         '=',
                         '<>'
                     ])) {
-                        throw new \RuntimeException(sprintf('Large variable values (more than 250 characters) only support "=" and "<>" operators'));
+                        throw new \RuntimeException(\sprintf('Large variable values (more than 250 characters) only support "=" and "<>" operators'));
                     }
                     
-                    $val = new BinaryData(serialize($val));
+                    $val = new BinaryData(\serialize($val));
                     $field = 'value_blob';
                 }
             }
@@ -330,8 +330,8 @@ class ExecutionQuery extends AbstractQuery
         foreach ($this->signalEventSubscriptionNames as $name) {
             $joins[] = 'INNER JOIN `#__bpmn_event_subscription` AS s' . $alias . " ON (s$alias.`execution_id` = e.`id`)";
             
-            $p1 = 'p' . count($params);
-            $p2 = 'p' . (count($params) + 1);
+            $p1 = 'p' . \count($params);
+            $p2 = 'p' . (\count($params) + 1);
             
             $where[] = "s$alias.`flags` = :$p1";
             $params[$p1] = EventSubscription::TYPE_SIGNAL;
@@ -345,8 +345,8 @@ class ExecutionQuery extends AbstractQuery
         foreach ($this->messageEventSubscriptionNames as $name) {
             $joins[] = 'INNER JOIN `#__bpmn_event_subscription` AS s' . $alias . " ON (s$alias.`execution_id` = e.`id`)";
             
-            $p1 = 'p' . count($params);
-            $p2 = 'p' . (count($params) + 1);
+            $p1 = 'p' . \count($params);
+            $p2 = 'p' . (\count($params) + 1);
             
             $where[] = "s$alias.`flags` = :$p1";
             $params[$p1] = EventSubscription::TYPE_MESSAGE;
@@ -362,7 +362,7 @@ class ExecutionQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

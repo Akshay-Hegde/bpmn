@@ -274,7 +274,7 @@ class JobQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching job found'));
+            throw new \OutOfBoundsException(\sprintf('No matching job found'));
         }
         
         return $this->unserializeJob($row);
@@ -294,7 +294,7 @@ class JobQuery extends AbstractQuery
 
     protected function unserializeJob(array $row): JobInterface
     {
-        $job = new Job($row['id'], $row['execution_id'], $row['handler_type'], unserialize(BinaryData::decode($row['handler_data'])), new \DateTimeImmutable('@' . $row['created_at']), $row['retries'], $row['lock_owner']);
+        $job = new Job($row['id'], $row['execution_id'], $row['handler_type'], \unserialize(BinaryData::decode($row['handler_data'])), new \DateTimeImmutable('@' . $row['created_at']), $row['retries'], $row['lock_owner']);
         
         $job->setExternalId($row['external_id']);
         
@@ -314,13 +314,13 @@ class JobQuery extends AbstractQuery
         $job->setExceptionMessage($row['exception_message']);
         
         if ($row['exception_data'] !== null) {
-            $job->setExceptionData(unserialize(BinaryData::decode($row['exception_data'])));
+            $job->setExceptionData(\unserialize(BinaryData::decode($row['exception_data'])));
         }
         
         $locked = false;
         
         if ($row['lock_owner'] !== null && $row['locked_at'] !== null) {
-            if ($row['locked_at'] > (time() - $this->engine->getJobExecutor()->getLockTimeout())) {
+            if ($row['locked_at'] > (\time() - $this->engine->getJobExecutor()->getLockTimeout())) {
                 $locked = true;
             }
         }
@@ -348,7 +348,7 @@ class JobQuery extends AbstractQuery
             $fields[] = 'j.*';
         }
         
-        $sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_job` AS j';
+        $sql = 'SELECT ' . \implode(', ', $fields) . ' FROM `#__bpmn_job` AS j';
         $sql .= ' LEFT JOIN `#__bpmn_execution` AS e ON (e.`id` = j.`execution_id`)';
         $sql .= ' LEFT JOIN `#__bpmn_process_definition` AS d ON (d.`id` = e.`definition_id`)';
         
@@ -385,7 +385,7 @@ class JobQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

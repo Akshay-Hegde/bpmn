@@ -187,7 +187,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching historic process instance found'));
+            throw new \OutOfBoundsException(\sprintf('No matching historic process instance found'));
         }
         
         return $this->unserializeProcess($row);
@@ -207,7 +207,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
 
     protected function unserializeProcess(array $row): HistoricProcessInstance
     {
-        $process = new HistoricProcessInstance($row['id'], $row['definition_id'], $row['process_key'], $row['start_activity'], $row['started_at'], unserialize(BinaryData::decode($row['vars'])));
+        $process = new HistoricProcessInstance($row['id'], $row['definition_id'], $row['process_key'], $row['start_activity'], $row['started_at'], \unserialize(BinaryData::decode($row['vars'])));
         
         $process->setBusinessKey($row['business_key']);
         $process->setEndActivityId($row['end_activity']);
@@ -240,7 +240,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
             $fields[] = 'd.`process_key`';
         }
         
-        $sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_history_process` AS p';
+        $sql = 'SELECT ' . \implode(', ', $fields) . ' FROM `#__bpmn_history_process` AS p';
         $sql .= ' INNER JOIN `#__bpmn_history_variables` AS v ON (v.`process_id` = p.`id`)';
         $sql .= ' INNER JOIN `#__bpmn_process_definition` AS d ON (p.`definition_id` = d.`id`)';
         
@@ -261,7 +261,7 @@ class HistoricProcessInstanceQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

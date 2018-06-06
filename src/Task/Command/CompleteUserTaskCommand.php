@@ -30,7 +30,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
     public function __construct(UUID $taskId, array $variables = [])
     {
         $this->taskId = $taskId;
-        $this->variables = serialize($variables);
+        $this->variables = \serialize($variables);
     }
 
     /**
@@ -64,7 +64,7 @@ class CompleteUserTaskCommand extends AbstractBusinessCommand
         $executionId = $task->getExecutionId();
         
         if ($executionId !== null) {
-            $engine->findExecution($executionId)->signal('user-task', unserialize($this->variables));
+            $engine->findExecution($executionId)->signal('user-task', \unserialize($this->variables));
         }
     }
 }

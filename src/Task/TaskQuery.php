@@ -303,7 +303,7 @@ class TaskQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching task found'));
+            throw new \OutOfBoundsException(\sprintf('No matching task found'));
         }
         
         return $this->unserializeTask($row);
@@ -385,28 +385,28 @@ class TaskQuery extends AbstractQuery
         }
         
         if ($this->dueBefore !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "t.`due_at` < :$p1";
             $params[$p1] = $this->dueBefore;
         }
         
         if ($this->dueAfter !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "t.`due_at` > :$p1";
             $params[$p1] = $this->dueAfter;
         }
         
         if ($this->taskCreatedBefore !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "t.`created_at` < :$p1";
             $params[$p1] = $this->taskCreatedBefore;
         }
         
         if ($this->taskCreatedAfter !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "t.`created_at` > :$p1";
             $params[$p1] = $this->taskCreatedAfter;
@@ -415,14 +415,14 @@ class TaskQuery extends AbstractQuery
         $this->buildPredicate("t.`priority`", $this->taskPriority, $where, $params);
         
         if ($this->taskMinPriority !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "t.`priority` >= :$p1";
             $params[$p1] = $this->taskMinPriority;
         }
         
         if ($this->taskMaxPriority !== null) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "t.`priority` <= :$p1";
             $params[$p1] = $this->taskMaxPriority;
@@ -433,7 +433,7 @@ class TaskQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

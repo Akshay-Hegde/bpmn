@@ -66,7 +66,7 @@ class DeployedResource implements \JsonSerializable
         $stmt->execute();
         
         if (false === ($row = $stmt->fetchNextRow())) {
-            throw new \OutOfBoundsException(sprintf('Resource %s not found in repository', $this->id));
+            throw new \OutOfBoundsException(\sprintf('Resource %s not found in repository', $this->id));
         }
         
         return BinaryData::decode($row['data']);

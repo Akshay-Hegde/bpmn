@@ -108,16 +108,16 @@ abstract class BusinessProcessTestCase extends TestCase
         $logger = null;
         
         if (null !== ($logLevel = $this->getLogLevel())) {
-            $stderr = fopen('php://stderr', 'wb');
+            $stderr = \fopen('php://stderr', 'wb');
             
-            $levels = array_change_key_case(Logger::getLevels(), CASE_UPPER);
+            $levels = \array_change_key_case(Logger::getLevels(), \CASE_UPPER);
             
             $logger = new Logger('BPMN');
-            $logger->pushHandler(new StreamHandler($stderr, $levels[strtoupper($logLevel)]));
+            $logger->pushHandler(new StreamHandler($stderr, $levels[\strtoupper($logLevel)]));
             $logger->pushProcessor(new PsrLogMessageProcessor());
             
-            fwrite($stderr, "\n");
-            fwrite($stderr, sprintf("TEST CASE: %s\n", $this->getName()));
+            \fwrite($stderr, "\n");
+            \fwrite($stderr, \sprintf("TEST CASE: %s\n", $this->getName()));
             
             //             $this->conn->setDebug(true);
             //             $this->conn->setLogger($logger);
@@ -240,8 +240,8 @@ abstract class BusinessProcessTestCase extends TestCase
 
     protected function deployFile(string $file): Deployment
     {
-        if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
-            $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
+        if (!\preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
+            $file = \dirname((new \ReflectionClass(\get_class($this)))->getFileName()) . \DIRECTORY_SEPARATOR . $file;
         }
         
         return $this->repositoryService->deployProcess(new \SplFileInfo($file));
@@ -249,11 +249,11 @@ abstract class BusinessProcessTestCase extends TestCase
 
     protected function deployDirectory(string $file, array $extensions = []): Deployment
     {
-        if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
-            $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
+        if (!\preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
+            $file = \dirname((new \ReflectionClass(\get_class($this)))->getFileName()) . \DIRECTORY_SEPARATOR . $file;
         }
         
-        $builder = $this->repositoryService->createDeployment(pathinfo($file, PATHINFO_FILENAME));
+        $builder = $this->repositoryService->createDeployment(\pathinfo($file, \PATHINFO_FILENAME));
         $builder->addExtensions($extensions);
         $builder->addDirectory($file);
         
@@ -262,11 +262,11 @@ abstract class BusinessProcessTestCase extends TestCase
 
     protected function deployArchive(string $file, array $extensions = []): Deployment
     {
-        if (!preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
-            $file = dirname((new \ReflectionClass(get_class($this)))->getFileName()) . DIRECTORY_SEPARATOR . $file;
+        if (!\preg_match("'^(?:(?:[a-z]:)|(/+)|([^:]+://))'i", $file)) {
+            $file = \dirname((new \ReflectionClass(\get_class($this)))->getFileName()) . \DIRECTORY_SEPARATOR . $file;
         }
         
-        $builder = $this->repositoryService->createDeployment(pathinfo($file, PATHINFO_FILENAME));
+        $builder = $this->repositoryService->createDeployment(\pathinfo($file, \PATHINFO_FILENAME));
         $builder->addExtensions($extensions);
         $builder->addArchive($file);
         
@@ -303,7 +303,7 @@ abstract class BusinessProcessTestCase extends TestCase
         $node = $exec->getNode();
         $nodeId = ($node === null) ? null : $node->getId();
         
-        printf("%s%s [ %s ]\n", str_repeat('  ', $exec->getExecutionDepth()), $nodeId, $exec->getId());
+        \printf("%s%s [ %s ]\n", \str_repeat('  ', $exec->getExecutionDepth()), $nodeId, $exec->getId());
         
         foreach ($exec->findChildExecutions() as $child) {
             $this->dumpExecution($child);
@@ -318,7 +318,7 @@ abstract class BusinessProcessTestCase extends TestCase
             $query->processInstanceId($processId);
         }
         
-        return array_map(function (HistoricActivityInstance $activity) {
+        return \array_map(function (HistoricActivityInstance $activity) {
             return $activity->getDefinitionKey();
         }, $query->findAll());
     }

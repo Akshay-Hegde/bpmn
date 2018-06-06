@@ -111,7 +111,7 @@ class ProcessDefinition implements \JsonSerializable
             }
         }
         
-        throw new \OutOfBoundsException(sprintf('No none start event found in "%s" revision %u', $this->key, $this->revision));
+        throw new \OutOfBoundsException(\sprintf('No none start event found in "%s" revision %u', $this->key, $this->revision));
     }
 
     public function findMessageStartEvent(string $messageName): Node
@@ -126,7 +126,7 @@ class ProcessDefinition implements \JsonSerializable
             }
         }
         
-        throw new \OutOfBoundsException(sprintf('No "%s" message start event found in "%s" revision %u', $messageName, $this->key, $this->revision));
+        throw new \OutOfBoundsException(\sprintf('No "%s" message start event found in "%s" revision %u', $messageName, $this->key, $this->revision));
     }
 
     public function findSignalStartEvent(string $signalName): Node
@@ -141,6 +141,6 @@ class ProcessDefinition implements \JsonSerializable
             }
         }
         
-        throw new \OutOfBoundsException(sprintf('No "%s" signal start event found in "%s" revision %u', $signalName, $this->key, $this->revision));
+        throw new \OutOfBoundsException(\sprintf('No "%s" signal start event found in "%s" revision %u', $signalName, $this->key, $this->revision));
     }
 }

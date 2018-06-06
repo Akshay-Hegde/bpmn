@@ -39,7 +39,7 @@ abstract class AbstractJobScheduler implements JobSchedulerInterface
     protected function markJobAsScheduled(Job $job, ?string $externalId = null): void
     {
         $stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `scheduled_at` = :scheduled, `external_id` = :ex WHERE `id` = :id");
-        $stmt->bindValue('scheduled', time());
+        $stmt->bindValue('scheduled', \time());
         $stmt->bindValue('ex', $externalId);
         $stmt->bindValue('id', $job->getId());
         $stmt->execute();

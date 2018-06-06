@@ -135,8 +135,8 @@ class DelegateExecution implements DelegateExecutionInterface
      */
     public function getVariable(string $name)
     {
-        if (func_num_args() > 1) {
-            return $this->execution->getVariable($name, func_get_arg(1));
+        if (\func_num_args() > 1) {
+            return $this->execution->getVariable($name, \func_get_arg(1));
         }
         
         return $this->execution->getVariable($name);

@@ -37,7 +37,7 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
 
     public function count(): int
     {
-        return count($this->resources);
+        return \count($this->resources);
     }
 
     public function getIterator(): \Iterator
@@ -57,7 +57,7 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
      */
     public function addExtensions($extensions): self
     {
-        $this->fileExtensions = array_unique(array_merge($this->fileExtensions, array_map('strtolower', (array) $extensions)));
+        $this->fileExtensions = \array_unique(\array_merge($this->fileExtensions, \array_map('strtolower', (array) $extensions)));
         
         return $this;
     }
@@ -67,7 +67,7 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
      */
     public function isProcessResource(string $name): bool
     {
-        return in_array(strtolower(pathinfo($name, PATHINFO_EXTENSION)), $this->fileExtensions);
+        return \in_array(\strtolower(\pathinfo($name, \PATHINFO_EXTENSION)), $this->fileExtensions);
     }
 
     /**
@@ -80,15 +80,15 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
     {
         if ($resource instanceof StreamInterface) {
             $in = $resource;
-        } elseif (is_resource($resource)) {
+        } elseif (\is_resource($resource)) {
             $in = new ResourceInputStream($resource);
-        } elseif (preg_match("'^/|(?:[^:\\\\/]+://)|(?:[a-z]:[\\\\/])'i", $resource)) {
+        } elseif (\preg_match("'^/|(?:[^:\\\\/]+://)|(?:[a-z]:[\\\\/])'i", $resource)) {
             $in = ResourceInputStream::fromUrl($resource);
         } else {
             $in = new StringStream($resource);
         }
         
-        $this->resources[trim(str_replace('\\', '/', $name), '/')] = $in;
+        $this->resources[\trim(\str_replace('\\', '/', $name), '/')] = $in;
         
         return $this;
     }
@@ -101,12 +101,12 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
      */
     public function addArchive(string $file): self
     {
-        if (!is_file($file)) {
-            throw new \InvalidArgumentException(sprintf('Archive not found: "%s"', $file));
+        if (!\is_file($file)) {
+            throw new \InvalidArgumentException(\sprintf('Archive not found: "%s"', $file));
         }
         
-        if (!is_readable($file)) {
-            throw new \RuntimeException(sprintf('Archive not readable: "%s"', $file));
+        if (!\is_readable($file)) {
+            throw new \RuntimeException(\sprintf('Archive not readable: "%s"', $file));
         }
         
         $zip = new \ZipArchive();
@@ -128,16 +128,16 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
                 $resource = $zip->getStream($name);
                 
                 try {
-                    while (!feof($resource)) {
-                        $stream->write(fread($resource, 8192));
+                    while (!\feof($resource)) {
+                        $stream->write(\fread($resource, 8192));
                     }
                     
                     $stream->rewind();
                 } finally {
-                    @fclose($resource);
+                    @\fclose($resource);
                 }
                 
-                $this->resources[trim(str_replace('\\', '/', $name), '/')] = $stream;
+                $this->resources[\trim(\str_replace('\\', '/', $name), '/')] = $stream;
             }
         } finally {
             @$zip->close();
@@ -154,18 +154,18 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
      */
     public function addDirectory(string $dir): self
     {
-        $base = @realpath($dir);
+        $base = @\realpath($dir);
         
-        if (!is_dir($base)) {
-            throw new \InvalidArgumentException(sprintf('Directory not found: "%s"', $dir));
+        if (!\is_dir($base)) {
+            throw new \InvalidArgumentException(\sprintf('Directory not found: "%s"', $dir));
         }
         
-        if (!is_readable($base)) {
-            throw new \RuntimeException(sprintf('Directory not readable: "%s"', $dir));
+        if (!\is_readable($base)) {
+            throw new \RuntimeException(\sprintf('Directory not readable: "%s"', $dir));
         }
         
         foreach ($this->collectFiles($base, '') as $name => $file) {
-            $this->resources[trim(str_replace('\\', '/', $name), '/')] = ResourceInputStream::fromUrl($file);
+            $this->resources[\trim(\str_replace('\\', '/', $name), '/')] = ResourceInputStream::fromUrl($file);
         }
         
         return $this;
@@ -177,28 +177,28 @@ class DeploymentBuilder implements \Countable, \IteratorAggregate
     protected function collectFiles(string $dir, string $basePath): array
     {
         $files = [];
-        $dh = opendir($dir);
+        $dh = \opendir($dir);
         
         try {
-            while (false !== ($entry = readdir($dh))) {
+            while (false !== ($entry = \readdir($dh))) {
                 if ($entry == '.' || $entry == '..') {
                     continue;
                 }
                 
-                $check = $dir . DIRECTORY_SEPARATOR . $entry;
+                $check = $dir . \DIRECTORY_SEPARATOR . $entry;
                 
-                if (is_dir($check)) {
+                if (\is_dir($check)) {
                     foreach ($this->collectFiles($check, $basePath . '/' . $entry) as $k => $v) {
                         $files[$k] = $v;
                     }
-                } elseif (is_file($check)) {
+                } elseif (\is_file($check)) {
                     $files[$basePath . '/' . $entry] = $check;
                 }
             }
             
             return $files;
         } finally {
-            closedir($dh);
+            \closedir($dh);
         }
     }
 }

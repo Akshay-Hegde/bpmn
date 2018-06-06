@@ -38,7 +38,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
     public function __construct(string $signal, ?UUID $executionId = null, array $variables = [], ?VirtualExecution $sourceExecution = null)
     {
         $this->signal = $signal;
-        $this->variables = serialize($variables);
+        $this->variables = \serialize($variables);
         $this->executionId = $executionId;
         $this->sourceExecutionId = ($sourceExecution === null) ? null : $sourceExecution->getId();
     }
@@ -116,14 +116,14 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
                 'flags' => EventSubscription::TYPE_TIMER
             ];
             
-            foreach (array_values($ids) as $i => $tmp) {
-                $where[] = sprintf("(`execution_id` = :e%u AND `activity_id` = :a%u)", $i, $i);
+            foreach (\array_values($ids) as $i => $tmp) {
+                $where[] = \sprintf("(`execution_id` = :e%u AND `activity_id` = :a%u)", $i, $i);
                 
                 $params['e' . $i] = $tmp[0];
                 $params['a' . $i] = $tmp[1];
             }
             
-            $stmt = $engine->prepareQuery($sql . implode(' OR ', $where) . ')');
+            $stmt = $engine->prepareQuery($sql . \implode(' OR ', $where) . ')');
             $stmt->bindAll($params);
             $stmt->transform('job_id', new UUIDTransformer());
             $stmt->execute();
@@ -136,11 +136,11 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
             
             unset($params['flags']);
             
-            $stmt = $engine->prepareQuery("DELETE FROM `#__bpmn_event_subscription` WHERE " . implode(' OR ', $where));
+            $stmt = $engine->prepareQuery("DELETE FROM `#__bpmn_event_subscription` WHERE " . \implode(' OR ', $where));
             $stmt->bindAll($params);
             $count = $stmt->execute();
             
-            $message = sprintf('Cleared {count} event subscription%s related to signal <{signal}>', ($count == 1) ? '' : 's');
+            $message = \sprintf('Cleared {count} event subscription%s related to signal <{signal}>', ($count == 1) ? '' : 's');
             
             $engine->debug($message, [
                 'count' => $count,
@@ -148,7 +148,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
             ]);
         }
         
-        $vars = unserialize($this->variables);
+        $vars = \unserialize($this->variables);
         
         foreach ($executions as $execution) {
             $id = (string) $execution->getId();
@@ -174,7 +174,7 @@ class SignalEventReceivedCommand extends AbstractBusinessCommand
         $source = ($this->sourceExecutionId === null) ? null : $engine->findExecution($this->sourceExecutionId);
         
         while ($row = $stmt->fetchNextRow()) {
-            $definition = new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id']);
+            $definition = new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], \unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id']);
             
             $engine->pushCommand(new StartProcessInstanceCommand($definition, $definition->findSignalStartEvent($row['signal_name']), ($source === null) ? null : $source->getBusinessKey(), $vars));
         }

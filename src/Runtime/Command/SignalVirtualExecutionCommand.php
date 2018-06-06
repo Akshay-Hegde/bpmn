@@ -28,7 +28,7 @@ class SignalVirtualExecutionCommand extends SignalExecutionCommand
     {
         $this->executionId = $executionId;
         $this->signal = $signal;
-        $this->variables = serialize($variables);
-        $this->delegation = serialize($delegation);
+        $this->variables = \serialize($variables);
+        $this->delegation = \serialize($delegation);
     }
 }

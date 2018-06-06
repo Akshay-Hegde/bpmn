@@ -46,12 +46,12 @@ class DelegateTaskBehavior extends AbstractScopeActivity
         $task = $engine->createDelegateTask($typeName);
         
         if (!$task instanceof DelegateTaskInterface) {
-            throw new \RuntimeException('Invalid service task implementation: ' . get_class($task));
+            throw new \RuntimeException('Invalid service task implementation: ' . \get_class($task));
         }
         
         $engine->debug('Execute delegate task "{task}" implemented by <{class}>', [
             'task' => $name,
-            'class' => get_class($task)
+            'class' => \get_class($task)
         ]);
         
         $task->execute(new DelegateExecution($execution));

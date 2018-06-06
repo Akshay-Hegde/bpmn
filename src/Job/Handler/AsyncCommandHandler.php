@@ -58,18 +58,18 @@ class AsyncCommandHandler implements JobHandlerInterface
     public function executeJob(Job $job, VirtualExecution $execution, ProcessEngine $engine): void
     {
         if ($execution->isTerminated()) {
-            throw new \RuntimeException(sprintf('%s is terminated', $execution));
+            throw new \RuntimeException(\sprintf('%s is terminated', $execution));
         }
         
         $data = (array) $job->getHandlerData();
         $command = $data[self::PARAM_COMMAND];
         
         if (!$command instanceof CommandInterface) {
-            throw new \RuntimeException(sprintf('Expecting command, given %s', is_object($command) ? get_class($command) : gettype($command)));
+            throw new \RuntimeException(\sprintf('Expecting command, given %s', \is_object($command) ? \get_class($command) : \gettype($command)));
         }
         
         // Move execution to start node if param is set.
-        if (array_key_exists(self::PARAM_NODE_ID, $data)) {
+        if (\array_key_exists(self::PARAM_NODE_ID, $data)) {
             $execution->setNode($execution->getProcessModel()->findNode($data[self::PARAM_NODE_ID]));
             
             $engine->debug('Moved {execution} to node "{node}"', [
@@ -79,7 +79,7 @@ class AsyncCommandHandler implements JobHandlerInterface
         }
         
         $engine->debug('Executing async command {cmd} using {execution}', [
-            'cmd' => get_class($command),
+            'cmd' => \get_class($command),
             'execution' => (string) $execution
         ]);
         

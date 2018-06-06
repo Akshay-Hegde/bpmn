@@ -32,8 +32,8 @@ class EventBasedGatewayBehavior extends AbstractActivity
         $gateway = $execution->getNode();
         $transitions = $model->findOutgoingTransitions($gateway->getId());
         
-        if (count($transitions) < 2) {
-            throw new \RuntimeException(sprintf('Event based gateway %s must be connected to at least 2 intermediate catch events', $gateway->getId()));
+        if (\count($transitions) < 2) {
+            throw new \RuntimeException(\sprintf('Event based gateway %s must be connected to at least 2 intermediate catch events', $gateway->getId()));
         }
         
         foreach ($transitions as $trans) {
@@ -41,7 +41,7 @@ class EventBasedGatewayBehavior extends AbstractActivity
             $behavior = $eventNode->getBehavior();
             
             if (!$behavior instanceof IntermediateCatchEventInterface) {
-                throw new \RuntimeException(sprintf('Unsupported node behavior found after event based gatetway %s: %s', $execution->getNode()->getId(), get_class($behavior)));
+                throw new \RuntimeException(\sprintf('Unsupported node behavior found after event based gatetway %s: %s', $execution->getNode()->getId(), \get_class($behavior)));
             }
             
             $behavior->createEventSubscriptions($execution, $execution->getNode()->getId(), $eventNode);

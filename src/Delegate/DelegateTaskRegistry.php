@@ -17,7 +17,7 @@ class DelegateTaskRegistry implements DelegateTaskFactoryInterface
 
     public function registerTask(DelegateTaskInterface $task, ?string $typeName = null): void
     {
-        $this->tasks[($typeName === null) ? get_class($task) : (string) $typeName] = $task;
+        $this->tasks[($typeName === null) ? \get_class($task) : (string) $typeName] = $task;
     }
 
     /**
@@ -29,6 +29,6 @@ class DelegateTaskRegistry implements DelegateTaskFactoryInterface
             return $this->tasks[$typeName];
         }
         
-        throw new \OutOfBoundsException(sprintf('No such delegate task registered: %s', $typeName));
+        throw new \OutOfBoundsException(\sprintf('No such delegate task registered: %s', $typeName));
     }
 }

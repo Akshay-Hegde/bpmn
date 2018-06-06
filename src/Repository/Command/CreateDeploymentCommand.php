@@ -32,7 +32,7 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
         $name = $this->builder->getName();
         
         if ($this->builder->count() < 1) {
-            throw new \RuntimeException(sprintf('Cannot deploy "%s" because it does not contain any resources', $name));
+            throw new \RuntimeException(\sprintf('Cannot deploy "%s" because it does not contain any resources', $name));
         }
         
         $id = UUID::createRandom();
@@ -40,7 +40,7 @@ class CreateDeploymentCommand extends AbstractBusinessCommand
         $stmt = $engine->prepareQuery("INSERT INTO `#__bpmn_deployment` (`id`, `name`, `deployed_at`) VALUES (:id, :name, :time)");
         $stmt->bindValue('id', $id);
         $stmt->bindValue('name', $name);
-        $stmt->bindValue('time', time());
+        $stmt->bindValue('time', \time());
         $stmt->execute();
         
         $engine->info('Created deployment "{name}" with identifier <{id}>', [

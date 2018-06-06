@@ -86,7 +86,7 @@ class CreateUserTaskCommand extends AbstractBusinessCommand
         $stmt->bindValue('name', $this->name);
         $stmt->bindValue('doc', $this->documentation);
         $stmt->bindValue('activity', $activityId);
-        $stmt->bindValue('created', time());
+        $stmt->bindValue('created', \time());
         $stmt->bindValue('priority', $this->priority);
         $stmt->bindValue('due', $this->dueDate);
         $stmt->execute();

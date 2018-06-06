@@ -46,7 +46,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
         $this->definitionId = $definition->getId();
         $this->startNodeId = $startNode->getId();
         $this->businessKey = $businessKey;
-        $this->variables = serialize($variables);
+        $this->variables = \serialize($variables);
     }
 
     /**
@@ -73,7 +73,7 @@ class StartProcessInstanceCommand extends AbstractBusinessCommand
         $process->setBusinessKey($this->businessKey);
         $process->setNode($startNode);
         
-        foreach (unserialize($this->variables) as $k => $v) {
+        foreach (\unserialize($this->variables) as $k => $v) {
             $process->setVariable($k, $v);
         }
         

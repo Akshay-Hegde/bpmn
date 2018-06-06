@@ -148,7 +148,7 @@ class EventSubscriptionQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching event subscription found'));
+            throw new \OutOfBoundsException(\sprintf('No matching event subscription found'));
         }
         
         return $this->unserializeSubscription($row);
@@ -216,7 +216,7 @@ class EventSubscriptionQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

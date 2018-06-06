@@ -44,7 +44,7 @@ class IntermediateMessageCatchBehavior extends AbstractActivity implements Inter
     public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== $this->message) {
-            throw new \RuntimeException(sprintf('Catch event awaits message "%s", unable to process signal "%s"', $this->message, $signal));
+            throw new \RuntimeException(\sprintf('Catch event awaits message "%s", unable to process signal "%s"', $this->message, $signal));
         }
         
         $this->passVariablesToExecution($execution, $variables);

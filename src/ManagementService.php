@@ -45,7 +45,7 @@ class ManagementService
         $jobs = $this->createJobQuery()->jobId($jobId)->findAll();
         
         if (!empty($jobs)) {
-            $executor->executeJob(array_pop($jobs));
+            $executor->executeJob(\array_pop($jobs));
         }
     }
 
@@ -57,7 +57,7 @@ class ManagementService
     public function setJobRetries(UUID $jobId, int $retries): void
     {
         if ($retries < 0) {
-            throw new \InvalidArgumentException(sprintf('Job retry count must not be negative'));
+            throw new \InvalidArgumentException(\sprintf('Job retry count must not be negative'));
         }
         
         $stmt = $this->engine->prepareQuery("UPDATE `#__bpmn_job` SET `retries` = :retries WHERE `id` = :id");

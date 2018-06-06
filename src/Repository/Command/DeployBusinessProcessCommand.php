@@ -62,7 +62,7 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
         
         $model = $this->builder->build();
         $id = $model->getId();
-        $time = time();
+        $time = \time();
         
         $sql = "
             INSERT INTO `#__bpmn_process_definition`
@@ -76,7 +76,7 @@ class DeployBusinessProcessCommand extends AbstractBusinessCommand
         $stmt->bindValue('resource', $this->resourceId);
         $stmt->bindValue('key', $this->builder->getKey());
         $stmt->bindValue('revision', $revision + 1);
-        $stmt->bindValue('model', new BinaryData(serialize($model), 3));
+        $stmt->bindValue('model', new BinaryData(\serialize($model), 3));
         $stmt->bindValue('name', $model->getTitle());
         $stmt->bindValue('deployed', $time);
         $stmt->execute();

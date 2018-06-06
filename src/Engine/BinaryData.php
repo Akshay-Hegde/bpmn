@@ -25,8 +25,8 @@ class BinaryData
 
     public function __construct($data, int $level = 1)
     {
-        if (is_resource($data)) {
-            $data = stream_get_contents($data);
+        if (\is_resource($data)) {
+            $data = \stream_get_contents($data);
         } elseif ($data instanceof StreamInterface) {
             $data = $data->getContents();
         }
@@ -43,26 +43,26 @@ class BinaryData
     public function __debugInfo(): array
     {
         return [
-            'length' => strlen($this->data),
+            'length' => \strlen($this->data),
             'compressionLevel' => $this->level
         ];
     }
 
     public function encode(): string
     {
-        return gzcompress($this->data, $this->level);
+        return \gzcompress($this->data, $this->level);
     }
 
     public static function decode($input): ?string
     {
-        if (is_resource($input)) {
-            $input = stream_get_contents($input);
+        if (\is_resource($input)) {
+            $input = \stream_get_contents($input);
         }
         
         if ($input === null || '' === (string) $input) {
             return null;
         }
         
-        return gzuncompress($input);
+        return \gzuncompress($input);
     }
 }

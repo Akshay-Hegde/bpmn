@@ -109,7 +109,7 @@ class ProcessDefinitionQuery extends AbstractQuery
     public function messageEventSubscriptionName(string $name): self
     {
         $this->messageEventSubscriptionNames[] = [];
-        $this->populateMultiProperty($this->messageEventSubscriptionNames[count($this->messageEventSubscriptionNames) - 1], $name);
+        $this->populateMultiProperty($this->messageEventSubscriptionNames[\count($this->messageEventSubscriptionNames) - 1], $name);
         
         return $this;
     }
@@ -117,7 +117,7 @@ class ProcessDefinitionQuery extends AbstractQuery
     public function signalEventSubscriptionName(string $name): self
     {
         $this->signalEventSubscriptionNames[] = [];
-        $this->populateMultiProperty($this->signalEventSubscriptionNames[count($this->signalEventSubscriptionNames) - 1], $name);
+        $this->populateMultiProperty($this->signalEventSubscriptionNames[\count($this->signalEventSubscriptionNames) - 1], $name);
         
         return $this;
     }
@@ -225,7 +225,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching process definition found'));
+            throw new \OutOfBoundsException(\sprintf('No matching process definition found'));
         }
         
         return $this->unserializeProcessDefinition($row);
@@ -245,7 +245,7 @@ class ProcessDefinitionQuery extends AbstractQuery
 
     protected function unserializeProcessDefinition(array $row): ProcessDefinition
     {
-        return new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id'], $row['resource_id']);
+        return new ProcessDefinition($row['id'], $row['process_key'], $row['revision'], \unserialize(BinaryData::decode($row['definition'])), $row['name'], new \DateTimeImmutable('@' . $row['deployed_at']), $row['deployment_id'], $row['resource_id']);
     }
 
     protected function getDefaultOrderBy(): array
@@ -286,7 +286,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         foreach ((array) $this->messageEventSubscriptionNames as $name) {
             $joins[] = "INNER JOIN `#__bpmn_process_subscription` AS s$alias ON (s$alias.`definition_id` = p.`id`)";
             
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "s$alias.`flags` = :$p1";
             $params[$p1] = EventSubscription::TYPE_MESSAGE;
@@ -299,7 +299,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         foreach ((array) $this->signalEventSubscriptionNames as $name) {
             $joins[] = "INNER JOIN `#__bpmn_process_subscription` AS s$alias ON (s$alias.`definition_id` = p.`id`)";
             
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $where[] = "s$alias.`flags` = :$p1";
             $params[$p1] = EventSubscription::TYPE_SIGNAL;
@@ -325,7 +325,7 @@ class ProcessDefinitionQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

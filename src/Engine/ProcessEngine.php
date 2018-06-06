@@ -104,7 +104,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
             'transactional' => $this->handleTransactions,
             'executionDepth' => $this->executionDepth,
             'executionCount' => $this->executionCount,
-            'executions' => array_values($this->executions)
+            'executions' => \array_values($this->executions)
         ];
     }
 
@@ -195,7 +195,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
 
     public function unregisterExecutionInterceptor(ExecutionInterceptorInterface $interceptor): ExecutionInterceptorInterface
     {
-        if (false !== ($index = array_search($interceptor, $this->interceptors, true))) {
+        if (false !== ($index = \array_search($interceptor, $this->interceptors, true))) {
             unset($this->interceptors[$index]);
         }
         
@@ -379,14 +379,14 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         $rows = $stmt->fetchRows();
         
         if (empty($rows)) {
-            throw new \OutOfBoundsException(sprintf('Execution not found: "%s"', $ref));
+            throw new \OutOfBoundsException(\sprintf('Execution not found: "%s"', $ref));
         }
         
         $processId = $rows[0]['process_id'];
         $definitions = [];
         
         foreach ($rows as $row) {
-            $definitions[(string) $row['definition_id']] = unserialize(BinaryData::decode($row['definition']));
+            $definitions[(string) $row['definition_id']] = \unserialize(BinaryData::decode($row['definition']));
         }
         
         // Select (and lock) all execution rows of the process instance using a pessimistic lock.
@@ -417,7 +417,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
             $defId = (string) $row['definition_id'];
             
             if (empty($definitions[$defId])) {
-                throw new \OutOfBoundsException(sprintf('Missing process definition "%s" referenced from execution "%s"', $defId, $id));
+                throw new \OutOfBoundsException(\sprintf('Missing process definition "%s" referenced from execution "%s"', $defId, $id));
             }
             
             $definition = $definitions[$defId];
@@ -449,13 +449,13 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         if (!empty($variables)) {
             $params = [];
             
-            foreach (array_keys($variables) as $i => $k) {
+            foreach (\array_keys($variables) as $i => $k) {
                 $params['p' . $i] = new UUID($k);
             }
             
-            $placeholders = implode(', ', array_map(function ($p) {
+            $placeholders = \implode(', ', \array_map(function ($p) {
                 return ':' . $p;
-            }, array_keys($params)));
+            }, \array_keys($params)));
             
             $sql = "
                 SELECT `execution_id`, `name`, `value_blob`
@@ -468,7 +468,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
             $stmt->execute();
             
             while (false !== ($row = $stmt->fetchNextRow())) {
-                $variables[(string) $row['execution_id']][$row['name']] = unserialize(BinaryData::decode($row['value_blob']));
+                $variables[(string) $row['execution_id']][$row['name']] = \unserialize(BinaryData::decode($row['value_blob']));
             }
         }
         
@@ -483,7 +483,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         }
         
         if (empty($this->executions[$ref])) {
-            throw new \OutOfBoundsException(sprintf('Execution not found: "%s"', $ref));
+            throw new \OutOfBoundsException(\sprintf('Execution not found: "%s"', $ref));
         }
         
         return $this->executions[$ref];
@@ -576,14 +576,14 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
             foreach ($delta[Execution::SYNC_STATE_MODIFIED] as $k) {
                 $value = null;
                 
-                if (is_scalar($syncData['variables'][$k])) {
+                if (\is_scalar($syncData['variables'][$k])) {
                     $val = $syncData['variables'][$k];
                     
-                    if (is_bool($val)) {
+                    if (\is_bool($val)) {
                         $val = $val ? '1' : '0';
                     }
                     
-                    $value = new UnicodeString(trim($val));
+                    $value = new UnicodeString(\trim($val));
                     
                     if ($value->length() > 250) {
                         $value = $value->substring(0, 250);
@@ -596,7 +596,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
                     'execution_id' => $execution->getId(),
                     'name' => $k,
                     'value' => $value,
-                    'value_blob' => new BinaryData(serialize($syncData['variables'][$k]))
+                    'value_blob' => new BinaryData(\serialize($syncData['variables'][$k]))
                 ]);
             }
         }
@@ -615,7 +615,7 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         $syncData = empty($syncData['variables']) ? [] : $syncData['variables'];
         
         foreach ($vars as $k => $v) {
-            if (!array_key_exists($k, $syncData)) {
+            if (!\array_key_exists($k, $syncData)) {
                 $result[0][$k] = true;
                 continue;
             }
@@ -632,8 +632,8 @@ class ProcessEngine extends AbstractEngine implements ProcessEngineInterface
         }
         
         return [
-            Execution::SYNC_STATE_REMOVED => array_unique(array_keys(array_merge($result[0], $result[1]))),
-            Execution::SYNC_STATE_MODIFIED => array_keys($result[1])
+            Execution::SYNC_STATE_REMOVED => \array_unique(\array_keys(\array_merge($result[0], $result[1]))),
+            Execution::SYNC_STATE_MODIFIED => \array_keys($result[1])
         ];
     }
 }

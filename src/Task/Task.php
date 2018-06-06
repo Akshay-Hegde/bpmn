@@ -132,7 +132,7 @@ class Task implements TaskInterface, \JsonSerializable
 
     public function setDocumentation(string $documentation): void
     {
-        $this->documentation = trim($documentation);
+        $this->documentation = \trim($documentation);
     }
 
     /**

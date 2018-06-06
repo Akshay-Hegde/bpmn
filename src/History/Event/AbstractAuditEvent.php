@@ -37,10 +37,10 @@ abstract class AbstractAuditEvent extends ProcessEngineEvent
     public function __construct(ProcessEngine $engine, ?bool $delay = false)
     {
         if ($delay) {
-            usleep(1000);
+            \usleep(1000);
         }
         
         $this->engine = $engine;
-        $this->timestamp = \DateTimeImmutable::createFromFormat('U.u', sprintf('%0.3f', microtime(true)));
+        $this->timestamp = \DateTimeImmutable::createFromFormat('U.u', \sprintf('%0.3f', \microtime(true)));
     }
 }

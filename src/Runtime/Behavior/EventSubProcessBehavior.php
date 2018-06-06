@@ -39,7 +39,7 @@ class EventSubProcessBehavior extends AbstractBoundaryActivity
         $behavior = $startNode->getBehavior();
         
         if (!$behavior instanceof ActivityInterface) {
-            throw new \InvalidArgumentException(sprintf('Start node %s cannot subscribe to event', $startNode->getId()));
+            throw new \InvalidArgumentException(\sprintf('Start node %s cannot subscribe to event', $startNode->getId()));
         }
         
         $behavior->createEventSubscriptions($execution, $activityId, $execution->getProcessModel()->findNode($this->activityId));

@@ -105,7 +105,7 @@ abstract class AbstractCreateSubscriptionCommand extends AbstractBusinessCommand
             'flags' => $this->getSubscriptionFlag(),
             'boundary' => $this->boundaryEvent ? 1 : 0,
             'name' => $this->name,
-            'created_at' => time()
+            'created_at' => \time()
         ];
         
         if ($job !== null) {

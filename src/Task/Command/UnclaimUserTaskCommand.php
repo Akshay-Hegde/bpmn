@@ -48,7 +48,7 @@ class UnclaimUserTaskCommand extends AbstractBusinessCommand
         $task = $engine->getTaskService()->createTaskQuery()->taskId($this->taskId)->findOne();
         
         if (!$task->isClaimed()) {
-            throw new \RuntimeException(sprintf('User task %s is not claimed', $task->getId()));
+            throw new \RuntimeException(\sprintf('User task %s is not claimed', $task->getId()));
         }
         
         $sql = "

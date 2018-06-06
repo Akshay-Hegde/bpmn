@@ -67,7 +67,7 @@ trait BasicAttributesTrait
             return null;
         }
         
-        if (is_numeric($value)) {
+        if (\is_numeric($value)) {
             return new \DateTimeImmutable('@' . $value);
         }
         

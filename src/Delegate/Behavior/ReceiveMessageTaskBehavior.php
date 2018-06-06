@@ -49,7 +49,7 @@ class ReceiveMessageTaskBehavior extends AbstractScopeActivity implements Interm
     public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== $this->message) {
-            throw new \RuntimeException(sprintf('Receive task awaits message "%s", unable to process signal "%s"', $this->message, $signal));
+            throw new \RuntimeException(\sprintf('Receive task awaits message "%s", unable to process signal "%s"', $this->message, $signal));
         }
         
         $this->passVariablesToExecution($execution, $variables);

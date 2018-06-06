@@ -43,7 +43,7 @@ class IntermediateTimerDurationBehavior extends AbstractActivity implements Inte
     public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
         if ($signal !== 'timer') {
-            throw new \RuntimeException(sprintf('Timer catch event cannot process signal "%s"', $signal));
+            throw new \RuntimeException(\sprintf('Timer catch event cannot process signal "%s"', $signal));
         }
         
         $this->passVariablesToExecution($execution, $variables);

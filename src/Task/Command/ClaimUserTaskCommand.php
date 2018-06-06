@@ -51,7 +51,7 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand
         $task = $engine->getTaskService()->createTaskQuery()->taskId($this->taskId)->findOne();
         
         if ($task->isClaimed()) {
-            throw new \RuntimeException(sprintf('User task %s is already claimed by %s', $task->getId(), $task->getAssignee()));
+            throw new \RuntimeException(\sprintf('User task %s is already claimed by %s', $task->getId(), $task->getAssignee()));
         }
         
         $sql = "
@@ -61,7 +61,7 @@ class ClaimUserTaskCommand extends AbstractBusinessCommand
             WHERE `id` = :id
         ";
         $stmt = $engine->prepareQuery($sql);
-        $stmt->bindValue('time', time());
+        $stmt->bindValue('time', \time());
         $stmt->bindValue('assignee', $this->assignee);
         $stmt->bindValue('id', $task->getId());
         $stmt->execute();

@@ -78,7 +78,7 @@ class UserTaskBehavior extends AbstractScopeActivity
         }
         
         if ($signal !== 'user-task') {
-            throw new \RuntimeException(sprintf('User task cannot process signal "%s"', $signal));
+            throw new \RuntimeException(\sprintf('User task cannot process signal "%s"', $signal));
         }
         
         $this->passVariablesToExecution($execution, $variables);
@@ -103,9 +103,9 @@ class UserTaskBehavior extends AbstractScopeActivity
             $params['e' . ++$i] = $child->getId();
         }
         
-        $placeholders = implode(', ', array_map(function ($p) {
+        $placeholders = \implode(', ', \array_map(function ($p) {
             return ':' . $p;
-        }, array_keys($params)));
+        }, \array_keys($params)));
         
         $stmt = $engine->prepareQuery("SELECT `id` FROM `#__bpmn_user_task` WHERE `execution_id` IN ($placeholders)");
         $stmt->bindAll($params);

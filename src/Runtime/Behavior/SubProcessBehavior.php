@@ -49,7 +49,11 @@ class SubProcessBehavior extends AbstractScopeActivity
         $startNode = $model->findNode($this->startNodeId);
         
         if (!$startNode->getBehavior() instanceof NoneStartEventBehavior) {
-            throw new \RuntimeException(sprintf('Cannot start sub process %s ("%s") because it is missing start node %s', $execution->getNode()->getId(), $this->getStringValue($this->name, $execution->getExpressionContext()), $this->startNodeId));
+            throw new \RuntimeException(\vsprintf('Cannot start sub process %s ("%s") because it is missing start node %s', [
+                $execution->getNode()->getId(),
+                $this->getStringValue($this->name, $execution->getExpressionContext()),
+                $this->startNodeId
+            ]));
         }
         
         $execution->waitForSignal();
@@ -77,7 +81,7 @@ class SubProcessBehavior extends AbstractScopeActivity
         $sub = $execution->getEngine()->findExecution($delegation['executionId']);
         
         if (!$sub instanceof VirtualExecution) {
-            throw new \RuntimeException(sprintf('Missing nested execution being signaled'));
+            throw new \RuntimeException(\sprintf('Missing nested execution being signaled'));
         }
         
         $execution->getEngine()->debug('Resuming {execution} after sub process "{process}"', [

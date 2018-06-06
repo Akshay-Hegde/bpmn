@@ -22,7 +22,7 @@ abstract class AbstractQuery
     public function limit(int $limit): self
     {
         if ($limit < 1) {
-            throw new \InvalidArgumentException(sprintf('Limit must be greater than 0, given %s', $limit));
+            throw new \InvalidArgumentException(\sprintf('Limit must be greater than 0, given %s', $limit));
         }
         
         $this->limit = $limit;
@@ -33,7 +33,7 @@ abstract class AbstractQuery
     public function offset(int $offset): self
     {
         if ($offset < 0) {
-            throw new \InvalidArgumentException(sprintf('Offset must not be nagtive, given %s', $offset));
+            throw new \InvalidArgumentException(\sprintf('Offset must not be nagtive, given %s', $offset));
         }
         
         $this->offset = $offset;
@@ -43,7 +43,7 @@ abstract class AbstractQuery
 
     protected function populateMultiProperty(& $prop, $value, ?callable $converter = null): self
     {
-        if (is_array($value) || $value instanceof \Traversable) {
+        if (\is_array($value) || $value instanceof \Traversable) {
             $prop = [];
             
             foreach ($value as $tmp) {
@@ -60,14 +60,14 @@ abstract class AbstractQuery
 
     protected function buildPredicate(string $name, $values, array & $where, array & $params): void
     {
-        if ($values === null || (is_array($values) && empty($values))) {
+        if ($values === null || (\is_array($values) && empty($values))) {
             return;
         }
         
-        if (count($values) == 1) {
-            $p1 = 'p' . count($params);
+        if (\count($values) == 1) {
+            $p1 = 'p' . \count($params);
             
-            $where[] = sprintf('%s = :%s', $name, $p1);
+            $where[] = \sprintf('%s = :%s', $name, $p1);
             $params[$p1] = $values[0];
             
             return;
@@ -76,13 +76,13 @@ abstract class AbstractQuery
         $ph = [];
         
         foreach ($values as $value) {
-            $p1 = 'p' . count($params);
+            $p1 = 'p' . \count($params);
             
             $ph[] = ":$p1";
             $params[$p1] = $value;
         }
         
-        $where[] = sprintf('%s IN (%s)', $name, implode(', ', $ph));
+        $where[] = \sprintf('%s IN (%s)', $name, \implode(', ', $ph));
     }
 
     protected abstract function getDefaultOrderBy(): array;
@@ -102,7 +102,7 @@ abstract class AbstractQuery
                 $sql .= ', ';
             }
             
-            $sql .= vsprintf('%s %s', $order);
+            $sql .= \vsprintf('%s %s', $order);
         }
         
         return $sql;

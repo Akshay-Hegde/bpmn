@@ -100,11 +100,11 @@ class JobExecutor implements JobExecutorInterface
         $ttl = (int) $timeout;
         
         if ($ttl < 5) {
-            throw new \InvalidArgumentException(sprintf('Lock timout must not be less than 5 seconds, given %s', $timeout));
+            throw new \InvalidArgumentException(\sprintf('Lock timout must not be less than 5 seconds, given %s', $timeout));
         }
         
         if ($ttl > 1800) {
-            throw new \InvalidArgumentException(sprintf('Lock timout must not be more than 30 minutes, given %s', $timeout));
+            throw new \InvalidArgumentException(\sprintf('Lock timout must not be more than 30 minutes, given %s', $timeout));
         }
         
         $this->lockTimeout = $ttl;
@@ -116,7 +116,7 @@ class JobExecutor implements JobExecutorInterface
     public function syncScheduledJobs()
     {
         while (!empty($this->removedJobs)) {
-            $job = array_shift($this->removedJobs);
+            $job = \array_shift($this->removedJobs);
             
             if ($this->scheduler !== null) {
                 $this->scheduler->removeJob($job);
@@ -124,7 +124,7 @@ class JobExecutor implements JobExecutorInterface
         }
         
         while (!empty($this->scheduledJobs)) {
-            $job = array_shift($this->scheduledJobs);
+            $job = \array_shift($this->scheduledJobs);
             
             if ($this->scheduler !== null) {
                 $this->scheduler->scheduleJob($job);
@@ -192,8 +192,8 @@ class JobExecutor implements JobExecutorInterface
             'id' => $job->getId(),
             'execution_id' => $job->getExecutionId(),
             'handler_type' => $job->getHandlerType(),
-            'handler_data' => new BinaryData(serialize($job->getHandlerData())),
-            'created_at' => time(),
+            'handler_data' => new BinaryData(\serialize($job->getHandlerData())),
+            'created_at' => \time(),
             'run_at' => $time
         ]);
         
@@ -219,8 +219,8 @@ class JobExecutor implements JobExecutorInterface
             AND (`lock_owner` IS NULL OR `locked_at` < :expires)
         ");
         $stmt->bindValue('owner', $this->lockOwner);
-        $stmt->bindValue('time', time());
-        $stmt->bindValue('expires', time() - $this->lockTimeout);
+        $stmt->bindValue('time', \time());
+        $stmt->bindValue('expires', \time() - $this->lockTimeout);
         $stmt->bindValue('id', $job->getId());
         
         $locked = $stmt->execute();
@@ -249,7 +249,7 @@ class JobExecutor implements JobExecutorInterface
         $jobs = $this->engine->getManagementService()->createJobQuery()->jobId($job->getId())->findAll();
         
         if (!empty($jobs)) {
-            $job = array_pop($jobs);
+            $job = \array_pop($jobs);
             
             if ($job->getRetries() > 0) {
                 $this->engine->info('Re-scheduling job <{job}>, {retries} retries left', [
@@ -294,6 +294,6 @@ class JobExecutor implements JobExecutorInterface
             }
         }
         
-        throw new \OutOfBoundsException(sprintf('Job handler "%s" not found for job %s', $job->getHandlerType(), $job->getId()));
+        throw new \OutOfBoundsException(\sprintf('Job handler "%s" not found for job %s', $job->getHandlerType(), $job->getId()));
     }
 }

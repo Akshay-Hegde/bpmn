@@ -89,7 +89,7 @@ abstract class AbstractActivity implements ActivityInterface
         $count = $stmt->execute();
         
         if ($count > 0) {
-            $message = sprintf('Cleared {count} event subscription%s related to activity <{activity}> within {execution}', ($count == 1) ? '' : 's');
+            $message = \sprintf('Cleared {count} event subscription%s related to activity <{activity}> within {execution}', ($count == 1) ? '' : 's');
             
             $engine->debug($message, [
                 'count' => $count,
@@ -114,7 +114,7 @@ abstract class AbstractActivity implements ActivityInterface
      */
     public function processSignal(VirtualExecution $execution, ?string $signal, array $variables = [], array $delegation = []): void
     {
-        throw new \RuntimeException(sprintf('Signal <%s> is not supported by activity %s', ($signal === null) ? 'null' : $signal, get_class($this)));
+        throw new \RuntimeException(\sprintf('Signal <%s> is not supported by activity %s', ($signal === null) ? 'null' : $signal, \get_class($this)));
     }
 
     /**

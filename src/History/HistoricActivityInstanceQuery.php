@@ -148,7 +148,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \OutOfBoundsException(sprintf('No matching historic activity instance found'));
+            throw new \OutOfBoundsException(\sprintf('No matching historic activity instance found'));
         }
         
         return $this->unserializeActivity($row);
@@ -201,7 +201,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
             $fields[] = 'd.`process_key`';
         }
         
-        $sql = 'SELECT ' . implode(', ', $fields) . ' FROM `#__bpmn_history_activity` AS a';
+        $sql = 'SELECT ' . \implode(', ', $fields) . ' FROM `#__bpmn_history_activity` AS a';
         $sql .= ' INNER JOIN `#__bpmn_history_process` AS p ON (p.`id` = a.`process_id`)';
         $sql .= ' INNER JOIN `#__bpmn_process_definition` AS d ON (p.`definition_id` = d.`id`)';
         
@@ -227,7 +227,7 @@ class HistoricActivityInstanceQuery extends AbstractQuery
         }
         
         if (!empty($where)) {
-            $sql .= ' WHERE ' . implode(' AND ', $where);
+            $sql .= ' WHERE ' . \implode(' AND ', $where);
         }
         
         if (!$count) {

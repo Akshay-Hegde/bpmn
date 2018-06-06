@@ -60,7 +60,7 @@ class ExecuteJobCommand extends AbstractBusinessCommand
         $engine->debug('Executing job <{job}> using handler "{handler}" ({impl}) within {execution}', [
             'job' => (string) $this->job->getId(),
             'handler' => $this->handler->getType(),
-            'impl' => get_class($this->handler),
+            'impl' => \get_class($this->handler),
             'execution' => (string) $execution
         ]);
         
@@ -74,7 +74,7 @@ class ExecuteJobCommand extends AbstractBusinessCommand
         } catch (\Exception $e) {
             $engine->warning('Job <{job}> failed with exception {exception}: "{message}"', [
                 'job' => (string) $this->job->getId(),
-                'exception' => get_class($e),
+                'exception' => \get_class($e),
                 'message' => $e->getMessage()
             ]);
             
@@ -90,9 +90,9 @@ class ExecuteJobCommand extends AbstractBusinessCommand
                 WHERE `id` = :id
             ");
             $stmt->bindValue('id', $this->job->getId());
-            $stmt->bindValue('type', get_class($e));
+            $stmt->bindValue('type', \get_class($e));
             $stmt->bindValue('message', (string) $e->getMessage());
-            $stmt->bindValue('data', new BinaryData(serialize($e->getTraceAsString())));
+            $stmt->bindValue('data', new BinaryData(\serialize($e->getTraceAsString())));
             $stmt->execute();
         }
     }

@@ -87,7 +87,7 @@ class HistoryService
         
         $this->engine->getConnection()->insert('#__bpmn_history_variables', [
             'process_id' => $event->execution->getId(),
-            'data' => new BinaryData(serialize($event->variables))
+            'data' => new BinaryData(\serialize($event->variables))
         ]);
     }
 
@@ -107,7 +107,7 @@ class HistoryService
         $this->engine->getConnection()->update('#__bpmn_history_variables', [
             'process_id' => $event->execution->getId()
         ], [
-            'data' => new BinaryData(serialize($event->variables))
+            'data' => new BinaryData(\serialize($event->variables))
         ]);
     }
 

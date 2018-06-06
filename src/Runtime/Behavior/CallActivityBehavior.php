@@ -68,11 +68,11 @@ class CallActivityBehavior extends AbstractScopeActivity
         
         $start = $definition->getModel()->findInitialNodes();
         
-        if (count($start) !== 1) {
-            throw new \RuntimeException(sprintf('Missing single non start event in process %s', $definition->getKey()));
+        if (\count($start) !== 1) {
+            throw new \RuntimeException(\sprintf('Missing single non start event in process %s', $definition->getKey()));
         }
         
-        $startNode = array_shift($start);
+        $startNode = \array_shift($start);
         
         $sub = $execution->createNestedExecution($definition->getModel(), $startNode, true, true);
         
@@ -101,7 +101,7 @@ class CallActivityBehavior extends AbstractScopeActivity
         $sub = $execution->getEngine()->findExecution($delegation['executionId']);
         
         if (!$sub instanceof VirtualExecution) {
-            throw new \RuntimeException(sprintf('Missing nested execution being signaled'));
+            throw new \RuntimeException(\sprintf('Missing nested execution being signaled'));
         }
         
         $context = $execution->getEngine()->getExpressionContextFactory()->createContext($sub);

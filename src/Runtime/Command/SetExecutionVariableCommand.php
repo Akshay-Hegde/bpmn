@@ -34,7 +34,7 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
     {
         $this->executionId = $executionId;
         $this->variableName = $variableName;
-        $this->variableValue = serialize($variableValue);
+        $this->variableValue = \serialize($variableValue);
         $this->local = $local;
     }
 
@@ -56,9 +56,9 @@ class SetExecutionVariableCommand extends AbstractBusinessCommand
         $execution = $engine->findExecution($this->executionId);
         
         if ($this->local) {
-            $execution->setVariableLocal($this->variableName, unserialize($this->variableValue));
+            $execution->setVariableLocal($this->variableName, \unserialize($this->variableValue));
         } else {
-            $execution->setVariable($this->variableName, unserialize($this->variableValue));
+            $execution->setVariable($this->variableName, \unserialize($this->variableValue));
         }
     }
 }

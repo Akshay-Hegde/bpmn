@@ -36,7 +36,7 @@ class QueryVariableValue
                 $this->operator = (string) $operator;
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf('Unsupported variable query operator: "%s"', $operator));
+                throw new \InvalidArgumentException(\sprintf('Unsupported variable query operator: "%s"', $operator));
         }
     }
 

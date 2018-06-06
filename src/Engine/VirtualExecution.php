@@ -69,7 +69,7 @@ class VirtualExecution extends Execution
 
     public function setBusinessKey(?string $businessKey): void
     {
-        $this->businessKey = ($businessKey === null) ? null : (string) $businessKey;
+        $this->businessKey = $businessKey;
         
         $this->markModified();
     }

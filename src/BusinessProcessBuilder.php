@@ -106,7 +106,7 @@ class BusinessProcessBuilder
         if (!empty($linkCatch)) {
             foreach ($linkThrow as $nodeId => $link) {
                 if (empty($linkCatch[$link])) {
-                    throw new \RuntimeException(sprintf('No link catch event defined for link "%s" thrown by node %s', $link, $nodeId));
+                    throw new \RuntimeException(\sprintf('No link catch event defined for link "%s" thrown by node %s', $link, $nodeId));
                 }
                 
                 // This does the trick: insert a new transition directly connecting the link events.
@@ -413,7 +413,7 @@ class BusinessProcessBuilder
         }
         
         if ($startNode === null) {
-            throw new \RuntimeException(sprintf('Missing start node of sub process %s', $id));
+            throw new \RuntimeException(\sprintf('Missing start node of sub process %s', $id));
         }
         
         return $startNode;
@@ -533,7 +533,7 @@ class BusinessProcessBuilder
 
     public function normalize(?string $input): ?string
     {
-        return ($input === null) ? null : trim(preg_replace("'\s+'", ' ', $input));
+        return ($input === null) ? null : \trim(\preg_replace("'\s+'", ' ', $input));
     }
 
     public function exp(?string $input): ?ExpressionInterface

@@ -39,10 +39,10 @@ class ScriptTaskBehavior extends AbstractScopeActivity
     public function setScript(string $script, string $language = 'php'): void
     {
         $this->script = $script;
-        $this->language = strtolower($language);
+        $this->language = \strtolower($language);
         
         if ($this->language !== 'php') {
-            throw new \InvalidArgumentException(sprintf('Only PHP is supported as scripting language, given "%s"', $this->language));
+            throw new \InvalidArgumentException(\sprintf('Only PHP is supported as scripting language, given "%s"', $this->language));
         }
     }
 
@@ -70,7 +70,7 @@ class ScriptTaskBehavior extends AbstractScopeActivity
             
             $resource = $deployment->findResourceById($process->getResourceId());
             
-            $file = str_replace('./', '', dirname($resource->getName()) . '/' . $this->scriptResource);
+            $file = \str_replace('./', '', \dirname($resource->getName()) . '/' . $this->scriptResource);
             $script = '?>' . $deployment->findResource($file)->getContents();
         } else {
             $script = $this->script;
@@ -81,7 +81,7 @@ class ScriptTaskBehavior extends AbstractScopeActivity
             return eval($script);
         };
         
-        if (method_exists($callback, 'bindTo')) {
+        if (\method_exists($callback, 'bindTo')) {
             $callback = $callback->bindTo(null, null);
         }
         

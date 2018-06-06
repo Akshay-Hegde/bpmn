@@ -34,7 +34,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
     {
         $this->messageName = $messageName;
         $this->executionId = $executionId;
-        $this->variables = serialize($variables);
+        $this->variables = \serialize($variables);
     }
 
     /**
@@ -79,7 +79,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
         $row = $stmt->fetchNextRow();
         
         if ($row === false) {
-            throw new \RuntimeException(sprintf('Execution %s has not subscribed to message %s', $this->executionId, $this->messageName));
+            throw new \RuntimeException(\sprintf('Execution %s has not subscribed to message %s', $this->executionId, $this->messageName));
         }
         
         $execution = $engine->findExecution($this->executionId);
@@ -121,7 +121,7 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
         $stmt->bindValue('aid', $row['activity_id']);
         $count = $stmt->execute();
         
-        $message = sprintf('Cleared {count} event subscription%s related to activity <{activity}> within {execution}', ($count == 1) ? '' : 's');
+        $message = \sprintf('Cleared {count} event subscription%s related to activity <{activity}> within {execution}', ($count == 1) ? '' : 's');
         
         $engine->debug($message, [
             'count' => $count,
@@ -129,6 +129,6 @@ class MessageEventReceivedCommand extends AbstractBusinessCommand
             'execution' => (string) $execution
         ]);
         
-        $execution->signal($this->messageName, unserialize($this->variables), $delegation);
+        $execution->signal($this->messageName, \unserialize($this->variables), $delegation);
     }
 }
